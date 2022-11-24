@@ -8,13 +8,13 @@ New format is a combination of:
 Easily readable 1aa code like : 
 KYLDERAAQDFVQW
 
-3aa code that allows to handle non-standard amino acids
+3aa code that allows to handle non-standard amino acids: 
 Ala-Aib-Gly-Lys
 
 Common chemical names to define typical chemical substitution of amino acids, like: 
 Thr(tBu), Ser(tBu), Phe(4-Cl)
 
-SMILES codes to describe unspecified modifications:
+SMILES codes to describe unspecified modifications: 
 KYLDCRAAQDFVQW<[5*]CCCC(N)=O>
 
 
