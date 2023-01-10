@@ -25,7 +25,7 @@ def from_json(json: Dict[str, Any], residue_database: FileSystemDbRepo = db) -> 
     {"sequence":"H{Aib}EGTFTSDVSSYLEGQAAKEFIAWLVRGRG",
         "modifications":[
             {
-            "modification_smiles": "[*1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOCCOCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[*2]",
+            "smiles": "[*1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOCCOCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[*2]",
             "connecting_residues": [17, 24]
             }
         ]
