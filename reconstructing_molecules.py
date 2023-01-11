@@ -23,18 +23,16 @@ Bo chyba arbitralnych numerow - tak zeby pasowaly do nr residue sie, nie da? ...
   oczywiscie ze sie da i to jest dobry pomysl
 
 """
-    
 
 
 class UseCaseCombineCombo(object):
-
     def __init__(self, combo=None):
         self.combo = combo
         return
 
-    @property   
+    @property
     def edcombo(self):
-        if self.__dict__.get('_edcombo') is None:
+        if self.__dict__.get("_edcombo") is None:
             self._edcombo = rdkit.Chem.EditableMol(self.combo)
         return self._edcombo
 
@@ -42,7 +40,7 @@ class UseCaseCombineCombo(object):
         rads = []
         for atom in self.combo.GetAtoms():
             if atom.GetIsotope() == radical_name:
-                rads.append( atom )
+                rads.append(atom)
         return rads
 
     def execute(self):
@@ -83,43 +81,43 @@ class UseCaseCombineCombo(object):
          N-S
          | |
          C-O
-        
+
         """
 
         radical_names = self.radical_names
 
         for radical_name in radical_names:
-            self.bond_radical( radical_name )
-            self.remove_radical( radical_name )
+            self.bond_radical(radical_name)
+            self.remove_radical(radical_name)
             mol = self.edcombo.GetMol()
             self.combo = mol
 
         return mol
-    
+
     def remove_radical(self, radical_name):
         radicals = self.radicals(radical_name)
-        radical_ids = [ radical.GetIdx() for radical in radicals ]
-        for radical_id in reversed( sorted(  radical_ids ) ):
-            self.edcombo.RemoveAtom( radical_id )
+        radical_ids = [radical.GetIdx() for radical in radicals]
+        for radical_id in reversed(sorted(radical_ids)):
+            self.edcombo.RemoveAtom(radical_id)
         return
 
     def bond_radical(self, radical_name):
         radicals = self.radicals(radical_name)
 
-        num_radicals = len( radicals )
-        
-        for i in range( num_radicals ):
-            radical_i = radicals[ i ]
+        num_radicals = len(radicals)
+
+        for i in range(num_radicals):
+            radical_i = radicals[i]
             neighbors_i = radical_i.GetNeighbors()
 
-            for j in range( i+1, num_radicals):
-                radical_j = radicals[ j ]
+            for j in range(i + 1, num_radicals):
+                radical_j = radicals[j]
                 neighbors_j = radical_j.GetNeighbors()
 
-                #we join neighbors instead of radicals
+                # we join neighbors instead of radicals
                 for neighbor_i in neighbors_i:
                     for neighbor_j in neighbors_j:
-                        self.edcombo.AddBond( neighbor_i.GetIdx(), neighbor_j.GetIdx() )
+                        self.edcombo.AddBond(neighbor_i.GetIdx(), neighbor_j.GetIdx())
         return
 
     def get_radical_names(self):
@@ -127,17 +125,16 @@ class UseCaseCombineCombo(object):
         radical_names = set( [1, 2 ] )
         """
 
-        radical_names = set( [ ] )
+        radical_names = set([])
 
         for atom in self.combo.GetAtoms():
             isotope = atom.GetIsotope()
             if isotope != 0:
-                radical_names.add( isotope )
+                radical_names.add(isotope)
         return radical_names
-    
+
     @property
     def radical_names(self):
-        if self.__dict__.get('_radical_names') is None:
+        if self.__dict__.get("_radical_names") is None:
             self._radical_names = self.get_radical_names()
         return self._radical_names
-
