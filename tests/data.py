@@ -1,0 +1,5 @@
+dermcidin_stapled_with_anchor = "CC(C)C[C@H](NC(=O)[C@@H](NC(=O)[C@H](CO)NC(=O)[C@H](CC(O)=O)NC(=O)[C@H](CC(C)C)NC(=O)[C@@H](NC(=O)[C@H](CC(O)=O)NC(=O)[C@H](CCCCN)NC(=O)[C@@H](NC(=O)[C@H](CC(O)=O)NC(=O)[C@H](Cc1c[nH]cn1)NC(=O)[C@@H](NC(=O)[C@H](C)NC(=O)CNC(=O)[C@H](CCCCN)NC(=O)CNC(=O)[C@@H](NC(=O)[C@H](CO)NC(=O)[C@H](CCC(O)=O)NC(=O)[C@H](CC(C)C)NC(=O)[C@H](CC(O)=O)NC(=O)[C@H](CCC(O)=O)NC(=O)[C@@H](NC(=O)[C@H](C)NC(=O)[C@H](CC(O)=O)NC(=O)[C@H](CCCCN)NC(=O)[C@H]1CSCC(=O)N[C@@H](CCCNC(=O)CSC[C@@H](NC(=O)[C@@H](NC(=O)[C@H](C)NC(=O)[C@H](CCCCN)NC(=O)[C@H](CCCCN)NC(=O)C(C)(C)NC(=O)CNC(=O)[C@H](CC(O)=O)NC(=O)[C@H](CC(C)C)NC(=O)CNC(=O)[C@H](CCCCN)NC(=O)[C@H](CCC(O)=O)NC(=O)[C@H](CC(C)C)NC(=O)[C@H](CC(C)C)NC(=O)[C@H](CO)NC(=O)[C@@H](N)CO)C(C)C)C(=O)NCC(=O)N[C@@H](CC(C)C)C(=O)NCC(=O)N[C@@H](CCCCN)C(=O)N[C@@H](CC(C)C)C(=O)N1)C(=O)NCCOCCO)C(C)C)C(C)C)C(C)C)C(C)C)C(C)C)C(C)C)C(O)=O"
+dermcidin_stapled_with_anchor_seq = (
+    "SSLLEKGLDG{aMeAla}KKAV{modC}GLGKL{modC}KDAVEDLESVGKGAVHDVKDVLDSVL"
+)
+seq_wo_mods = "SSLLEKGLDG{aMeAla}KKAVCGLGKLCKDAVEDLESVGKGAVHDVKDVLDSVL"
