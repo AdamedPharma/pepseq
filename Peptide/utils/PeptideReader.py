@@ -1,10 +1,9 @@
 from typing import TypeVar
 
+from rdkit import Chem
+
 from Peptide.models.Peptide import Peptide
 from Peptide.utils.chemistry.MolExtended import MolObjExt
-
-# from Peptide.utils.RepresentationFormat import RepresentationFormat
-from rdkit import Chem
 
 Parser = TypeVar("Parser")
 SmilesParser = TypeVar("SmilesParser")
@@ -21,15 +20,14 @@ class SeqReader(PeptideReader):
         self,
         sequence: str,
         parser: Parser,
-        representation: RepresentationFormat = None,
         db_api=None,
     ) -> Peptide:
         reader_copy = self.__class__()
         valid = parser.validate_sequence(sequence, reader_copy, db_api)
 
-        representation = parser.guess_representation(sequence)
         try:
-            amino_acids = parser.read_sequence_txt(sequence, representation, db_api)
+            amino_acids = parser.read_sequence_txt(sequence, db_api)
+
         except:
             raise ()
         peptide = Peptide()

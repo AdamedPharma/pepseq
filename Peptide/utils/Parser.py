@@ -5,11 +5,6 @@ from typing import TypeVar
 from Peptide.exceptions import InvalidSymbolError, ValidationError
 from Peptide.models.AminoAcidInstance import AminoAcidInstance
 from Peptide.utils.chemistry.Smi2SeqObj import Smi2Seq  # , get_adict
-
-# from Peptide.utils.chemistry.SubstructureGraph import get_ordered_nodes
-from Peptide.utils.RepresentationFormat import (
-    RepresentationFormat,
-)  # AlignmentRepresentation,
 from Peptide.utils.validation import (
     check_for_nested_brackets,
     check_parentheses,
@@ -23,7 +18,7 @@ DataBase = TypeVar("DataBase")
 SeqReader = TypeVar("SeqReader")
 
 
-def parentheses_locs_list(parentheses_locs=None):
+def parentheses_locs_list(parentheses_locs: list):
     ls = []
     for k, v in parentheses_locs.items():
         l = k, v
@@ -32,7 +27,7 @@ def parentheses_locs_list(parentheses_locs=None):
     return ls
 
 
-def find_parentheses(s):
+def find_parentheses(s: str):
     """Find and return the location of the matching parentheses pairs in s.
 
     Given a string, s, return a dictionary of start: end pairs giving the
@@ -62,113 +57,95 @@ def find_parentheses(s):
     return parentheses_locs_list(parentheses_locs=parentheses_locs)
 
 
-def parse_seq(s, db_api: DataBase = None, representation: RepresentationFormat = None):
-    if representation is None:
-        representation = RepresentationFormat(name="canonical")
+def parse_seq(
+    sequence_str: str,
+    db_api: DataBase,
+) -> list:
+    """
 
-    n_term_symbol = "{H}"
-    c_term_symbol = "{OH}"
+    takes sequence string e.g. AC{Aib}E~NH2
+    parses n_terminus, c_terminus and any fragments within {} brackets
+    returns list of [n_terminus_code,  aa_1code, aa2_code ...  ,c_terminus_code]
 
-    for smi_code in db_api.n_terms_smi_codes.keys():
-        smi_code_txt = "%s~" % (smi_code)
-        if s.startswith(smi_code_txt):
-            n_term_symbol = "{%s}" % smi_code
-            s = s[len(smi_code_txt) :]
+     e.g. ['H' 'A', 'Aib', E, 'NH2']
 
-    for smi_code in db_api.c_terms_smi_codes.keys():
-        smi_code_txt = "~%s" % (smi_code)
-        if s.endswith(smi_code_txt):
-            c_term_symbol = "{%s}" % smi_code
-            s = s[: -len(smi_code_txt)]
+    default for n_terminus is H
+    default for c_terminus is OH
 
-    s = n_term_symbol + s + c_term_symbol
+    """
 
-    parentheses_locs = find_parentheses(s)
+    n_term_symbol = db_api.find_n_term(sequence_str)
+    c_term_symbol = db_api.find_n_term(sequence_str)
+
+    if n_term_symbol is None:
+        n_term_symbol = "H"
+        seq_start_index = 0
+    else:
+        seq_start_index = len(n_term_symbol) + 1
+
+    if c_term_symbol is None:
+        c_term_symbol = "OH"
+        seq_end_index = len(sequence_str)
+    else:
+        seq_end_index = -1 * (len(c_term_symbol) + 1)
+
+    sequence_str_wo_termini = sequence_str[seq_start_index:seq_end_index]
+
+    s = "{%s}%s{%s}" % (n_term_symbol, sequence_str_wo_termini, c_term_symbol)
+
+    indices_of_brackets = find_parentheses(s)
 
     symbols = []
 
-    last_end = 0
+    previous_close_index = 0
 
-    for bracket in parentheses_locs:
+    for open_index, close_index in indices_of_brackets:
 
-        start, end = bracket
+        one_letter_codes_fragment = s[previous_close_index:open_index]
+        symbols += list(one_letter_codes_fragment)
 
-        non_mod = s[last_end:start]
-        symbols += list(non_mod)
+        fragment_in_bracket = s[(open_index + 1) : close_index]
 
-        pos_symbol = s[(start + 1) : end]
+        symbols.append(fragment_in_bracket)
 
-        symbols.append(pos_symbol)
-
-        last_end = end + 1
-
-    non_mod = s[last_end : len(s)]
-    symbols += list(non_mod)
+        previous_close_index = close_index + 1
     return symbols
 
 
-"""
-def reflect_dict():
-    return
-"""
-
-
-class ParsingError(Exception):
-    pass
-
-
 class Parser(object):
-    def __init__(self, representation: RepresentationFormat = None):
-        self.representation = representation
+    def __init__(
+        self,
+    ):
         return
 
     def read_sequence_txt(
         self,
         sequence: str,
-        representation: RepresentationFormat = None,
         db_api: DataBase = None,
     ) -> Sequence[AminoAcidInstance]:
 
-        symbols_list = self.split_into_symbols_list(sequence, db_api=db_api)
+        symbols = parse_seq(sequence, db_api)
 
         amino_acids = []
 
-        n_term = "H"
-        c_term = "OH"
+        n_terminus_code = symbols[0]
+        c_terminus_code = symbols[-1]
 
-        if symbols_list[-1] in db_api.c_terms_smi_codes.keys():
-            c_term_smiles = db_api.c_terms_smi_codes[symbols_list[-1]]
+        c_term_smiles = db_api.c_terms_smi_codes[c_terminus_code]
+        n_term_smiles = db_api.n_terms_smi_codes[n_terminus_code]
 
-            c_term = symbols_list[-1]
-            symbols_list = symbols_list[:-1]
+        aa_symbols_list = symbols[1:-1]
 
-        if symbols_list[0] in db_api.n_terms_smi_codes.keys():
-            n_term_smiles = db_api.n_terms_smi_codes[symbols_list[0]]
-
-            n_term = symbols_list[0]
-            symbols_list = symbols_list[1:]
-
-        for symbol in symbols_list:
-            aai = AminoAcidInstance.MolFromSymbol(symbol, db_api=db_api)
+        for aa_symbol in aa_symbols_list:
+            aai = AminoAcidInstance.MolFromSymbol(aa_symbol, db_api=db_api)
             amino_acids.append(aai)
 
-        n_term_nt = Terminus(n_term, n_term_smiles)
-        c_term_nt = Terminus(c_term, c_term_smiles)
+        n_term_namedtuple = Terminus(n_terminus_code, n_term_smiles)
+        c_term_namedtuple = Terminus(c_terminus_code, c_term_smiles)
 
-        aai_namedtuple = AminoAcids(n_term_nt, amino_acids, c_term_nt)
+        aai_namedtuple = AminoAcids(n_term_namedtuple, amino_acids, c_term_namedtuple)
 
         return aai_namedtuple
-
-    def guess_representation(self, sequence: str) -> RepresentationFormat:
-        return RepresentationFormat(name="canonical")
-
-    def split_into_symbols_list(
-        self,
-        sequence: str,
-        representation: RepresentationFormat = None,
-        db_api: DataBase = None,
-    ) -> Sequence[str]:
-        return parse_seq(sequence, db_api, representation)
 
     def validate_sequence(
         self,
@@ -179,7 +156,7 @@ class Parser(object):
         if check_parentheses(sequence):
             check_for_nested_brackets(sequence)
             validate_termini(sequence)
-            symbols_list = self.split_into_symbols_list(sequence, db_api=db_api)
+            symbols_list = parse_seq(sequence, db_api)
             invalid_positions = []
 
             for i in range(1, len(symbols_list) - 1):
@@ -205,12 +182,6 @@ class Parser(object):
             raise ValidationError("Sequence Invalid! (uneven number of parentheses)")
 
         return
-
-
-# take good care of exception handling
-def parse_symbol(symbol):
-
-    base_aa_symbol, substitute_radical, attachment_atom_label = parse_symbol(symbol)
 
 
 class SmilesParser(object):

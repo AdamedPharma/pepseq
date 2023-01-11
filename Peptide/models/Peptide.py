@@ -75,7 +75,6 @@ class Peptide(Molecule):
     @smiles.setter
     def smiles(self, value: str = None):
         self._smiles = value
-        return
 
     @property
     def writer(self):
@@ -84,7 +83,6 @@ class Peptide(Molecule):
     @writer.setter
     def writer(self, value: PeptideWriter):
         self._writer = value
-        return
 
     @property
     def sequence(self):
@@ -115,7 +113,6 @@ class Peptide(Molecule):
     @sequence.setter
     def sequence(self, value: str):
         self._sequence = value
-        return
 
     @property
     def amino_acids(self):
@@ -128,11 +125,9 @@ class Peptide(Molecule):
         self._amino_acids = amino_acids_value
         self.Mol = self.calc_smiles(amino_acids_value)
         self.recalculate_parameters()
-        return
 
     def recalculate_parameters(self):
         self._parameters = get_smiles_descriptors(self.smiles)
-        return
 
     def calc_smiles(self, amino_acids_value: Sequence[AminoAcidInstance]):
         monomer_connector = MonomerConnector()
@@ -151,7 +146,6 @@ class Peptide(Molecule):
         mol_obj_ext.n_term = value
         self.Mol = mol_obj_ext.mol
         self.recalculate_parameters()
-        return
 
     @property
     def c_term(self):
@@ -166,7 +160,6 @@ class Peptide(Molecule):
         mol_obj_ext.c_term = value
         self.Mol = mol_obj_ext.mol
         self.recalculate_parameters()
-        return
 
     @property
     def parameters(self):

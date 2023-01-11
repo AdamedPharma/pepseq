@@ -1,4 +1,6 @@
 import rdkit.Chem
+from rdkit.Chem import AllChem
+
 from Peptide.db_api.DataBase import FileSystemDbRepo
 from Peptide.utils.chemistry.smi2seq_utils import (
     get_atm_id_to_potential_res_ids_names_dict,
@@ -8,7 +10,6 @@ from Peptide.utils.chemistry.Smi2SeqObj import Smi2Seq, get_atm_id_to_res
 from Peptide.utils.chemistry.SubstructureGraph import get_ordered_nodes
 from Peptide.utils.Parser import Parser
 from Peptide.utils.PeptideReader import SeqReader
-from rdkit.Chem import AllChem
 
 
 def get_modified_residues(connected_atom_sets, atm_id_to_res_dict):

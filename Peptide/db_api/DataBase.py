@@ -130,7 +130,7 @@ class FileSystemDbRepo(object):
         return
 
     @classmethod
-    def read_from_json(cls, path=None, **kwargs):
+    def read_from_json(cls, path: str, **kwargs):
         with open(path) as fp:
             db_json = json.load(fp)
         obj = cls()
@@ -138,7 +138,21 @@ class FileSystemDbRepo(object):
         obj.process_json()
         return obj
 
-    def read_json(self, db_json=None):
+    def find_n_term(self, sequence: str):
+        all_n_term_codes = self.n_terms_smi_codes.keys()
+        for term_code in all_n_term_codes:
+            seq_prefix = "%s~" % (term_code)
+            if sequence.startswith(seq_prefix):
+                return term_code
+
+    def find_c_term(self, sequence: str):
+        all_c_term_codes = self.c_terms_smi_codes.keys()
+        for term_code in all_c_term_codes:
+            seq_suffix = "~%s" % (term_code)
+            if sequence.endswith(seq_suffix):
+                return term_code
+
+    def read_json(self, db_json: dict):
         """
         reads in db_json
         """
@@ -184,5 +198,3 @@ class FileSystemDbRepo(object):
                 self.modified_aa_codes,
             ]
         )
-
-        return

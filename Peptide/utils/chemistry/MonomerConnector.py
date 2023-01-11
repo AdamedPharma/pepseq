@@ -4,6 +4,7 @@ from typing import TypeVar
 
 import rdkit
 import rdkit.Chem
+
 from Peptide.utils.chemistry.MolExtended import MolObjExt
 
 AminoAcidInstance = TypeVar("AminoAcidInstance")
