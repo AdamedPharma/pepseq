@@ -4,8 +4,10 @@ from rdkit import Chem
 
 from Peptide.models.Peptide import Peptide
 from Peptide.utils.chemistry.MolExtended import MolObjExt
+from Peptide.utils.Parser import read_sequence_txt, validate_sequence
 
 Parser = TypeVar("Parser")
+DataBase = TypeVar("DataBase")
 SmilesParser = TypeVar("SmilesParser")
 RepresentationFormat = TypeVar("RepresentationFormat")
 
@@ -15,37 +17,33 @@ class PeptideReader(object):
         return
 
 
-class SeqReader(PeptideReader):
-    def read(
-        self,
-        sequence: str,
-        parser: Parser,
-        db_api=None,
-    ) -> Peptide:
-        reader_copy = self.__class__()
-        valid = parser.validate_sequence(sequence, reader_copy, db_api)
+def read_sequence(
+    sequence: str,
+    db_api: DataBase,
+) -> Peptide:
+    valid = validate_sequence(sequence, db_api)
 
-        try:
-            amino_acids = parser.read_sequence_txt(sequence, db_api)
+    try:
+        n_term, amino_acids, c_term = read_sequence_txt(sequence, db_api)
 
-        except:
-            raise ()
-        peptide = Peptide()
-        peptide.amino_acids = (
-            amino_acids.amino_acids  # setter can handle calculation of smiles and parameters
-        )
-        mol_obj_ext = MolObjExt(peptide.Mol)
+    except:
+        raise ()
+    peptide = Peptide()
+    peptide.amino_acids = (
+        amino_acids  # setter can handle calculation of smiles and parameters
+    )
+    mol_obj_ext = MolObjExt(peptide.Mol)
 
-        mol_obj_ext.n_term = amino_acids.n_term
-        mol_obj_ext.c_term = amino_acids.c_term
-        # consider  moving assigning n_term/c_term to Peptide.n_term.setter
+    mol_obj_ext.n_term = n_term
+    mol_obj_ext.c_term = c_term
+    # consider  moving assigning n_term/c_term to Peptide.n_term.setter
 
-        peptide.Mol = mol_obj_ext.mol
+    peptide.Mol = mol_obj_ext.mol
 
-        peptide._n_term = amino_acids.n_term
-        peptide._c_term = amino_acids.c_term
+    peptide._n_term = n_term
+    peptide._c_term = c_term
 
-        return peptide
+    return peptide
 
 
 class SmilesReader(PeptideReader):

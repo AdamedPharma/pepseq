@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from typing import TypeVar
 
 from Peptide.exceptions import InvalidSymbolError, ValidationError
-from Peptide.models.AminoAcidInstance import AminoAcidInstance
+from Peptide.models.AminoAcidInstance import AminoAcidFromSymbol, AminoAcidInstance
 from Peptide.utils.chemistry.Smi2SeqObj import Smi2Seq  # , get_adict
 from Peptide.utils.validation import (
     check_for_nested_brackets,
@@ -11,7 +11,6 @@ from Peptide.utils.validation import (
     validate_termini,
 )
 
-Terminus = namedtuple("Terminus", "name smiles")
 AminoAcids = namedtuple("AminoAcids", "n_term amino_acids c_term")
 
 DataBase = TypeVar("DataBase")
@@ -75,7 +74,7 @@ def parse_seq(
     """
 
     n_term_symbol = db_api.find_n_term(sequence_str)
-    c_term_symbol = db_api.find_n_term(sequence_str)
+    c_term_symbol = db_api.find_c_term(sequence_str)
 
     if n_term_symbol is None:
         n_term_symbol = "H"
@@ -112,76 +111,64 @@ def parse_seq(
     return symbols
 
 
-class Parser(object):
-    def __init__(
-        self,
-    ):
-        return
+def read_sequence_txt(
+    sequence: str,
+    db_api: DataBase = None,
+) -> Sequence[AminoAcidInstance]:
 
-    def read_sequence_txt(
-        self,
-        sequence: str,
-        db_api: DataBase = None,
-    ) -> Sequence[AminoAcidInstance]:
+    symbols = parse_seq(sequence, db_api)
 
-        symbols = parse_seq(sequence, db_api)
+    amino_acids = []
 
-        amino_acids = []
+    n_terminus_code = symbols[0]
+    c_terminus_code = symbols[-1]
 
-        n_terminus_code = symbols[0]
-        c_terminus_code = symbols[-1]
+    c_term_smiles = db_api.c_terms_smi_codes[c_terminus_code]
+    n_term_smiles = db_api.n_terms_smi_codes[n_terminus_code]
 
-        c_term_smiles = db_api.c_terms_smi_codes[c_terminus_code]
-        n_term_smiles = db_api.n_terms_smi_codes[n_terminus_code]
+    aa_symbols_list = symbols[1:-1]
 
-        aa_symbols_list = symbols[1:-1]
+    for aa_symbol in aa_symbols_list:
+        amino_acid_instance = AminoAcidFromSymbol(aa_symbol, db_api)
+        amino_acids.append(amino_acid_instance)
 
-        for aa_symbol in aa_symbols_list:
-            aai = AminoAcidInstance.MolFromSymbol(aa_symbol, db_api=db_api)
-            amino_acids.append(aai)
+    n_term_tuple = (n_terminus_code, n_term_smiles)
+    c_term_tuple = (c_terminus_code, c_term_smiles)
 
-        n_term_namedtuple = Terminus(n_terminus_code, n_term_smiles)
-        c_term_namedtuple = Terminus(c_terminus_code, c_term_smiles)
+    peptide_tuple = (n_term_tuple, amino_acids, c_term_tuple)
+    return peptide_tuple
 
-        aai_namedtuple = AminoAcids(n_term_namedtuple, amino_acids, c_term_namedtuple)
 
-        return aai_namedtuple
+def validate_sequence(
+    sequence: str,
+    db_api: DataBase = None,
+) -> bool:
+    if check_parentheses(sequence):
+        check_for_nested_brackets(sequence)
+        validate_termini(sequence)
+        symbols_list = parse_seq(sequence, db_api)
+        print(symbols_list)
+        invalid_positions = []
 
-    def validate_sequence(
-        self,
-        sequence: str,
-        reader: SeqReader = None,
-        db_api: DataBase = None,
-    ) -> bool:
-        if check_parentheses(sequence):
-            check_for_nested_brackets(sequence)
-            validate_termini(sequence)
-            symbols_list = parse_seq(sequence, db_api)
-            invalid_positions = []
-
-            for i in range(1, len(symbols_list) - 1):
-                try:
-                    symbol = symbols_list[i]
-                    aai = AminoAcidInstance.MolFromSymbol(symbol, db_api=db_api)
-                except InvalidSymbolError:
-                    invalid_positions.append(i)
-            if invalid_positions:
-                pos_txt = ";".join(
-                    [
-                        "'%s' (at position: %d)" % (symbols_list[pos], pos)
-                        for pos in invalid_positions
-                    ]
-                )
-                raise ValidationError(
-                    "Sequence Invalid! Invalid Symbols: %s" % (pos_txt)
-                )
-                # position eq i because Python indexing cancels with the fact that Nterminus is the first Symbol
-
-            return
-        else:
-            raise ValidationError("Sequence Invalid! (uneven number of parentheses)")
+        for i in range(1, len(symbols_list) - 1):
+            try:
+                symbol = symbols_list[i]
+                aai = AminoAcidFromSymbol(symbol, db_api=db_api)
+            except InvalidSymbolError:
+                invalid_positions.append(i)
+        if invalid_positions:
+            pos_txt = ";".join(
+                [
+                    "'%s' (at position: %d)" % (symbols_list[pos], pos)
+                    for pos in invalid_positions
+                ]
+            )
+            raise ValidationError("Sequence Invalid! Invalid Symbols: %s" % (pos_txt))
+            # position eq i because Python indexing cancels with the fact that Nterminus is the first Symbol
 
         return
+    else:
+        raise ValidationError("Sequence Invalid! (uneven number of parentheses)")
 
 
 class SmilesParser(object):

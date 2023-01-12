@@ -1,5 +1,6 @@
+from typing import Any, Dict
+
 from Peptide.models.Peptide import Peptide
-from typing import Dict, Any
 
 
 def to_pepseq(peptide: Peptide, include_modifications: bool = False) -> str:

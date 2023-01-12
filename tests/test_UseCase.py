@@ -2,12 +2,6 @@ import os
 import unittest
 from pathlib import Path
 
-from tests.data import (
-    dermcidin_stapled_with_anchor,
-    dermcidin_stapled_with_anchor_seq,
-    seq_wo_mods,
-)
-
 from Peptide.db_api.DataBase import FileSystemDbRepo
 from Peptide.models.AminoAcidInstance import AminoAcidInstance
 from Peptide.utils.chemistry.smi2seq_utils import (
@@ -23,6 +17,11 @@ from Peptide.utils.chemistry.UseCase import (
     get_rows,
     get_seq,
     read_seq_from_smiles,
+)
+from tests.data import (
+    dermcidin_stapled_with_anchor,
+    dermcidin_stapled_with_anchor_seq,
+    seq_wo_mods,
 )
 
 TEST_DATA_DB = os.path.join(
@@ -50,10 +49,10 @@ def check_peptide(peptide):
         "tpsa": 2024.24,
     }
 
-    assert peptide._n_term.name == "H"
-    assert peptide._n_term.smiles == "[*][H] |$_R2;_CO$|"
-    assert peptide._c_term.name == "OH"
-    assert peptide._c_term.smiles == "[OH](*) |$_OH;_R$|"
+    assert peptide._n_term[0] == "H"
+    assert peptide._n_term[1] == "[*][H] |$_R2;_CO$|"
+    assert peptide._c_term[0] == "OH"
+    assert peptide._c_term[1] == "[OH](*) |$_OH;_R$|"
 
     amino_acids = peptide.amino_acids
 
@@ -116,10 +115,8 @@ class TestUseCase(unittest.TestCase):
 
         amino_acids = []
 
-        for symbol, smi in symbol_smiles_list:
-            aa = AminoAcidInstance()
-            aa.smiles = smi
-            aa.symbol = symbol
+        for symbol, smiles in symbol_smiles_list:
+            aa = AminoAcidInstance(smiles, symbol)
 
             amino_acids.append(aa)
 
@@ -172,8 +169,8 @@ class TestUseCase(unittest.TestCase):
             aa_species_assigned_potential_atom_ids, ca_atom_id_to_res_id_dict
         )
 
-        atm_id_to_potential_res_ids_names_dict = get_atm_id_to_potential_res_ids_names_dict(
-            rows
+        atm_id_to_potential_res_ids_names_dict = (
+            get_atm_id_to_potential_res_ids_names_dict(rows)
         )
 
         aas_ordered_by_size = get_ordered_nodes(self.uc.repo.aa_smiles_dict)

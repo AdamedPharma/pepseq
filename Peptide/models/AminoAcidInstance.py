@@ -23,30 +23,18 @@ def parse_symbol(symbol: str) -> (str, rdkit.Chem.Mol, str):
             return base_aa_symbol, substitute_radical, attachment_atom_label
 
 
+def validate_symbol(symbol: str, db_api: DataBase):
+    if symbol not in db_api.valid_symbols:
+        raise InvalidSymbolError("Invalid Symbol: %s" % symbol)
+
+
 class AminoAcidInstance(Molecule):
-    @classmethod
-    def MolFromSmiles(cls, smiles: str):
+    def __init__(self, smiles: str, symbol: str):
         Mol = rdkit.Chem.MolFromSmiles(smiles)
-        obj = cls()
-        obj._Mol = Mol
-        obj._smiles = smiles
-        return obj
-
-    @classmethod
-    def MolFromSymbol(cls, symbol: str = None, db_api: DataBase = None):
-        valid_symbols_set = set(db_api.symbols.keys()) | set(
-            db_api.aa_smiles_dict.keys()
-        )
-
-        if symbol not in valid_symbols_set:
-            raise InvalidSymbolError("Invalid Symbol: %s" % symbol)
-
-        amino_acid_db = db_api.aa_smiles_dict.get(symbol)
-        smiles_radical = amino_acid_db.smiles_radical
-
-        obj = cls.MolFromSmiles(smiles_radical)
-        obj.symbol = symbol
-        return obj
+        self._Mol = Mol
+        self._smiles = smiles
+        self.symbol = symbol
+        return
 
     @property
     def smiles(self):
@@ -66,3 +54,9 @@ class AminoAcidInstance(Molecule):
     def smiles_with_radical(self, value: str = None):
         self._smiles_with_radical = value
         return
+
+
+def AminoAcidFromSymbol(symbol: str, db_api: DataBase):
+    validate_symbol(symbol, db_api)
+    smiles_radical = db_api.read_smiles_radical(symbol)
+    return AminoAcidInstance(smiles_radical, symbol)

@@ -5,6 +5,7 @@ from Peptide.db_api.DataBase import FileSystemDbRepo
 from Peptide.models.AminoAcidInstance import AminoAcidInstance
 from Peptide.models.Peptide import Peptide
 from Peptide.utils.Parser import parse_seq
+from Peptide.utils.PeptideReader import read_sequence
 
 db_path = pkgutil.extend_path("Peptide/database/db.json", __name__)
 db = FileSystemDbRepo.read_from_json(db_path)
@@ -12,26 +13,8 @@ db = FileSystemDbRepo.read_from_json(db_path)
 
 def from_pepseq(pepseq: str, residue_database: FileSystemDbRepo = db) -> Peptide:
     """Read peptide from PepSeq string"""
-    symbols = parse_seq(pepseq, residue_database)
-    n_terminus_code = symbols[0]
-    c_terminus_code = symbols[-1]
-
-    n_term_smiles = residue_database.n_terms_smi_codes[n_terminus_code]
-    c_term_smiles = residue_database.c_terms_smi_codes[c_terminus_code]
-
-    n_term_tuple = (n_terminus_code, n_term_smiles)
-    c_term_tuple = (c_terminus_code, c_term_smiles)
-
-    aa_symbols_list = symbols[1:-1]
-    amino_acids = []
-
-    for aa_symbol in aa_symbols_list:
-        aai = AminoAcidInstance.MolFromSymbol(aa_symbol, residue_database)
-        amino_acids.append(aai)
-
-    amino_acids_tuple = (n_term_tuple, amino_acids, c_term_tuple)
-
-    raise Exception("TO BE IMPLEMENTED ")
+    peptide = read_sequence(pepseq, residue_database)
+    return peptide
 
 
 def from_smiles(smiles: str, residue_database: FileSystemDbRepo = db) -> Peptide:

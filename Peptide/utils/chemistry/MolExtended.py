@@ -74,9 +74,10 @@ class MolObjExt(object):
 
     @n_term.setter
     def n_term(self, value):
-        self._n_term = value.name
+        name, smiles = value
+        self._n_term = name
 
-        if value.name == "H":
+        if name == "H":
 
             radical_atom = self.GetAtomByLabel("_R1")
 
@@ -86,7 +87,7 @@ class MolObjExt(object):
             self.RemoveAtomByLabel("_R1")
 
         else:
-            self.substitute(smiles=value.smiles, terminus="N", inplace=True)
+            self.substitute(smiles=smiles, terminus="N", inplace=True)
         return
 
     def protonate(self, atm: rdkit.Chem.Atom):
@@ -185,13 +186,14 @@ class MolObjExt(object):
 
     @c_term.setter
     def c_term(self, value):
-        self._c_term = value.name
+        name, smiles = value
+        self._c_term = name
 
         if value == "OH":
             self.RemoveAtomByLabel("_R2")
             self.hydroxylate("_CO")  # _CO_R2
         else:
-            self.substitute(smiles=value.smiles, terminus="C", inplace=True)
+            self.substitute(smiles=smiles, terminus="C", inplace=True)
         return
 
     def GetAtomIdxByLabel(self, label: str) -> int:

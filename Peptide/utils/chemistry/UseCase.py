@@ -8,8 +8,7 @@ from Peptide.utils.chemistry.smi2seq_utils import (
 )
 from Peptide.utils.chemistry.Smi2SeqObj import Smi2Seq, get_atm_id_to_res
 from Peptide.utils.chemistry.SubstructureGraph import get_ordered_nodes
-from Peptide.utils.Parser import Parser
-from Peptide.utils.PeptideReader import SeqReader
+from Peptide.utils.PeptideReader import read_sequence
 
 
 def get_modified_residues(connected_atom_sets, atm_id_to_res_dict):
@@ -72,8 +71,6 @@ def get_seq(amino_acids, mod_res_nums, mod_as_x=False):
 
 class UseCase(object):
     def __init__(self, smiles=None, repo=None, repo_path="./Peptide/database/db.json"):
-        self.seq_reader = SeqReader()
-        self.parser = Parser()
 
         self.smiles = smiles
 
@@ -126,9 +123,7 @@ class UseCase(object):
             if len(symbols_list[i]) > 1:
                 symbols_list[i] = "{%s}" % symbols_list[i]
         deduced_seq = "".join(symbols_list)
-        deduced_peptide = self.seq_reader.read(
-            deduced_seq, self.parser, db_api=self.repo
-        )
+        deduced_peptide = read_sequence(deduced_seq, db_api=self.repo)
         return deduced_peptide, deduced_seq, atm_id_to_res_dict
 
     def get_ca_atom_id_to_res_id_dict(self, smi2seq_obj):

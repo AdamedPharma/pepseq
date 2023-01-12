@@ -2,9 +2,8 @@ import os
 import unittest
 from pathlib import Path
 
-from tests.data import dermcidin_stapled_with_anchor
-
 import rdkit.Chem
+
 from Peptide.db_api.DataBase import FileSystemDbRepo
 from Peptide.utils.chemistry.Smi2SeqObj import (
     Smi2Seq,
@@ -13,6 +12,7 @@ from Peptide.utils.chemistry.Smi2SeqObj import (
     generate_bb_smiles,
     get_atm_id_to_res,
 )
+from tests.data import dermcidin_stapled_with_anchor
 
 TEST_DATA_DB = os.path.join(
     Path(__file__).resolve().parent.parent, "Peptide/database/db.json"

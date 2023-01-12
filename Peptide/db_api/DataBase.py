@@ -129,6 +129,19 @@ class FileSystemDbRepo(object):
     def __init__(self):
         return
 
+    @property
+    def valid_symbols(self):
+        valid_symbols_set = set(self.symbols.keys()) | set(self.aa_smiles_dict.keys())
+        return valid_symbols_set
+
+    def read_smiles_radical(self, symbol):
+        if self.aa_smiles_dict.get(symbol) is not None:
+            return self.aa_smiles_dict.get(symbol).smiles_radical
+        else:
+            if self.l_proteogenic_3letter.get(symbol) is not None:
+                one_letter_symbol = self.l_proteogenic_3letter.get(symbol)
+                return self.aa_smiles_dict.get(one_letter_symbol).smiles_radical
+
     @classmethod
     def read_from_json(cls, path: str, **kwargs):
         with open(path) as fp:
