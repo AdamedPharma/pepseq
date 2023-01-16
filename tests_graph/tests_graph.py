@@ -1,7 +1,7 @@
 import unittest
 
 import rdkit
-from Peptide.utils.chemistry.Graph import smiles_to_seq
+from Peptide.utils.chemistry.Graph import connect_radicals, smiles_to_seq
 
 
 class TestSmilesToSequence(unittest.TestCase):
@@ -13,3 +13,15 @@ class TestSmilesToSequence(unittest.TestCase):
         smiles = rdkit.Chem.MolToSmiles(seq_mol)
 
         assert smiles_to_seq(smiles, sidechains) == "CACAC"
+
+    def test_connect_radicals(self):
+        smi_1 = "[1*]NCN"
+        smi_2 = "[1*]SC"
+
+        mol1 = rdkit.Chem.MolFromSmiles(smi_1)
+        mol2 = rdkit.Chem.MolFromSmiles(smi_2)
+
+        mol_union = connect_radicals(mol1, mol2)
+        smi_union = rdkit.Chem.MolToSmiles(mol_union)
+
+        assert smi_union == "CSNCN"

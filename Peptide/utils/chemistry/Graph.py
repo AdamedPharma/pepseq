@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import networkx as nx
 import rdkit
 from rdkit import Chem
@@ -80,6 +81,7 @@ def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
             hybridization=atom.GetHybridization(),
             num_explicit_hs=atom.GetNumExplicitHs(),
             is_aromatic=atom.GetIsAromatic(),
+            isotope=atom.GetIsotope(),
         )
     for bond in mol.GetBonds():
         G.add_edge(
@@ -101,6 +103,8 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
     node_is_aromatics = nx.get_node_attributes(G, "is_aromatic")
     node_hybridizations = nx.get_node_attributes(G, "hybridization")
     num_explicit_hss = nx.get_node_attributes(G, "num_explicit_hs")
+    isotope = nx.get_node_attributes(G, "isotope")
+
     node_to_idx = {}
     for node in G.nodes():
         a = Chem.Atom(atomic_nums[node])
@@ -109,6 +113,7 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
         a.SetIsAromatic(node_is_aromatics[node])
         a.SetHybridization(node_hybridizations[node])
         a.SetNumExplicitHs(num_explicit_hss[node])
+        a.SetIsotope(isotope[node])
         idx = mol.AddAtom(a)
         node_to_idx[node] = idx
 
@@ -513,3 +518,97 @@ def smiles_to_seq(smiles: str, sidechains_smarts: dict) -> str:
     residues = [nx_to_mol(g) for g in res_graphs]
     seq = fit_seq(residues, sidechains_smarts)
     return seq
+
+
+def MolFromSequenceThroughFASTA(sequence):
+    """ """
+    fasta = (
+        """>
+    %s
+    """
+        % sequence
+    )
+    mol = Chem.MolFromFASTA(fasta, flavor=1)
+    return mol
+
+
+def draw_mol_graph(mol_graph, out: str = "mol_graph.png"):
+
+    atomic_nums = nx.get_node_attributes(mol_graph, "atomic_num")
+    isotopes = nx.get_node_attributes(mol_graph, "isotope")
+
+    num_element = {
+        6: "C",
+        7: "N",
+        8: "O",
+        0: "*",
+        16: "S",
+    }
+    labels = {}
+
+    for atom_id in atomic_nums:
+        atomic_num = atomic_nums[atom_id]
+
+        if atomic_num == 0:
+            if isotopes[atom_id] != 0:
+                label = "%d*" % (isotopes[atom_id])
+            else:
+                label = "*"
+        else:
+            label = num_element.get(atomic_num)
+            if label is None:
+                label = atomic_nums[atom_id]
+        labels[atom_id] = label
+
+    color_map = {6: "cyan", 8: "orange", 7: "magenta"}
+
+    colors = []
+    for atom_id in mol_graph.nodes():
+        if mol_graph.nodes[atom_id]["atomic_num"] in color_map:
+            colors.append(color_map[mol_graph.nodes[atom_id]["atomic_num"]])
+        else:
+            colors.append("gray")
+
+    nx.draw(
+        mol_graph, labels=labels, with_labels=True, node_color=colors, node_size=800
+    )
+
+    plt.show()
+    plt.savefig(out)
+    return
+
+
+def connect_radicals(
+    mol1: rdkit.Chem.rdchem.Mol, mol2: rdkit.Chem.rdchem.Mol
+) -> rdkit.Chem.rdchem.Mol:
+    """ """
+    G1 = mol_to_nx(mol1)
+    G2 = mol_to_nx(mol2)
+
+    G_union = nx.union(G1, G2, rename=("mol1_", "mol2_"))
+    to_remove = []
+    connections = {}
+    to_remove = []
+
+    for i in G_union.nodes:
+        is_radical = G_union.nodes[i]["atomic_num"] == 0
+        if is_radical:
+            attachment_point_id = G_union.nodes[i]["isotope"]
+            if connections.get(attachment_point_id) is None:
+                connections[attachment_point_id] = []
+            neighbour = list(G_union.neighbors(i))[0]
+            tup = (neighbour, i)
+            connections[attachment_point_id].append(tup)
+
+    for radical_id in connections:
+        order = sorted(connections[radical_id])
+        if len(order) == 2:
+            G_union.add_edge(
+                order[0][0], order[1][0], bond_type=rdkit.Chem.rdchem.BondType.SINGLE
+            )
+            to_remove += [order[0][1], order[1][1]]
+
+    for radical in to_remove:
+        G_union.remove_node(radical)
+
+    return nx_to_mol(G_union)
