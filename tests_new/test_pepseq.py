@@ -1,6 +1,5 @@
 import pytest
 import rdkit
-
 from read import from_pepseq
 
 s1l_vs_smiles = (
