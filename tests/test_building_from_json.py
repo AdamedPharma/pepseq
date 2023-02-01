@@ -1,8 +1,6 @@
 import rdkit
 from BuildingModifiedPeptideFromPeptideJSON import (
     BuildingModifiedPeptideFromPeptideJSON,
-    add_staple,
-    get_molecule_from_json,
 )
 
 peptide_json = {
