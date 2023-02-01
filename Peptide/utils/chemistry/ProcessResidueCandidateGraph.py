@@ -167,6 +167,7 @@ def process_res_res_connection(res_atoms_1, res_atoms_2, connecting_edges):
 
 def process_internal_connections(connections, res_matches, G):
     internal_connections = []
+    connection_id = 0
 
     for name1, name2, connecting_edges in connections:
         list_1 = name1.split("_")
@@ -183,13 +184,23 @@ def process_internal_connections(connections, res_matches, G):
         )
 
         for attachment_point_1, attachment_point_2 in attachment_point_pairs:
+            connection_id += 1
+
             AtomName_1 = G.nodes[attachment_point_1].get("AtomName")
             AtomName_2 = G.nodes[attachment_point_2].get("AtomName")
             internal_connection = {
-                "ResID_1": res_id_1,
-                "ResID_2": res_id_2,
-                "AtomName_1": AtomName_1,
-                "AtomName_2": AtomName_2,
+                connection_id: [
+                    {
+                        "ResID": res_id_1,
+                        "AtomName": AtomName_1,
+                        "ResidueName": "",
+                    },
+                    {
+                        "ResID": res_id_2,
+                        "AtomName": AtomName_2,
+                        "ResidueName": "",
+                    },
+                ]
             }
 
             internal_connections.append(internal_connection)
@@ -220,7 +231,12 @@ def process_external_connections(connections, res_matches, modification_graphs, 
             for res_attachment_point, mod_attachment_point in attachment_point_pairs:
                 attachment_point_id += 1
                 AtomName = G.nodes[res_attachment_point].get("AtomName")
-                attachment_points_on_seq[attachment_point_id] = res_id, AtomName
+                attachment_points_on_seq[attachment_point_id] = {
+                    "attachment_point_id": attachment_point_id,
+                    "ResID": res_id,
+                    "AtomName": AtomName,
+                    "ResidueName": "",
+                }
 
                 mod_graph.add_node(
                     "%d*" % attachment_point_id,
@@ -245,9 +261,9 @@ def process_external_connections(connections, res_matches, modification_graphs, 
                 mod_smiles = rdkit.Chem.MolToSmiles(mod_mol)
 
         external_modification = {
-            "mod_smiles": mod_smiles,
+            "smiles": mod_smiles,
             "max_attachment_point_id": attachment_point_id,
-            "attachment_points_on_seq": attachment_points_on_seq,
+            "attachment_points_on_sequence": attachment_points_on_seq,
         }
         external_modifications.append(external_modification)
     return external_modifications
@@ -403,22 +419,22 @@ def translate_external_modification(mod, offset=0):
 
 def decompose_residues_internal(residues_internal, cx_smarts_db):
     d_seq = {}
-    max_attachment_point_id = 0
+    # max_attachment_point_id = 0
     internal_modifications = []
     external_modifications = []
 
     for residue in residues_internal:
-        mol = nx_to_mol(residue.G)
+        mol = nx_to_mol(residue)
         res_matches, modifications = full_decomposition(mol, cx_smarts_db)
         internal_modifications += modifications["internal_modifications"]
 
         if modifications.get("external_modifications"):
             for modification in modifications.get("external_modifications"):
-                modification = translate_external_modification(
-                    modification, offset=max_attachment_point_id
-                )
+                # modification = translate_external_modification(
+                #    modification, offset=max_attachment_point_id
+                # )
                 external_modifications.append(modification)
-            max_attachment_point_id = modification.get("max_attachment_point_id")
+            # max_attachment_point_id = modification.get("max_attachment_point_id")
 
         for res_id in res_matches:
             d_seq[int(res_id)] = res_matches[res_id]

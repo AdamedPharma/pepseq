@@ -104,7 +104,7 @@ c_terms = {
     "NH2": {
         "smiles": "[NH2]",
         "smiles_radical": "[1*][NH2]",
-        "three_letter_code": "Myr",
+        "three_letter_code": "NH2",
         "smarts": "[NH2]",
         "smarts_comments": "",
     },
