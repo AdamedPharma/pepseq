@@ -15,7 +15,6 @@ from rdkit.Chem.Lipinski import (
 from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 
 from Peptide.models.Molecule import Molecule
-from Peptide.utils.chemistry.MolExtended import MolObjExt
 from Peptide.utils.chemistry.MonomerConnector import MonomerConnector
 
 Parameters = namedtuple("Parameters", "name smiles")
@@ -65,7 +64,7 @@ class Peptide(Molecule):
         if amino_acids is not None:
             obj.amino_acids = amino_acids
         if name is not None:
-            self.name = name
+            obj.name = name
         return obj
 
     @property
@@ -139,27 +138,11 @@ class Peptide(Molecule):
             self._n_term = None
         return self._n_term
 
-    @n_term.setter
-    def n_term(self, value):
-        self._n_term = value
-        mol_obj_ext = MolObjExt(self.Mol)
-        mol_obj_ext.n_term = value
-        self.Mol = mol_obj_ext.mol
-        self.recalculate_parameters()
-
     @property
     def c_term(self):
         if self.__dict__.get("_c_term") is None:
             self._c_term = None
         return self._c_term
-
-    @c_term.setter
-    def c_term(self, value):
-        self._c_term = value
-        mol_obj_ext = MolObjExt(self.Mol)
-        mol_obj_ext.c_term = value
-        self.Mol = mol_obj_ext.mol
-        self.recalculate_parameters()
 
     @property
     def parameters(self):

@@ -1,10 +1,9 @@
 from collections import namedtuple
 from collections.abc import Sequence
-from typing import TypeVar
+from typing import Dict, TypeVar
 
 from Peptide.exceptions import InvalidSymbolError, ValidationError
 from Peptide.models.AminoAcidInstance import AminoAcidFromSymbol, AminoAcidInstance
-from Peptide.utils.chemistry.Smi2SeqObj import Smi2Seq  # , get_adict
 from Peptide.utils.validation import (
     check_for_nested_brackets,
     check_parentheses,
@@ -56,9 +55,62 @@ def find_parentheses(s: str):
     return parentheses_locs_list(parentheses_locs=parentheses_locs)
 
 
+def parse_canonical(canonical_sequence):
+    """
+    canonical_sequence = "{%s}%s{%s}" % (n_term_symbol, sequence_str_wo_termini, c_term_symbol)
+    """
+    indices_of_brackets = find_parentheses(canonical_sequence)
+    symbols = []
+    previous_close_index = 0
+    for open_index, close_index in indices_of_brackets:
+
+        one_letter_codes_fragment = canonical_sequence[previous_close_index:open_index]
+        symbols += list(one_letter_codes_fragment)
+
+        fragment_in_bracket = canonical_sequence[(open_index + 1) : close_index]
+
+        symbols.append(fragment_in_bracket)
+
+        previous_close_index = close_index + 1
+    return symbols
+
+
+def find_termini(sequence_str, db_json):
+    sequence_split = sequence_str.split("~")
+    if len(sequence_split) == 1:
+        return "H", "OH", sequence_str
+
+    else:
+        n_terms = db_json["smiles"]["n_terms"].keys()
+        if sequence_split[0] in n_terms:
+            n_term = sequence_split[0]
+            seq_start_index = len(n_term) + 1
+        else:
+            n_term = "H"
+            seq_start_index = 0
+
+        c_terms = db_json["smiles"]["c_terms"].keys()
+
+        if sequence_split[-1] in c_terms:
+            c_term = sequence_split[-1]
+            seq_end_index = -1 * (len(c_term) + 1)
+
+        else:
+            c_term = "OH"
+            seq_end_index = len(sequence_str)
+        sequence_str_wo_termini = sequence_str[seq_start_index:seq_end_index]
+        return n_term, c_term, sequence_str_wo_termini
+
+
+def get_canonical(sequence_str, db_json):
+    n_term, c_term, sequence_str_wo_termini = find_termini(sequence_str, db_json)
+    canonical_sequence = "{%s}%s{%s}" % (n_term, sequence_str_wo_termini, c_term)
+    return canonical_sequence
+
+
 def parse_seq(
     sequence_str: str,
-    db_api: DataBase,
+    db_json: Dict,
 ) -> list:
     """
 
@@ -72,64 +124,30 @@ def parse_seq(
     default for c_terminus is OH
 
     """
-
-    n_term_symbol = db_api.find_n_term(sequence_str)
-    c_term_symbol = db_api.find_c_term(sequence_str)
-
-    if n_term_symbol is None:
-        n_term_symbol = "H"
-        seq_start_index = 0
-    else:
-        seq_start_index = len(n_term_symbol) + 1
-
-    if c_term_symbol is None:
-        c_term_symbol = "OH"
-        seq_end_index = len(sequence_str)
-    else:
-        seq_end_index = -1 * (len(c_term_symbol) + 1)
-
-    sequence_str_wo_termini = sequence_str[seq_start_index:seq_end_index]
-
-    s = "{%s}%s{%s}" % (n_term_symbol, sequence_str_wo_termini, c_term_symbol)
-
-    indices_of_brackets = find_parentheses(s)
-
-    symbols = []
-
-    previous_close_index = 0
-
-    for open_index, close_index in indices_of_brackets:
-
-        one_letter_codes_fragment = s[previous_close_index:open_index]
-        symbols += list(one_letter_codes_fragment)
-
-        fragment_in_bracket = s[(open_index + 1) : close_index]
-
-        symbols.append(fragment_in_bracket)
-
-        previous_close_index = close_index + 1
+    canonical_sequence = get_canonical(sequence_str, db_json)
+    symbols = parse_canonical(canonical_sequence)
     return symbols
 
 
 def read_sequence_txt(
     sequence: str,
-    db_api: DataBase = None,
+    db_json: Dict = None,
 ) -> Sequence[AminoAcidInstance]:
 
-    symbols = parse_seq(sequence, db_api)
+    symbols = parse_seq(sequence, db_json)
 
     amino_acids = []
 
     n_terminus_code = symbols[0]
     c_terminus_code = symbols[-1]
 
-    c_term_smiles = db_api.c_terms_smi_codes[c_terminus_code]
-    n_term_smiles = db_api.n_terms_smi_codes[n_terminus_code]
+    c_term_smiles = db_json["smiles"]["c_terms"][c_terminus_code]["smiles"]
+    n_term_smiles = db_json["smiles"]["n_terms"][n_terminus_code]["smiles"]
 
     aa_symbols_list = symbols[1:-1]
 
     for aa_symbol in aa_symbols_list:
-        amino_acid_instance = AminoAcidFromSymbol(aa_symbol, db_api)
+        amino_acid_instance = AminoAcidFromSymbol(aa_symbol, db_json)
         amino_acids.append(amino_acid_instance)
 
     n_term_tuple = (n_terminus_code, n_term_smiles)
@@ -141,19 +159,18 @@ def read_sequence_txt(
 
 def validate_sequence(
     sequence: str,
-    db_api: DataBase = None,
+    db_json: Dict = None,
 ) -> bool:
     if check_parentheses(sequence):
         check_for_nested_brackets(sequence)
         validate_termini(sequence)
         symbols_list = parse_seq(sequence, db_api)
-        print(symbols_list)
         invalid_positions = []
 
         for i in range(1, len(symbols_list) - 1):
             try:
                 symbol = symbols_list[i]
-                aai = AminoAcidFromSymbol(symbol, db_api=db_api)
+                aai = AminoAcidFromSymbol(symbol, db_json)
             except InvalidSymbolError:
                 invalid_positions.append(i)
         if invalid_positions:
@@ -169,17 +186,3 @@ def validate_sequence(
         return
     else:
         raise ValidationError("Sequence Invalid! (uneven number of parentheses)")
-
-
-class SmilesParser(object):
-    def __init__(self):
-        return
-
-    def read_smiles_txt(
-        self, smiles: str, db_api: DataBase = None
-    ) -> Sequence[AminoAcidInstance]:
-        smi2seq_obj = Smi2Seq(smiles)
-        smi2seq_obj.renumber()
-        smi2seq_obj.label_CAatoms()
-        seq = smi2seq_obj.get_seq(db_api.aa_smiles_dict)
-        return seq

@@ -152,6 +152,7 @@ class FileSystemDbRepo(object):
         return obj
 
     def find_n_term(self, sequence: str):
+        """ """
         all_n_term_codes = self.n_terms_smi_codes.keys()
         for term_code in all_n_term_codes:
             seq_prefix = "%s~" % (term_code)

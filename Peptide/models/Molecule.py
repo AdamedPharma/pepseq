@@ -7,12 +7,6 @@ class Molecule(object):
         self._Mol = Mol
         return
 
-    @classmethod
-    def MolFromSequence(cls, sequence: str = None):
-        Mol = rdkit.Chem.MolFromSequence(sequence)
-        obj = cls(Mol)
-        return obj
-
     @property
     def Mol(self):
         return self._Mol
