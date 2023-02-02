@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import Dict, Tuple, TypeVar
 
 import rdkit
 import rdkit.Chem
@@ -9,7 +9,7 @@ from Peptide.models.Molecule import Molecule
 DataBase = TypeVar("DataBase")
 
 
-def parse_symbol(symbol: str) -> (str, rdkit.Chem.Mol, str):
+def parse_symbol(symbol: str) -> Tuple[str, rdkit.Chem.Mol, str]:
     for base_aa_symbol in base_amino_acids:
         if base_aa_symbol in symbol:
             substitute = symbol.replace(base_amino_acid, "")
@@ -56,7 +56,7 @@ class AminoAcidInstance(Molecule):
         return
 
 
-def AminoAcidFromSymbol(symbol: str, db_api: DataBase):
-    validate_symbol(symbol, db_api)
-    smiles_radical = db_api.read_smiles_radical(symbol)
+def AminoAcidFromSymbol(symbol: str, db_json: Dict):
+    validate_symbol(symbol, db_json)
+    smiles_radical = db_json["smiles"]["aa"][symbol]["smiles_radical"]
     return AminoAcidInstance(smiles_radical, symbol)
