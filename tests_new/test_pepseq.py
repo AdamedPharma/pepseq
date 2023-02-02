@@ -47,17 +47,11 @@ pepseq_vs_smiles_moded = (
         "ALA{modX}",
         "N[C@@]([H])(C)C(=O)N[C@@]([H])(CC(C)C)C(=O)N[C@@]([H])(C)C(=O)N[C@@]([H])(CCCN)C(=O)O",
     ),
-    # (
-    #     "qwertyipasdfghklcvnm",
-    #     "N[C@]([H])(CCC(=O)N)C(=O)N[C@]([H])(CC(=CN2)C1=C2C=CC=C1)C(=O)N[C@]([H])(CCC(=O)O)C(=O)N[C@]([H])(CCCNC(=N)N)C(=O)N[C@]([H])([C@@]([H])(O)C)C(=O)N[C@]([H])(Cc1ccc(O)cc1)C(=O)N[C@]([H])([C@@]([H])(CC)C)C(=O)N1[C@]([H])(CCC1)C(=O)N[C@]([H])(C)C(=O)N[C@]([H])(CO)C(=O)N[C@]([H])(CC(=O)O)C(=O)N[C@]([H])(Cc1ccccc1)C(=O)NCC(=O)N[C@]([H])(CC1=CN=C-N1)C(=O)N[C@]([H])(CCCCN)C(=O)N[C@]([H])(CC(C)C)C(=O)N[C@]([H])(CS)C(=O)N[C@]([H])(C(C)C)C(=O)N[C@]([H])(CC(=O)N)C(=O)N[C@]([H])(CCSC)C(=O)O",
-    # ),
     (
         "H~ADRPE~OH",
         "C[C@H](N)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCCNC(=N)N)C(=O)N1CCC[C@@H]1C(=O)N[C@@H](CCC(=O)O)C(=O)O",
     ),
 )
-
-import rdkit
 
 
 def smiles_are_identical(smi1, smi2):
@@ -74,18 +68,19 @@ def smiles_are_identical(smi1, smi2):
 )
 def test_peptide_from_pepseq(pepseq, smiles):
     peptide = from_pepseq(pepseq)
-    # assert peptide.smiles == smiles
     assert smiles_are_identical(peptide.smiles, smiles)
 
 
-# ValidationError
-# peptide = PeptideFromPepSeq("{Ule}{Lys}", db_api=db_api)
-
-# peptide = PeptideFromPepSeq("{Ala}{Lys}", db_api=db_api)
-# peptide = PeptideFromPepSeq("H~P{dLeu}RT{Ala}{Lys}~NH2", db_api=db_api)
+# or
 
 
-# print(peptide.smiles)
-# print(peptide.n_term)
-# print(peptide.c_term)
-# print(peptide.sequence)
+def test_peptide_json_to_smiles():
+    # this tes tests whether just based on
+    return
+
+
+def test_peptide_json_sequence_with_non_standard_aas_to_smiles():
+    # this tes tests whether just based on
+    # on PeptideJSON having non-standard amino acids we can construct
+    # get peptide smiles
+    return

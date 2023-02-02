@@ -53,12 +53,12 @@ def find_atom(G, ResID, AtomName):
     return point_list.pop()
 
 
-def add_staple(peptide_graph, staple_graph, peptide_attachment_points):
+def add_staple(
+    peptide_graph, staple_graph, peptide_attachment_points, prefix="staple_1_"
+):
     staple_graph, attachment_points_on_staple_dict = get_attachment_points(staple_graph)
 
-    G_stapled_peptide_union = nx.union(
-        peptide_graph, staple_graph, rename=("", "staple_")
-    )
+    G_stapled_peptide_union = nx.union(peptide_graph, staple_graph, rename=("", prefix))
 
     for attachment_point_id in attachment_points_on_staple_dict:
         j_peptide_attachment_point = peptide_attachment_points[attachment_point_id]
@@ -73,7 +73,7 @@ def add_staple(peptide_graph, staple_graph, peptide_attachment_points):
 
         G_stapled_peptide_union.add_edge(
             peptide_attachment_point,
-            "staple_%s" % str(staple_attachment_point),
+            "%s%s" % (prefix, str(staple_attachment_point)),
             bond_type=rdkit.Chem.rdchem.BondType.SINGLE,
         )
     return G_stapled_peptide_union
@@ -95,9 +95,9 @@ def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=No
             residue_symbol
         )["smiles_radical"]
 
-    smiles_building_blocks_db[N_terminus] = db_json["smiles"]["n_terms"][N_terminus][
-        "smiles_radical"
-    ]
+    smiles_building_blocks_db[N_terminus] = db_json["smiles"]["n_terms"].get(
+        N_terminus
+    )["smiles_radical"]
 
     smiles_building_blocks_db[C_terminus] = db_json["smiles"]["c_terms"][C_terminus][
         "smiles_radical"
@@ -150,14 +150,22 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
 
         internal_modifications = peptide_json["internal_modifications"]
 
+        ext_mod_id = 0
+
         for ext_mod in peptide_json["external_modifications"]:
+            ext_mod_id += 1
             staple_smi = ext_mod["smiles"]
             staple_mol = rdkit.Chem.MolFromSmiles(staple_smi)
             staple_graph = mol_to_nx(staple_mol)
             attachment_points_on_sequence = ext_mod["attachment_points_on_sequence"]
 
+            prefix = "staple_%d_" % ext_mod_id
+
             peptide_graph = add_staple(
-                peptide_graph, staple_graph.copy(), attachment_points_on_sequence
+                peptide_graph,
+                staple_graph.copy(),
+                attachment_points_on_sequence,
+                prefix,
             )
 
         for internal_modification_id in internal_modifications:

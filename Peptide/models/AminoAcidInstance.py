@@ -1,4 +1,4 @@
-from typing import Tuple, TypeVar
+from typing import Dict, Tuple, TypeVar
 
 import rdkit
 import rdkit.Chem
