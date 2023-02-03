@@ -105,12 +105,32 @@ def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=No
         C_terminus = symbols_list_w_termini[-1]
     residue_symbols = symbols_list_w_termini[1:-1]
 
+    keys = [
+        "l_proteogenic_3letter",
+        "d_proteogenic_3letter",
+        "d_proteogenic_2letter",
+        "d_proteogenic_4letter",
+        "modified_aa_codes",
+    ]
+
+    coding = db_json.get("coding").get("l_proteogenic_3letter")
+    for key in keys:
+        coding.update(db_json.get("coding").get(key))
+
+    for i in range(len(residue_symbols)):
+        symbol = residue_symbols[i]
+        if db_json["smiles"]["aa"].get(symbol) is None:
+            residue_symbols[i] = coding.get(symbol)
+
     smiles_building_blocks_db = {}
 
     for residue_symbol in residue_symbols:
         smiles_building_blocks_db[residue_symbol] = db_json["smiles"]["aa"].get(
             residue_symbol
         )["smiles_radical"]
+
+    if N_terminus == "H":
+        N_terminus = "proton"
 
     smiles_building_blocks_db[N_terminus] = db_json["smiles"]["n_terms"].get(
         N_terminus

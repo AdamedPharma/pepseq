@@ -8,7 +8,7 @@ from BuildingModifiedPeptideFromPeptideJSON import (
 
 db_path = pkgutil.extend_path("Peptide/database/db.json", __name__)
 with open(db_path) as fp:
-    db_json = json.load(db_path)
+    db_json = json.load(fp)
 
 
 peptide_json = {

@@ -14,9 +14,6 @@ from rdkit.Chem.Lipinski import (
 )
 from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 
-from Peptide.models.Molecule import Molecule
-from Peptide.utils.chemistry.MonomerConnector import MonomerConnector
-
 Parameters = namedtuple("Parameters", "name smiles")
 
 AminoAcidInstance = TypeVar("AminoAcidInstance")

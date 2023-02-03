@@ -66,14 +66,14 @@ def get_residues_Gs(residue_symbols, smiles_building_blocks_db):
 
 
 def merge_residue_graphs(graphs):
-    i = 0
-    first_residue_graph = graphs[i]
+
+    first_residue_graph = graphs[0]
     peptide_graph = nx.union(
         first_residue_graph,
-        graphs[i + 1],
-        rename=("Res%d_" % (i + 1), "Res%d_" % (i + 2)),
+        graphs[1],
+        rename=("Res%d_" % (1), "Res%d_" % (2)),
     )
-    peptide_graph = merge_graph(peptide_graph, ResID=(i + 1))
+    peptide_graph = merge_graph(peptide_graph, ResID=1)
 
     for i in range(1, len(graphs) - 1):
         peptide_graph = nx.union(

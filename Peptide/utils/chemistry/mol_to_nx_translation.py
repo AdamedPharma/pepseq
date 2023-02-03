@@ -1,5 +1,6 @@
 import networkx as nx
 import rdkit
+import rdkit.Chem
 
 
 def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:

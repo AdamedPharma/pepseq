@@ -7,18 +7,17 @@ from BuildingModifiedPeptideFromPeptideJSON import (
     get_molecule_from_sequence,
     get_peptide_json_from_sequence,
     get_smiles_from_peptide_json,
+    get_smiles_from_sequence,
 )
 from BuildPeptideJSONFromSMILES import decompose_peptide_smiles
 from Peptide.db_api.DataBase import FileSystemDbRepo
 from Peptide.models.AminoAcidInstance import AminoAcidInstance
 from Peptide.models.Peptide import Peptide
 from Peptide.utils.Parser import parse_seq
-from Peptide.utils.PeptideReader import read_sequence
 
 db_path = pkgutil.extend_path("Peptide/database/db.json", __name__)
-db = FileSystemDbRepo.read_from_json(db_path)
 with open(db_path) as fp:
-    db_json = json.load(db_path)
+    db_json = json.load(fp)
 
 
 def from_pepseq(pepseq: str, db_json: Dict = db_json) -> Peptide:
