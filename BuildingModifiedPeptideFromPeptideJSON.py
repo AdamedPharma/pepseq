@@ -6,7 +6,7 @@ from Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
 from Peptide.utils.chemistry.MonomerConnector import (
     get_molecule_from_list_of_residue_symbols,
 )
-from Peptide.utils.Parser import get_canonical, parse_canonical
+from Peptide.utils.Parser import find_termini, get_canonical, parse_canonical
 
 
 def add_internal_bond(G, res1_id, atom_name_1, res2_id, atom_name_2):
@@ -79,6 +79,23 @@ def add_staple(
     return G_stapled_peptide_union
 
 
+def get_peptide_json_from_sequence(sequence, db_json):
+    # canonical_sequence = get_canonical(sequence, db_json)
+    # symbols_list_w_termini = parse_canonical(canonical_sequence)
+
+    N_terminus, C_terminus, sequence_str_wo_termini = find_termini(sequence, db_json)
+
+    peptide_json = {
+        "sequence": sequence_str_wo_termini,
+        "internal_modifications": [],
+        "external_modifications": [],
+        "N_terminus": N_terminus,
+        "C_terminus": C_terminus,
+    }
+
+    return peptide_json
+
+
 def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=None):
     canonical_sequence = get_canonical(sequence, db_json)
     symbols_list_w_termini = parse_canonical(canonical_sequence)
@@ -118,6 +135,14 @@ def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=No
     )
 
     return mol_w_nc_terminus
+
+
+def get_smiles_from_sequence(sequence, db_json):
+    mol = get_molecule_from_sequence(
+        sequence, db_json, N_terminus=None, C_terminus=None
+    )
+    smiles = rdkit.Chem.MolToSmiles(mol)
+    return smiles
 
 
 def get_molecule_from_json(j, db_json):
@@ -181,3 +206,9 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
                 target["AtomName"],
             )
         return nx_to_mol(peptide_graph)
+
+
+def get_smiles_from_peptide_json(peptide_json, db_json):
+    mol = BuildingModifiedPeptideFromPeptideJSON.execute(peptide_json, db_json)
+    smiles = rdkit.Chem.MolToSmiles(mol)
+    return smiles

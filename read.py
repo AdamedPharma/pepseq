@@ -5,7 +5,10 @@ from typing import Any, Dict
 from BuildingModifiedPeptideFromPeptideJSON import (
     BuildingModifiedPeptideFromPeptideJSON,
     get_molecule_from_sequence,
+    get_peptide_json_from_sequence,
+    get_smiles_from_peptide_json,
 )
+from BuildPeptideJSONFromSMILES import decompose_peptide_smiles
 from Peptide.db_api.DataBase import FileSystemDbRepo
 from Peptide.models.AminoAcidInstance import AminoAcidInstance
 from Peptide.models.Peptide import Peptide
@@ -20,13 +23,16 @@ with open(db_path) as fp:
 
 def from_pepseq(pepseq: str, db_json: Dict = db_json) -> Peptide:
     """Read peptide from PepSeq string"""
-    mol = get_molecule_from_sequence(pepseq, db_json)
-    return mol
-    # return peptide
+    peptide_json = get_peptide_json_from_sequence(pepseq, db_json)
+    smiles = get_smiles_from_sequence(pepseq, db_json)
+    peptide = Peptide(smiles, peptide_json)
+    return peptide
 
 
-def from_smiles(smiles: str, residue_database: FileSystemDbRepo = db) -> Peptide:
-    raise Exception("TO BE IMPLEMENTED ")
+def from_smiles(smiles: str, db_json: Dict = db_json) -> Peptide:
+    peptide_json = decompose_peptide_smiles(smiles, db_json)
+    peptide = Peptide(smiles, peptide_json)
+    return peptide
 
 
 def from_json(peptide_json: Dict[str, Any], db_json: Dict = db_json) -> Peptide:
@@ -54,4 +60,6 @@ def from_json(peptide_json: Dict[str, Any], db_json: Dict = db_json) -> Peptide:
     Returns:
         Peptide: peptide object
     """
-    return BuildingModifiedPeptideFromPeptideJSON.execute(peptide_json, db_json)
+    smiles = get_smiles_from_peptide_json(peptide_json, db_json)
+    peptide = Peptide(smiles, peptide_json)
+    return

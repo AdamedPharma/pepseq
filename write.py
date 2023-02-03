@@ -17,6 +17,9 @@ def to_pepseq(peptide: Peptide, include_modifications: bool = False) -> str:
         str: PepSeq
     """
 
+    sequence = print_sequence(peptide.peptide_json)
+    return sequence
+
 
 def to_smiles(peptide: Peptide, include_modifications: bool = True) -> str:
     """Encodes peptide to canonical SMILES
@@ -31,7 +34,7 @@ def to_smiles(peptide: Peptide, include_modifications: bool = True) -> str:
     Returns:
         str: SMILES
     """
-    raise Exception("TO BE IMPLEMENTED ")
+    return peptide.smiles
 
 
 def to_json(peptide: Peptide, include_modifications: bool = True) -> Dict[str, Any]:
@@ -48,14 +51,45 @@ def to_json(peptide: Peptide, include_modifications: bool = True) -> Dict[str, A
         Dict[str, Any]: json
 
     Example output:
-        {"sequence":"H{Aib}EGTFTSDVSSYLEGQAAKEFIAWLVRGRG",
-        "modifications":[
-            {
-            "modification_smiles": "[*1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOCCOCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[*2]",
-            "connecting_residues": [17, 24]
+        {
+            'sequence': 'CSCACGCK',
+            'N_terminus': 'Ac',
+            'C_terminus': 'NH2',
+            'internal_modifications': {
+                1: [
+                    {
+                        'ResID': '5',
+                        'AtomName': 'SG',
+                        'ResidueName': ''
+                        },
+                    {
+                        'ResID': '7',
+                        'AtomName': 'SG',
+                        'ResidueName': ''
+                        }
+                    ]
+                },
+            'external_modifications': [
+                {
+                    'smiles': '[1*]C(Br)CNP([2*])[Na]',
+                    'max_attachment_point_id': 2,
+                    'attachment_points_on_sequence': {
+                        1: {
+                            'attachment_point_id': 1,
+                            'ResID': '1',
+                            'AtomName': 'SG',
+                            'ResidueName': ''
+                            },
+                        2: {
+                            'attachment_point_id': 2,
+                            'ResID': '3',
+                            'AtomName': 'SG',
+                            'ResidueName': ''
+                            }
+                        }
+                    }
+                ]
             }
-        ]
-    }
-    where [*1] and [*2] are attachement points
+
     """
-    raise Exception("TO BE IMPLEMENTED ")
+    return peptide.peptide_json

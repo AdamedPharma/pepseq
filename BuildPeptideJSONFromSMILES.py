@@ -118,3 +118,58 @@ def decompose_peptide_smiles_with_termini(smiles, db_json):
     peptide_json["external_modifications"] = new_ext_mods
 
     return peptide_json
+
+
+def mark_external_modifications_on_seq(l, peptide_json, mod_as_X=False):
+    external_modifications = peptide_json.get("external_modifications")
+    for external_modification in external_modifications:
+        attachment_points = external_modification.get("attachment_points_on_sequence")
+
+        for key in attachment_points:
+            attachment_point = attachment_points.get(key)
+            res_id = int(attachment_point.get("ResID"))
+
+            basic_res_name = l[res_id - 1]
+            if mod_as_X:
+                new_res_name = "X"
+            else:
+                new_res_name = "{mod%s}" % (basic_res_name)
+
+            l[res_id - 1] = new_res_name
+    return l
+
+
+def mark_internal_modifications_on_seq(l, peptide_json, mod_as_X=False):
+    internal_modifications = peptide_json.get("internal_modifications")
+
+    for key in internal_modifications:
+        mod_residues = internal_modifications[key]
+        mod_residue_ids = [int(i["ResID"]) for i in mod_residues]
+
+        for res_id in mod_residue_ids:
+            basic_res_name = l[res_id - 1]
+            if mod_as_X:
+                new_res_name = "X"
+            else:
+                new_res_name = "{mod%s}" % (basic_res_name)
+            l[res_id - 1] = new_res_name
+    return l
+
+
+def print_sequence(peptide_json, mod_as_X=False):
+    basic_sequence = peptide_json.get("sequence")
+    l = list(basic_sequence)
+
+    N_terminus = peptide_json.get("N_terminus")
+    C_terminus = peptide_json.get("C_terminus")
+
+    l = mark_external_modifications_on_seq(l, peptide_json, mod_as_X)
+    l = mark_internal_modifications_on_seq(l, peptide_json, mod_as_X)
+
+    seq_marked = "".join(l)
+    if N_terminus is not None:
+        seq_marked = "%s~%s" % (N_terminus, seq_marked)
+    if C_terminus is not None:
+        seq_marked = "%s~%s" % (seq_marked, C_terminus)
+
+    return seq_marked
