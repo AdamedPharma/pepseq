@@ -439,5 +439,12 @@ def decompose_residues_internal(residues_internal, cx_smarts_db):
         for res_id in res_matches:
             d_seq[int(res_id)] = res_matches[res_id]
 
-    seq = "".join(d_seq[res_id] for res_id in sorted(d_seq.keys()))
+    seq = ""
+    for res_id in sorted(d_seq.keys()):
+        symbol = d_seq.get(res_id)
+        if len(symbol) > 1:
+            symbol = "{%s}" % symbol
+        seq = seq + symbol
+
+    # seq = "".join(d_seq[res_id] for res_id in sorted(d_seq.keys()))
     return seq, internal_modifications, external_modifications

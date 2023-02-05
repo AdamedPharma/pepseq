@@ -96,6 +96,19 @@ def get_peptide_json_from_sequence(sequence, db_json):
     return peptide_json
 
 
+def get_residue_symbols_from_sequence(
+    sequence, db_json, N_terminus=None, C_terminus=None
+):
+    canonical_sequence = get_canonical(sequence, db_json)
+    symbols_list_w_termini = parse_canonical(canonical_sequence)
+    if N_terminus is None:
+        N_terminus = symbols_list_w_termini[0]
+    if C_terminus is None:
+        C_terminus = symbols_list_w_termini[-1]
+    residue_symbols = symbols_list_w_termini[1:-1]
+    return residue_symbols
+
+
 def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=None):
     canonical_sequence = get_canonical(sequence, db_json)
     symbols_list_w_termini = parse_canonical(canonical_sequence)

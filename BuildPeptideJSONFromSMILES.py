@@ -4,6 +4,7 @@ from Backbone import BreakingIntoResidueCandidateSubgraphs, MarkingPeptideBackbo
 from Peptide.utils.chemistry.ProcessResidueCandidateGraph import (
     decompose_residues_internal,
 )
+from Peptide.utils.Parser import parse_canonical2
 
 
 def get_cx_smarts_db(db_json):
@@ -37,9 +38,9 @@ def decompose_peptide_smiles(smiles, db_json):
 
 def get_terminal_smiles_building_block(peptide_json, ResID, AtomName):
     external_modifications = peptide_json.get("external_modifications")
-
     if ResID == -1:
-        ResID = len(peptide_json.get("sequence"))
+        symbols = parse_canonical2(peptide_json.get("sequence"))
+        ResID = len(symbols)
 
     for i in range(len(external_modifications)):
         mod = external_modifications[i]
@@ -79,42 +80,53 @@ def get_term_symbol(smiles, db_json, group):
 
 
 def get_c_term_from_peptide_json(peptide_json, db_json):
-    smiles, i = get_C_terminal_smiles_building_block(peptide_json)
-    if smiles is not None:
+    tup = get_C_terminal_smiles_building_block(peptide_json)
+
+    if tup is not None:
+        smiles, i = tup
         term_symbol = get_term_symbol(smiles, db_json, "c_terms")
         return term_symbol, i
 
 
 def get_n_term_from_peptide_json(peptide_json, db_json):
-    smiles, i = get_N_terminal_smiles_building_block(peptide_json)
-    if smiles is not None:
+    tup = get_N_terminal_smiles_building_block(peptide_json)
+    if tup is not None:
+        smiles, i = tup
         term_symbol = get_term_symbol(smiles, db_json, "n_terms")
         return term_symbol, i
 
 
 def decompose_peptide_smiles_with_termini(smiles, db_json):
     peptide_json = decompose_peptide_smiles(smiles, db_json)
-    c_terminus, c_ind = get_c_term_from_peptide_json(peptide_json, db_json)
-    n_terminus, n_ind = get_n_term_from_peptide_json(peptide_json, db_json)
+    c_terminus__c_ind = get_c_term_from_peptide_json(peptide_json, db_json)
+
+    n_terminus__n_ind = get_n_term_from_peptide_json(peptide_json, db_json)
     external_modifications = peptide_json.get("external_modifications")
 
     to_del = []
 
-    if c_terminus is not None:
+    if c_terminus__c_ind is not None:
+        c_terminus, c_ind = c_terminus__c_ind
         peptide_json["C_terminus"] = c_terminus
         to_del.append(c_ind)
     else:
         c_terminus = "OH"
+        peptide_json["C_terminus"] = c_terminus
 
-    if n_terminus is not None:
+    if n_terminus__n_ind is not None:
+        n_terminus, n_ind = n_terminus__n_ind
         peptide_json["N_terminus"] = n_terminus
         to_del.append(n_ind)
+    else:
+        n_terminus = "H"
+        peptide_json["N_terminus"] = n_terminus
 
     new_ext_mods = [
         external_modifications[i]
         for i in range(len(external_modifications))
         if i not in to_del
     ]
+
     peptide_json["external_modifications"] = new_ext_mods
 
     return peptide_json

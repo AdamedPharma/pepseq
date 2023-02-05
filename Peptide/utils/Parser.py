@@ -75,6 +75,27 @@ def parse_canonical(canonical_sequence):
     return symbols
 
 
+def parse_canonical2(canonical_sequence):
+    """
+    canonical_sequence = "{%s}%s{%s}" % (n_term_symbol, sequence_str_wo_termini, c_term_symbol)
+    """
+    indices_of_brackets = find_parentheses(canonical_sequence)
+    symbols = []
+    previous_close_index = 0
+    for open_index, close_index in indices_of_brackets:
+
+        one_letter_codes_fragment = canonical_sequence[previous_close_index:open_index]
+        symbols += list(one_letter_codes_fragment)
+
+        fragment_in_bracket = canonical_sequence[(open_index + 1) : close_index]
+
+        symbols.append(fragment_in_bracket)
+
+        previous_close_index = close_index + 1
+    symbols += canonical_sequence[previous_close_index:]
+    return symbols
+
+
 def find_termini(sequence_str, db_json):
     sequence_split = sequence_str.split("~")
     if len(sequence_split) == 1:
