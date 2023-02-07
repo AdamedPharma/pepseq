@@ -15,6 +15,8 @@ def get_cx_smarts_db(db_json):
     for aa in smiles_dict:
         cx_smarts_db[aa] = smiles_dict[aa].get("smarts")
 
+    cx_smarts_db.pop("g")
+
     return cx_smarts_db
 
 
@@ -85,6 +87,8 @@ def get_c_term_from_peptide_json(peptide_json, db_json):
     if tup is not None:
         smiles, i = tup
         term_symbol = get_term_symbol(smiles, db_json, "c_terms")
+        if term_symbol is None:
+            term_symbol = smiles
         return term_symbol, i
 
 
@@ -93,7 +97,38 @@ def get_n_term_from_peptide_json(peptide_json, db_json):
     if tup is not None:
         smiles, i = tup
         term_symbol = get_term_symbol(smiles, db_json, "n_terms")
+        if term_symbol is None:
+            term_symbol = smiles
+
         return term_symbol, i
+
+
+def output_modified_residue(ResName, R_id):
+    d = {"C": "Cys", "K": "Lys"}
+    if ResName in d:
+        ResName = d[ResName]
+    s = "%s(R%s)" % (ResName, R_id)
+    return s
+
+
+def append_pepseq_R_info(j):
+    l = parse_canonical2(j["sequence"])
+    ext_mods = j["external_modifications"]
+    for ext_mod in ext_mods:
+        att_points = ext_mod["attachment_points_on_sequence"]
+        for R_id in att_points:
+            att_point = att_points[R_id]
+            ResID = int(att_point["ResID"])
+            ResName = l[ResID - 1]
+            new_s = output_modified_residue(ResName, R_id)
+            l[ResID - 1] = new_s
+    new_seq = ""
+    for symbol in l:
+        if len(symbol) > 1:
+            new_seq = new_seq + "{%s}" % symbol
+        else:
+            new_seq = new_seq + symbol
+    return new_seq
 
 
 def decompose_peptide_smiles_with_termini(smiles, db_json):
@@ -128,6 +163,15 @@ def decompose_peptide_smiles_with_termini(smiles, db_json):
     ]
 
     peptide_json["external_modifications"] = new_ext_mods
+
+    new_seq = append_pepseq_R_info(peptide_json)
+    pepseq_format = "%s~%s~%s" % (
+        peptide_json["N_terminus"],
+        new_seq,
+        peptide_json["C_terminus"],
+    )
+
+    peptide_json["pepseq_format"] = pepseq_format
 
     return peptide_json
 

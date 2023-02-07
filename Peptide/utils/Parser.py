@@ -16,6 +16,34 @@ DataBase = TypeVar("DataBase")
 SeqReader = TypeVar("SeqReader")
 
 
+def output_modified_residue(ResName, R_id):
+    d = {"C": "Cys", "K": "Lys"}
+    if ResName in d:
+        ResName = d[ResName]
+    s = "%s(R%s)" % (ResName, R_id)
+    return s
+
+
+def append_pepseq_R_info(j):
+    l = parse_canonical2(j["sequence"])
+    ext_mods = j["external_modifications"]
+    for ext_mod in ext_mods:
+        att_points = ext_mod["attachment_points_on_sequence"]
+        for R_id in att_points:
+            att_point = att_points[R_id]
+            ResID = int(att_point["ResID"])
+            ResName = l[ResID - 1]
+            new_s = output_modified_residue(ResName, R_id)
+            l[ResID - 1] = new_s
+    new_seq = ""
+    for symbol in l:
+        if len(symbol) > 1:
+            new_seq = new_seq + "{%s}" % symbol
+        else:
+            new_seq = new_seq + symbol
+    return new_seq
+
+
 def parentheses_locs_list(parentheses_locs: list):
     ls = []
     for k, v in parentheses_locs.items():
