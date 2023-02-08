@@ -1,6 +1,17 @@
+import json
+import pkgutil
+
 import pytest
 import rdkit
+from BuildingModifiedPeptideFromPeptideJSON import get_smiles_from_peptide_json
+from BuildPeptideJSONFromSMILES import decompose_peptide_smiles_with_termini
+from get_peptide_json_from_pepseq_format import get_pep_json
 from read import from_pepseq
+
+db_path = pkgutil.extend_path("Peptide/database/db.json", __name__)
+with open(db_path) as fp:
+    db_json = json.load(fp)
+
 
 s1l_vs_smiles = (
     (
@@ -83,4 +94,272 @@ def test_peptide_json_sequence_with_non_standard_aas_to_smiles():
     # this tes tests whether just based on
     # on PeptideJSON having non-standard amino acids we can construct
     # get peptide smiles
+    return
+
+
+def test_from_pepseq_and_one_mod_smiles_strings_to_peptide_json():
+
+    """
+
+    Input:
+
+
+        pepseq_string:
+
+            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    Output:
+
+        peptide_json:
+
+            JSON containing info about modified peptide with
+
+                'sequence':
+
+                'internal_modifications':
+
+                'external_modifications':
+
+    """
+    pepseq_string, one_mod_smiles = "H~H{Cys(R1)}I{Cys(R2)}K~OH", "[1*]CS[2*]"
+    peptide_json = get_pep_json(pepseq_string, one_mod_smiles)
+    correct_peptide_json = {"placeholder": "placeholder_val"}
+    assert peptide_json == correct_peptide_json
+
+
+def test_from_pepseq_string_and_mod_smiles_to_smiles(pepseq_string, one_mod_smiles):
+    """
+    Input:
+
+
+    """
+    pepseq_string, one_mod_smiles = "H~H{Cys(R1)}I{Cys(R2)}K~OH", "[1*]CS[2*]"
+    peptide_json = get_pep_json(pepseq_string, one_mod_smiles)
+    smiles = get_smiles_from_peptide_json(peptide_json, db_json)
+    correct_smiles = '"SCP |$R1;placeholder;R2$|"'
+    assert smiles == correct_smiles
+    return
+
+
+def test_from_pepseq_and_many_mod_smiles_strings_to_peptide_json(
+    pepseq_string, many_mod_smiles
+):
+    """
+
+    Input:
+
+
+        pepseq_string:
+
+            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    Output:
+
+        peptide_json:
+
+            JSON containing info about modified peptide with
+
+                'sequence':
+
+                'internal_modifications':
+
+                'external_modifications':
+
+    """
+
+    return
+
+
+def test_from_smiles_to_peptide_json():
+    """
+    Input:
+
+        SMILES - string of peptide sequence with modified amino acids
+            modification(s)
+
+    Output:
+        peptide_json:
+
+            JSON containing info about modified peptide with
+
+                'sequence':
+
+                'internal_modifications':
+
+                'external_modifications':
+
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    """
+    smiles = '"SCP |$R1;placeholder;R2$|"'
+
+    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json)
+    correct_peptide_json = {"placeholder": "placeholder_val"}
+    assert peptide_json == correct_peptide_json
+    return
+
+
+def test_peptide_json_to_pepseq_string_and_one_mod_smiles():
+    """
+
+    Input:
+
+        peptide_json:
+
+            JSON containing info about modified peptide with
+
+                'sequence':
+
+                'internal_modifications':
+
+                'external_modifications':
+
+
+    Output:
+        pepseq_string:
+
+            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+        modifications - external ones, with attachment points
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    """
+    smiles = '"SCP |$R1;placeholder;R2$|"'
+
+    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json)
+    correct_pepseq_string, one_mod_smiles = "H~H{Cys(R1)}I{Cys(R2)}K~OH", "[1*]CS[2*]"
+
+    assert peptide_json["pepseq_format"] == correct_pepseq_string
+    assert peptide_json["external_modifications"][0]["smiles"] == one_mod_smiles
+    return
+
+
+def test_peptide_json_one_mod_to_pepseq_string_many_mod_smiles():
+    """
+    Input:
+
+        peptide_json:
+
+            JSON containing info about modified peptide with
+
+                'sequence':
+
+                'internal_modifications':
+
+                'external_modifications':
+
+
+    Output:
+        pepseq_string:
+
+            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    """
+
+    return
+
+
+def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
+    """
+    Input:
+
+        SMILES - string of peptide sequence with modified amino acids
+            modification(s)
+
+    Output:
+        pepseq_string:
+
+            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+        modifications - external ones, with attachment points
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    """
+
+    return
+
+
+def test_from_smiles_to_pepseq_and_many_mod_smiles_strings():
+    """
+    Input:
+
+        SMILES - string of peptide sequence with modified amino acids
+            modification(s)
+
+    Output:
+        pepseq_string:
+
+            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+        modifications - external ones, with attachment points
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    """
+
     return

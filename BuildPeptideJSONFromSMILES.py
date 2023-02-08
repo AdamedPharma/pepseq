@@ -88,7 +88,7 @@ def get_c_term_from_peptide_json(peptide_json, db_json):
         smiles, i = tup
         term_symbol = get_term_symbol(smiles, db_json, "c_terms")
         if term_symbol is None:
-            term_symbol = smiles
+            term_symbol = "SMILES:%s" % smiles
         return term_symbol, i
 
 
@@ -98,7 +98,7 @@ def get_n_term_from_peptide_json(peptide_json, db_json):
         smiles, i = tup
         term_symbol = get_term_symbol(smiles, db_json, "n_terms")
         if term_symbol is None:
-            term_symbol = smiles
+            term_symbol = "SMILES:%s" % smiles
 
         return term_symbol, i
 

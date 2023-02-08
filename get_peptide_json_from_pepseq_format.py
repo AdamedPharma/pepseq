@@ -38,7 +38,7 @@ def get_attachment_points_on_sequence_json(symbols):
         if type(decomposition) == tuple:
             res_name, attachment_point_id = decomposition
             attachment_point_json = get_attachment_point_json(res_id, decomposition)
-            att_points[attachment_point_id] = attachment_point_json
+            att_points[int(attachment_point_id)] = attachment_point_json
     return att_points
 
 
@@ -65,17 +65,17 @@ def get_base_seq(symbols):
 def get_ext_mod(pepseq, smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
     symbols = parse_canonical2(pepseq)
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
+    if attachment_points_on_sequence.keys():
+        max_attachment_point_id = max(
+            [int(i) for i in attachment_points_on_sequence.keys()]
+        )
 
-    max_attachment_point_id = max(
-        [int(i) for i in attachment_points_on_sequence.keys()]
-    )
-
-    ext_mod = {
-        "smiles": smiles,
-        "max_attachment_point_id": max_attachment_point_id,
-        "attachment_points_on_sequence": attachment_points_on_sequence,
-    }
-    return ext_mod
+        ext_mod = {
+            "smiles": smiles,
+            "max_attachment_point_id": max_attachment_point_id,
+            "attachment_points_on_sequence": attachment_points_on_sequence,
+        }
+        return ext_mod
 
 
 def get_pep_json(pepseq_format, mod_smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
@@ -87,9 +87,13 @@ def get_pep_json(pepseq_format, mod_smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
     pep_json = {
         "sequence": base_seq,
         "internal_modifications": [],
-        "external_modifications": [ext_mod],
         "C_terminus": C_terminus,
         "N_terminus": N_terminus,
         "pepseq_format": pepseq_format,
     }
+    if ext_mod is not None:
+        pep_json["external_modifications"] = [ext_mod]
+    else:
+        pep_json["external_modifications"] = []
+
     return pep_json

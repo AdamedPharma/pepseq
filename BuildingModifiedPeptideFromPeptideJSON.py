@@ -242,6 +242,6 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
 
 
 def get_smiles_from_peptide_json(peptide_json, db_json):
-    mol = BuildingModifiedPeptideFromPeptideJSON.execute(peptide_json, db_json)
+    mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     smiles = rdkit.Chem.MolToSmiles(mol)
     return smiles
