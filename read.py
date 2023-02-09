@@ -10,6 +10,7 @@ from BuildingModifiedPeptideFromPeptideJSON import (
     get_smiles_from_sequence,
 )
 from BuildPeptideJSONFromSMILES import decompose_peptide_smiles
+from get_peptide_json_from_pepseq_format import get_pep_json
 from Peptide.db_api.DataBase import FileSystemDbRepo
 from Peptide.models.AminoAcidInstance import AminoAcidInstance
 from Peptide.models.Peptide import Peptide
@@ -22,8 +23,11 @@ with open(db_path) as fp:
 
 def from_pepseq(pepseq: str, db_json: Dict = db_json) -> Peptide:
     """Read peptide from PepSeq string"""
-    peptide_json = get_peptide_json_from_sequence(pepseq, db_json)
-    smiles = get_smiles_from_sequence(pepseq, db_json)
+    mod_smiles = None
+    peptide_json = get_pep_json(pepseq, db_json, mod_smiles)
+    # peptide_json = get_pep_json(pepseq, mod_smiles)
+    # peptide_json = get_peptide_json_from_sequence(pepseq, db_json)
+    smiles = get_smiles_from_peptide_json(peptide_json, db_json)
     peptide = Peptide(smiles, peptide_json)
     return peptide
 

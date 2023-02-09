@@ -65,13 +65,17 @@ pepseq_vs_smiles_moded = (
 )
 
 
-def smiles_are_identical(smi1, smi2):
-    a = rdkit.Chem.MolFromSmiles(smi1)
-    b = rdkit.Chem.MolFromSmiles(smi2)
-    are_identical = a.HasSubstructMatch(b, useChirality=True) and b.HasSubstructMatch(
-        a, useChirality=True
-    )
+def mols_are_identical(mol1, mol2):
+    are_identical = mol1.HasSubstructMatch(
+        mol2, useChirality=True
+    ) and mol2.HasSubstructMatch(mol1, useChirality=True)
     return are_identical
+
+
+def smiles_are_identical(smi1, smi2):
+    mol1 = rdkit.Chem.MolFromSmiles(smi1)
+    mol2 = rdkit.Chem.MolFromSmiles(smi2)
+    return mols_are_identical(mol1, mol2)
 
 
 @pytest.mark.parametrize(
@@ -134,7 +138,7 @@ def test_from_pepseq_and_one_mod_smiles_strings_to_peptide_json():
     """
     fixture_pepseq = "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2"
     mod_smiles = "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
-    peptide_json = get_pep_json(fixture_pepseq, mod_smiles)
+    peptide_json = get_pep_json(fixture_pepseq, db_json, mod_smiles)
     correct_peptide_json = {
         "sequence": "H{aMeAla}QGTYCDAQCYS",
         "internal_modifications": [],
@@ -174,7 +178,7 @@ def test_from_pepseq_string_and_mod_smiles_to_smiles():
     """
     pepseq_string = "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2"
     one_mod_smiles = "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
-    peptide_json = get_pep_json(pepseq_string, one_mod_smiles)
+    peptide_json = get_pep_json(pepseq_string, db_json, one_mod_smiles)
     smiles = get_smiles_from_peptide_json(peptide_json, db_json)
     correct_smiles = "[H]N[C@@H](Cc1c[nH]cn1)C(=O)NC(C)(C)C(=O)N[C@@H](CCC(N)=O)C(=O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@H]1CSCC(=O)NCC[C@@H](C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O)NC(=O)CSC[C@@H](C(=O)N[C@@H](Cc2ccc(O)cc2)C(=O)N[C@@H](CO)C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC1=O)[C@@H](C)O"
     assert smiles == correct_smiles

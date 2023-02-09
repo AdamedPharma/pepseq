@@ -1,4 +1,4 @@
-from Peptide.utils.Parser import parse_canonical2
+from Peptide.utils.Parser import find_termini, parse_canonical2
 
 
 def get_attachment_point_json(res_id, decomposition):
@@ -78,8 +78,9 @@ def get_ext_mod(pepseq, smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
         return ext_mod
 
 
-def get_pep_json(pepseq_format, mod_smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
-    N_terminus, pepseq, C_terminus = pepseq_format.split("~")
+def get_pep_json(pepseq_format, db_json, mod_smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
+    # N_terminus, pepseq, C_terminus = pepseq_format.split("~")
+    N_terminus, C_terminus, pepseq = find_termini(pepseq_format, db_json)
     symbols = parse_canonical2(pepseq)
     base_seq = get_base_seq(symbols)
     ext_mod = get_ext_mod(pepseq, mod_smiles)
