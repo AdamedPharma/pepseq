@@ -132,29 +132,56 @@ def test_from_pepseq_and_one_mod_smiles_strings_to_peptide_json():
                 'external_modifications':
 
     """
-    pepseq_string, one_mod_smiles = "H~H{Cys(R1)}I{Cys(R2)}K~OH", "[1*]CS[2*]"
-    peptide_json = get_pep_json(pepseq_string, one_mod_smiles)
-    correct_peptide_json = {"placeholder": "placeholder_val"}
+    fixture_pepseq = "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2"
+    mod_smiles = "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
+    peptide_json = get_pep_json(fixture_pepseq, mod_smiles)
+    correct_peptide_json = {
+        "sequence": "H{aMeAla}QGTYCDAQCYS",
+        "internal_modifications": [],
+        "C_terminus": "NH2",
+        "N_terminus": "H",
+        "pepseq_format": "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2",
+        "external_modifications": [
+            {
+                "smiles": "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O",
+                "max_attachment_point_id": 2,
+                "attachment_points_on_sequence": {
+                    1: {
+                        "attachment_point_id": "1",
+                        "ResID": "7",
+                        "AtomName": "SG",
+                        "ResidueName": "Cys",
+                    },
+                    2: {
+                        "attachment_point_id": "2",
+                        "ResID": "11",
+                        "AtomName": "SG",
+                        "ResidueName": "Cys",
+                    },
+                },
+            }
+        ],
+    }
     assert peptide_json == correct_peptide_json
+    return
 
 
-def test_from_pepseq_string_and_mod_smiles_to_smiles(pepseq_string, one_mod_smiles):
+def test_from_pepseq_string_and_mod_smiles_to_smiles():
     """
     Input:
 
 
     """
-    pepseq_string, one_mod_smiles = "H~H{Cys(R1)}I{Cys(R2)}K~OH", "[1*]CS[2*]"
+    pepseq_string = "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2"
+    one_mod_smiles = "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
     peptide_json = get_pep_json(pepseq_string, one_mod_smiles)
     smiles = get_smiles_from_peptide_json(peptide_json, db_json)
-    correct_smiles = '"SCP |$R1;placeholder;R2$|"'
+    correct_smiles = "[H]N[C@@H](Cc1c[nH]cn1)C(=O)NC(C)(C)C(=O)N[C@@H](CCC(N)=O)C(=O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@H]1CSCC(=O)NCC[C@@H](C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O)NC(=O)CSC[C@@H](C(=O)N[C@@H](Cc2ccc(O)cc2)C(=O)N[C@@H](CO)C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC1=O)[C@@H](C)O"
     assert smiles == correct_smiles
     return
 
 
-def test_from_pepseq_and_many_mod_smiles_strings_to_peptide_json(
-    pepseq_string, many_mod_smiles
-):
+def test_from_pepseq_and_many_mod_smiles_strings_to_peptide_json():
     """
 
     Input:
@@ -188,7 +215,7 @@ def test_from_pepseq_and_many_mod_smiles_strings_to_peptide_json(
                 'external_modifications':
 
     """
-
+    #    pepseq_string, many_mod_smiles
     return
 
 
@@ -220,59 +247,41 @@ def test_from_smiles_to_peptide_json():
                 { Cys(R2) } <- is attached in [2*] attachment point on staple
 
     """
-    smiles = '"SCP |$R1;placeholder;R2$|"'
+    smiles = "[H]N[C@@H](Cc1c[nH]cn1)C(=O)NC(C)(C)C(=O)N[C@@H](CCC(N)=O)C(=O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@H]1CSCC(=O)NCC[C@@H](C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O)NC(=O)CSC[C@@H](C(=O)N[C@@H](Cc2ccc(O)cc2)C(=O)N[C@@H](CO)C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC1=O)[C@@H](C)O"
 
     peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json)
-    correct_peptide_json = {"placeholder": "placeholder_val"}
+    correct_peptide_json = {
+        "sequence": "H{aMeAla}QGTYCDAQCYS",
+        "internal_modifications": [],
+        "external_modifications": [
+            {
+                "smiles": "[1*]CC(=O)N[C@@H](CCNC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O",
+                "max_attachment_point_id": 2,
+                "attachment_points_on_sequence": {
+                    1: {
+                        "attachment_point_id": 1,
+                        "ResID": "11",
+                        "AtomName": "SG",
+                        "ResidueName": "",
+                    },
+                    2: {
+                        "attachment_point_id": 2,
+                        "ResID": "7",
+                        "AtomName": "SG",
+                        "ResidueName": "",
+                    },
+                },
+            }
+        ],
+        "C_terminus": "NH2",
+        "N_terminus": "H",
+        "pepseq_format": "H~H{aMeAla}QGTY{Cys(R2)}DAQ{Cys(R1)}YS~NH2",
+    }
     assert peptide_json == correct_peptide_json
     return
 
 
-def test_peptide_json_to_pepseq_string_and_one_mod_smiles():
-    """
-
-    Input:
-
-        peptide_json:
-
-            JSON containing info about modified peptide with
-
-                'sequence':
-
-                'internal_modifications':
-
-                'external_modifications':
-
-
-    Output:
-        pepseq_string:
-
-            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
-        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
-        with staple attached, {Cys(R1)} - amino acid with staple attached
-
-        modifications - external ones, with attachment points
-
-        mod_smiles:
-
-            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
-            points:
-
-                { Cys(R1) } <- is attached in [1*] attachment point on staple
-                { Cys(R2) } <- is attached in [2*] attachment point on staple
-
-    """
-    smiles = '"SCP |$R1;placeholder;R2$|"'
-
-    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json)
-    correct_pepseq_string, one_mod_smiles = "H~H{Cys(R1)}I{Cys(R2)}K~OH", "[1*]CS[2*]"
-
-    assert peptide_json["pepseq_format"] == correct_pepseq_string
-    assert peptide_json["external_modifications"][0]["smiles"] == one_mod_smiles
-    return
-
-
-def test_peptide_json_one_mod_to_pepseq_string_many_mod_smiles():
+def test_peptide_json_to_pepseq_string_many_mod_smiles():
     """
     Input:
 
@@ -332,6 +341,18 @@ def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
                 { Cys(R2) } <- is attached in [2*] attachment point on staple
 
     """
+    smiles = "[H]N[C@@H](Cc1c[nH]cn1)C(=O)NC(C)(C)C(=O)N[C@@H](CCC(N)=O)C(=O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@H]1CSCC(=O)NCC[C@@H](C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O)NC(=O)CSC[C@@H](C(=O)N[C@@H](Cc2ccc(O)cc2)C(=O)N[C@@H](CO)C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC1=O)[C@@H](C)O"
+
+    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json)
+
+    pepseq_format = peptide_json["pepseq_format"]
+    mod_smiles = peptide_json["external_modifications"][0]["smiles"]
+
+    assert pepseq_format == "H~H{aMeAla}QGTY{Cys(R2)}DAQ{Cys(R1)}YS~NH2"
+    assert (
+        mod_smiles
+        == "[1*]CC(=O)N[C@@H](CCNC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
+    )
 
     return
 
