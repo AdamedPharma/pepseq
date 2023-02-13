@@ -132,6 +132,34 @@ def append_pepseq_R_info(j):
 
 
 def decompose_peptide_smiles_with_termini(smiles, db_json):
+    """
+    Input:
+
+        SMILES - string of peptide sequence with modified amino acids
+            modification(s)
+
+    Output:
+        peptide_json:
+
+            JSON containing info about modified peptide with
+
+                'sequence':
+
+                'internal_modifications':
+
+                'external_modifications':
+
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    """
+
     peptide_json = decompose_peptide_smiles(smiles, db_json)
     c_terminus__c_ind = get_c_term_from_peptide_json(peptide_json, db_json)
 
@@ -174,6 +202,38 @@ def decompose_peptide_smiles_with_termini(smiles, db_json):
     peptide_json["pepseq_format"] = pepseq_format
 
     return peptide_json
+
+
+def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles, db_json):
+    """
+    Input:
+
+        SMILES - string of peptide sequence with modified amino acids
+            modification(s)
+
+    Output:
+        pepseq_string:
+
+            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+        modifications - external ones, with attachment points
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    """
+
+    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json)
+    pepseq_format = peptide_json["pepseq_format"]
+    mod_smiles = peptide_json["external_modifications"][0]["smiles"]
+    return pepseq_format, mod_smiles
 
 
 def mark_external_modifications_on_seq(l, peptide_json, mod_as_X=False):

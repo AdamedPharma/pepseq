@@ -79,13 +79,47 @@ def get_ext_mod(pepseq, smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
 
 
 def get_pep_json(pepseq_format, db_json, mod_smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
-    # N_terminus, pepseq, C_terminus = pepseq_format.split("~")
+    """
+
+    Input:
+
+
+        pepseq_string:
+
+            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    Output:
+
+        peptide_json:
+
+            JSON containing info about modified peptide with
+
+                'sequence':
+
+                'internal_modifications':
+
+                'external_modifications':
+
+    """
+
     N_terminus, C_terminus, pepseq = find_termini(pepseq_format, db_json)
     symbols = parse_canonical2(pepseq)
     base_seq = get_base_seq(symbols)
     ext_mod = get_ext_mod(pepseq, mod_smiles)
 
     pep_json = {
+        "length": len(symbols),
         "sequence": base_seq,
         "internal_modifications": [],
         "C_terminus": C_terminus,

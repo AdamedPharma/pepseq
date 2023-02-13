@@ -63,98 +63,6 @@ def get_connecting_edges(G, H, I):
     return out
 
 
-def get_connection_info(G, G_native, G_mod, attachment_point_id=0):
-    connecting_edges = get_connecting_edges(G, G_native, G_mod)
-    attachment_points = {}
-
-    G_mod_copy = G_mod.copy()
-
-    for connecting_edge in connecting_edges:
-        attachment_point_id += 1
-        attachment_point_on_seq = (G_native.nodes & set(connecting_edge)).pop()
-        attachment_point_on_mod = (G_mod.nodes & set(connecting_edge)).pop()
-
-        res_id, atom_name = G.nodes[attachment_point_on_seq]["ResID"], G.nodes[
-            attachment_point_on_seq
-        ].get("AtomName")
-        attachment_points[attachment_point_id] = res_id, atom_name
-
-        # dodajemy dummyAtom
-        G_mod_copy.add_node(
-            "%d*" % attachment_point_id,
-            **{
-                "atomic_num": 0,
-                "formal_charge": 0,
-                "chiral_tag": rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
-                "hybridization": rdkit.Chem.rdchem.HybridizationType.SP3,
-                "num_explicit_hs": 0,
-                "is_aromatic": False,
-                "isotope": attachment_point_id,
-            }
-        )
-        G_mod_copy.add_edge(
-            attachment_point_on_mod,
-            "%d*" % attachment_point_id,
-            **{"bond_type": rdkit.Chem.rdchem.BondType.SINGLE}
-        )
-        #
-
-    mod_mol = nx_to_mol(G_mod_copy)
-    mod_smiles = rdkit.Chem.MolToSmiles(mod_mol)
-    return {
-        "mod_smiles": mod_smiles,
-        "attachment_points_on_seq": attachment_points,
-        "max_attachment_point_id": attachment_point_id,
-    }
-
-
-def get_external_modifications_info(G, G_native, modification_graphs):
-    external_modifications_info = []
-    attachment_point_id = 0
-    for G_mod in modification_graphs:
-        external_modification_info = get_connection_info(
-            G, G_native, G_mod, attachment_point_id=attachment_point_id
-        )
-        external_modifications_info.append(external_modification_info)
-        attachment_point_id = external_modification_info["max_attachment_point_id"]
-    return external_modifications_info
-
-
-def process_residue_candidate_graph(mol, cx_smarts_db):
-    """
-    this processes case 4
-    we need something to process case 3
-    """
-    res_matches = get_res_matches(mol, cx_smarts_db)
-    mol = propagate_matches(mol, res_matches)
-
-    #
-    # now find a way to
-    #
-
-    G = mol_to_nx(mol)
-
-    native_atom_ids = nx.get_node_attributes(G, "ResID").keys()
-    external_modification_atom_ids = G.nodes - native_atom_ids
-
-    if external_modification_atom_ids:
-        # should cover case 1 and 2 and 4
-
-        G_native = G.subgraph(native_atom_ids)
-
-        G_copy = G.subgraph(external_modification_atom_ids)
-        g = (G_copy.subgraph(c) for c in nx.connected_components(G_copy))
-        modification_graphs = list(g)
-
-        external_modifications_info = get_external_modifications_info(
-            G, G_native, modification_graphs
-        )
-    else:
-        external_modifications_info = []
-
-    return mol, res_matches, external_modifications_info
-
-
 def process_res_res_connection(res_atoms_1, res_atoms_2, connecting_edges):
     attachment_point_pairs = []
     for connecting_edge in connecting_edges:
@@ -207,6 +115,18 @@ def process_internal_connections(connections, res_matches, G):
     return internal_connections
 
 
+def sorted_connection(connection):
+    res_ids = []
+
+    for i in range(len(connection)):
+        res_name = connection[i][0]
+        res_id = int(res_name.split("_")[1])
+        res_ids.append((res_id, i))
+
+    sorted_res_ids = sorted(res_ids)
+    return [connection[i] for (res_id, i) in sorted_res_ids]
+
+
 def process_external_connections(connections, res_matches, modification_graphs, G):
     attachment_point_id = 0
     external_modifications = []
@@ -216,7 +136,10 @@ def process_external_connections(connections, res_matches, modification_graphs, 
         mod_graph = modification_graphs[int(mod_id) - 1].copy()
         mod_atoms = set(mod_graph.nodes)
 
-        for res_name, connecting_edges in connections[mod_id]:
+        connection = connections.get(mod_id)
+        connection = sorted_connection(connection)
+
+        for res_name, connecting_edges in connection:
             list_res = res_name.split("_")
 
             g_type_1, res_id = list_res[:2]

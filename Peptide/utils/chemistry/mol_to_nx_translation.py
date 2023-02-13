@@ -109,19 +109,3 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
 
     rdkit.Chem.SanitizeMol(mol)
     return mol
-
-
-def do_all(smiles: str, validate=False) -> nx.classes.graph.Graph:
-    """
-    reads SMILES string into
-        nx.classes.graph.Graph graph
-        with optional validation
-    """
-    mol = rdkit.Chem.MolFromSmiles(smiles.strip())
-    can_smi = rdkit.Chem.MolToSmiles(mol)
-    G = mol_to_nx(mol)
-    if validate:
-        mol = nx_to_mol(G)
-        new_smi = rdkit.Chem.MolToSmiles(mol)
-        assert new_smi == smiles
-    return G

@@ -1,5 +1,4 @@
 from collections import namedtuple
-from collections.abc import Sequence
 from typing import AnyStr, TypeVar
 
 from rdkit.Chem import MolFromSmiles
@@ -43,5 +42,8 @@ def get_smiles_descriptors(smiles: AnyStr):
 class Peptide(object):
     def __init__(self, smiles, peptide_json):
         self.smiles = smiles
+        self.complete_smiles = smiles
         self.peptide_json = peptide_json
+        self.sequence = self.peptide_json.get("sequence")
+        self.length = self.peptide_json.get("length")
         return

@@ -80,8 +80,6 @@ def add_staple(
 
 
 def get_peptide_json_from_sequence(sequence, db_json):
-    # canonical_sequence = get_canonical(sequence, db_json)
-    # symbols_list_w_termini = parse_canonical(canonical_sequence)
 
     N_terminus, C_terminus, sequence_str_wo_termini = find_termini(sequence, db_json)
 
