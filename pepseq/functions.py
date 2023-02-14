@@ -2,6 +2,11 @@ import json
 import pkgutil
 
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
+from pepseq.Peptide.utils.validation import (
+    check_for_nested_brackets,
+    check_parentheses,
+    validate_termini,
+)
 from pepseq.read import from_json
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
@@ -10,6 +15,9 @@ with open(db_path) as fp:
 
 
 def validate_pepseq(pepseq: str) -> bool:
+    validate_termini(pepseq)
+    check_parentheses(pepseq)
+    check_for_nested_brackets(pepseq)
     return True
 
 
