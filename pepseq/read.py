@@ -1,4 +1,5 @@
 import json
+import os
 import pkgutil
 from typing import Any, Dict
 
@@ -7,8 +8,11 @@ from pepseq.BuildPeptideJSONFromSMILES import decompose_peptide_smiles
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.Peptide.models.Peptide import Peptide
 
-db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
-with open(db_path) as fp:
+absolute_path = os.path.dirname(__file__)
+relative_db_path = "Peptide/database/db.json"
+full_db_path = os.path.join(absolute_path, relative_db_path)
+
+with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 
@@ -16,8 +20,6 @@ def from_pepseq(pepseq: str, db_json: Dict = db_json) -> Peptide:
     """Read peptide from PepSeq string"""
     mod_smiles = None
     peptide_json = get_pep_json(pepseq, db_json, mod_smiles)
-    # peptide_json = get_pep_json(pepseq, mod_smiles)
-    # peptide_json = get_peptide_json_from_sequence(pepseq, db_json)
     smiles = get_smiles_from_peptide_json(peptide_json, db_json)
     peptide = Peptide(smiles, peptide_json)
     return peptide

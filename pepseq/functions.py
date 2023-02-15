@@ -1,4 +1,5 @@
 import json
+import os
 import pkgutil
 
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
@@ -9,8 +10,11 @@ from pepseq.Peptide.utils.validation import (
 )
 from pepseq.read import from_json
 
-db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
-with open(db_path) as fp:
+absolute_path = os.path.dirname(__file__)
+relative_db_path = "Peptide/database/db.json"
+full_db_path = os.path.join(absolute_path, relative_db_path)
+
+with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 

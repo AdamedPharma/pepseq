@@ -46,4 +46,6 @@ class Peptide(object):
         self.peptide_json = peptide_json
         self.sequence = self.peptide_json.get("sequence")
         self.length = self.peptide_json.get("length")
+        descriptors = get_smiles_descriptors(self.complete_smiles)
+        self.mw = descriptors["mw"]
         return
