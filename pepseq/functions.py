@@ -26,7 +26,10 @@ def validate_pepseq(pepseq: str) -> bool:
 
 
 def calculate(pepseq: str, smiles: list[str]) -> dict:
-    one_mod_smiles = smiles[0]
+    if smiles:
+        one_mod_smiles = smiles[0]
+    else:
+        one_mod_smiles = None
     peptide_json = get_pep_json(pepseq, one_mod_smiles)
     peptide = from_json(peptide_json)
     complete_smiles = peptide.complete_smiles

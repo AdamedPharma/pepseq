@@ -78,7 +78,7 @@ def get_ext_mod(pepseq, smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
         return ext_mod
 
 
-def get_pep_json(pepseq_format, db_json, mod_smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
+def get_pep_json(pepseq_format, db_json, mod_smiles=None):
     """
 
     Input:
@@ -116,7 +116,6 @@ def get_pep_json(pepseq_format, db_json, mod_smiles="[1*]C[2*] |$R1;placeholder;
     N_terminus, C_terminus, pepseq = find_termini(pepseq_format, db_json)
     symbols = parse_canonical2(pepseq)
     base_seq = get_base_seq(symbols)
-    ext_mod = get_ext_mod(pepseq, mod_smiles)
 
     pep_json = {
         "length": len(symbols),
@@ -126,8 +125,14 @@ def get_pep_json(pepseq_format, db_json, mod_smiles="[1*]C[2*] |$R1;placeholder;
         "N_terminus": N_terminus,
         "pepseq_format": pepseq_format,
     }
-    if ext_mod is not None:
-        pep_json["external_modifications"] = [ext_mod]
+
+    if mod_smiles is not None:
+        ext_mod = get_ext_mod(pepseq, mod_smiles)
+
+        if ext_mod is not None:
+            pep_json["external_modifications"] = [ext_mod]
+        else:
+            pep_json["external_modifications"] = []
     else:
         pep_json["external_modifications"] = []
 
