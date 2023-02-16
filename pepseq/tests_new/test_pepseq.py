@@ -7,6 +7,7 @@ from pepseq.BuildingModifiedPeptideFromPeptideJSON import get_smiles_from_peptid
 from pepseq.BuildPeptideJSONFromSMILES import (
     from_smiles_to_pepseq_and_one_mod_smiles_strings,
 )
+from pepseq.functions import calculate
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.read import from_json, from_pepseq
 
@@ -113,6 +114,29 @@ def smiles_are_identical(smi1, smi2):
     mol1 = rdkit.Chem.MolFromSmiles(smi1)
     mol2 = rdkit.Chem.MolFromSmiles(smi2)
     return mols_are_identical(mol1, mol2)
+
+
+def test_calculate():
+    pepseq_value = "{Cys(R1)}ACDAPEPsEQ{Cys(R2)}"
+    smiles = ["[1*]CNCC[2*]"]
+
+    r1 = calculate(pepseq_value, smiles)
+    r2 = calculate(pepseq_value, [])
+
+    assert r1 == {
+        "complete_smiles": "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O",
+        "length": 12,
+        "mw": 1307.45,
+        "sequence": "CACDAPEPsEQC",
+    }
+
+    assert r2 == {
+        "complete_smiles": "[H]N[C@@H](CS)C(=O)N[C@@H](C)C(=O)N[C@@H](CS)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](C)C(=O)N1CCC[C@H]1C(=O)N[C@@H](CCC(=O)O)C(=O)N1CCC[C@H]1C(=O)N[C@H](CO)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](CCC(N)=O)C(=O)N[C@@H](CS)C(=O)O",
+        "length": 12,
+        "mw": 1252.37,
+        "sequence": "CACDAPEPsEQC",
+    }
+    return
 
 
 @pytest.mark.parametrize(
