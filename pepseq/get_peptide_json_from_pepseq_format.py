@@ -37,7 +37,8 @@ def get_attachment_points_on_sequence_json(symbols):
         decomposition = decompose_symbol(symbol)
         if type(decomposition) == tuple:
             res_name, attachment_point_id = decomposition
-            attachment_point_json = get_attachment_point_json(res_id, decomposition)
+            attachment_point_json = get_attachment_point_json(
+                res_id, decomposition)
             att_points[int(attachment_point_id)] = attachment_point_json
     return att_points
 
@@ -64,7 +65,8 @@ def get_base_seq(symbols):
 
 def get_ext_mod(pepseq, smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
     symbols = parse_canonical2(pepseq)
-    attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
+    attachment_points_on_sequence = \
+        get_attachment_points_on_sequence_json(symbols)
     if attachment_points_on_sequence.keys():
         max_attachment_point_id = max(
             [int(i) for i in attachment_points_on_sequence.keys()]
@@ -86,14 +88,17 @@ def get_pep_json(pepseq_format, db_json, mod_smiles=None):
 
         pepseq_string:
 
-            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
-        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+            str = string in pepseq format
+            H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
+        amino acid; {Cys(R1)} - is amino acid
         with staple attached, {Cys(R1)} - amino acid with staple attached
 
 
         mod_smiles:
 
-            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+                modification with attachment
             points:
 
                 { Cys(R1) } <- is attached in [1*] attachment point on staple

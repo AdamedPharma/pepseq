@@ -8,7 +8,8 @@ def to_pepseq(peptide: Peptide, include_modifications: bool = False) -> str:
 
     Args:
         peptide (Peptide): instance
-        include_modifications (bool, optional): includes or exlude non-standard modifications. Defaults to True.
+        include_modifications (bool, optional):
+        includes or exlude non-standard modifications. Defaults to True.
 
     Raises:
         Exception: _description_
@@ -26,7 +27,8 @@ def to_smiles(peptide: Peptide, include_modifications: bool = True) -> str:
 
     Args:
         peptide (Peptide): instance
-        include_modifications (bool, optional): includes or exlude non-standard modifications. Defaults to True.
+        include_modifications (bool, optional):
+        includes or exlude non-standard modifications. Defaults to True.
 
     Raises:
         Exception: _description_
@@ -37,12 +39,14 @@ def to_smiles(peptide: Peptide, include_modifications: bool = True) -> str:
     return peptide.smiles
 
 
-def to_json(peptide: Peptide, include_modifications: bool = True) -> Dict[str, Any]:
+def to_json(peptide: Peptide, include_modifications: bool = True
+            ) -> Dict[str, Any]:
     """Encodes peptide to JSON representation
 
     Args:
         peptide (Peptide): instance
-        include_modifications (bool, optional): includes or exlude non-standard modifications. Defaults to True.
+        include_modifications (bool, optional):
+        includes or exlude non-standard modifications. Defaults to True.
 
     Raises:
         Exception: _description_

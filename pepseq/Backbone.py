@@ -38,7 +38,8 @@ def generate_bb_mol(num_res: int, OH=False) -> rdkit.Chem.rdchem.Mol:
 
 class GetLongestPolymerWithin(Functionality):
     """
-    The Longest Polymer of (monomer) form –[NCC(=O) ]*n- is being rdkit.substructureMatch
+    The Longest Polymer of (monomer) form –[NCC(=O) ]*n- is being
+      rdkit.substructureMatch
     of rdkit.MoleculeFromSMILES ProteinBackbone Is (SMARTS * N)?
     """
 
@@ -100,8 +101,10 @@ class BreakingIntoResidueCandidateSubgraphs(Functionality):
     Peptide bonds are identified and broken. <br>
     We end with a list of subgraphs for 'Residues' (supposedly) <br>
 
-    For two cysteine residues bound by a disulfide bond we might end up with subgraph
-    actually composed of two Residues. This is shown by subgraph having two ResIds.<br>
+    For two cysteine residues bound by a disulfide bond we might end up with
+      subgraph
+    actually composed of two Residues. This is shown by subgraph having two
+      ResIds.<br>
     """
 
     def __init__(self):

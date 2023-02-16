@@ -1,6 +1,5 @@
 import json
 import os
-import pkgutil
 
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.Peptide.utils.validation import (

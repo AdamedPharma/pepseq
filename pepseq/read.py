@@ -1,9 +1,9 @@
 import json
 import os
-import pkgutil
 from typing import Any, Dict
 
-from pepseq.BuildingModifiedPeptideFromPeptideJSON import get_smiles_from_peptide_json
+from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
+    get_smiles_from_peptide_json
 from pepseq.BuildPeptideJSONFromSMILES import decompose_peptide_smiles
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.Peptide.models.Peptide import Peptide
@@ -39,7 +39,8 @@ def from_smiles(smiles: str, db_json: Dict = db_json) -> Peptide:
     return peptide
 
 
-def from_json(peptide_json: Dict[str, Any], db_json: Dict = db_json) -> Peptide:
+def from_json(peptide_json: Dict[str, Any],
+              db_json: Dict = db_json) -> Peptide:
     """Read (modified) peptide from json
 
     pepseq json should looks as below:
@@ -47,7 +48,9 @@ def from_json(peptide_json: Dict[str, Any], db_json: Dict = db_json) -> Peptide:
     {"sequence":"H{Aib}EGTFTSDVSSYLEGQAAKEFIAWLVRGRG",
         "modifications":[
             {
-            "modification_smiles": "[*1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOCCOCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[*2]",
+            "modification_smiles": \
+            "[*1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOC" +
+            "COCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[*2]",
             "connecting_residues": [17, 24]
             }
         ]
@@ -56,7 +59,8 @@ def from_json(peptide_json: Dict[str, Any], db_json: Dict = db_json) -> Peptide:
 
     Args:
         json (Dict[str, Any]): json in format as above
-        residue_database (FileSystemDbRepo, optional): residue database. Defaults to db.
+        residue_database (FileSystemDbRepo, optional): residue database.
+        Defaults to db.
 
     Raises:
         Exception: _description_

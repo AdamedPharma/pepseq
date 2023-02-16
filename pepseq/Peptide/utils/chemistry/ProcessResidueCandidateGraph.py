@@ -1,6 +1,7 @@
 import networkx as nx
 import rdkit
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, \
+    nx_to_mol
 
 
 def match_to_res_id(mol, ResID, cx_smarts_db):
@@ -36,7 +37,8 @@ def get_res_matches(mol, cx_smarts_db):
     ResIDs = sorted(list(set(ResIDs_by_atom.values())))
 
     for ResID in ResIDs:
-        (max_aa, max_aa_mol, max_match) = match_to_res_id(mol, ResID, cx_smarts_db)
+        (max_aa, max_aa_mol, max_match) = match_to_res_id(mol, ResID,
+                                                          cx_smarts_db)
         res_matches[ResID] = (max_aa, max_aa_mol, max_match)
     return res_matches
 
@@ -58,8 +60,10 @@ def propagate_matches(mol, res_matches):
     return nx_to_mol(G)
 
 
-def get_connecting_edges(G, H, I):
-    out = [e for e in G.edges if e[0] in H and e[1] in I or e[0] in I and e[1] in H]
+def get_connecting_edges(union_graph, H_graph, I_graph):
+    out = [edge for edge in union_graph.edges if (edge[0] in H_graph
+                                                  and edge[1] in I_graph)
+           or (edge[0] in I_graph and edge[1] in H_graph)]
     return out
 
 
@@ -127,7 +131,8 @@ def sorted_connection(connection):
     return [connection[i] for (res_id, i) in sorted_res_ids]
 
 
-def process_external_connections(connections, res_matches, modification_graphs, G):
+def process_external_connections(connections, res_matches,
+                                 modification_graphs, G):
     attachment_point_id = 0
     external_modifications = []
 
@@ -151,7 +156,8 @@ def process_external_connections(connections, res_matches, modification_graphs, 
                 res_atoms, mod_atoms, connecting_edges
             )
 
-            for res_attachment_point, mod_attachment_point in attachment_point_pairs:
+            for res_attachment_point, mod_attachment_point in \
+                    attachment_point_pairs:
                 attachment_point_id += 1
                 AtomName = G.nodes[res_attachment_point].get("AtomName")
                 attachment_points_on_seq[attachment_point_id] = {
@@ -166,8 +172,10 @@ def process_external_connections(connections, res_matches, modification_graphs, 
                     **{
                         "atomic_num": 0,
                         "formal_charge": 0,
-                        "chiral_tag": rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
-                        "hybridization": rdkit.Chem.rdchem.HybridizationType.SP3,
+                        "chiral_tag":
+                        rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
+                        "hybridization":
+                        rdkit.Chem.rdchem.HybridizationType.SP3,
                         "num_explicit_hs": 0,
                         "is_aromatic": False,
                         "isotope": attachment_point_id,
@@ -357,7 +365,8 @@ def decompose_residues_internal(residues_internal, cx_smarts_db):
                 #    modification, offset=max_attachment_point_id
                 # )
                 external_modifications.append(modification)
-            # max_attachment_point_id = modification.get("max_attachment_point_id")
+            # max_attachment_point_id = modification.get(
+            # "max_attachment_point_id")
 
         for res_id in res_matches:
             d_seq[int(res_id)] = res_matches[res_id]

@@ -27,13 +27,13 @@ def decompose_peptide_smiles(smiles, db_json):
     peptide_molecule = rdkit.Chem.MolFromSmiles(smiles)
     peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
 
-    residues = BreakingIntoResidueCandidateSubgraphs().execute(peptide_molecule)
+    residues = BreakingIntoResidueCandidateSubgraphs().execute(
+        peptide_molecule)
 
     cx_smarts_db = get_cx_smarts_db(db_json)
 
-    seq, internal_modifications, external_modifications = decompose_residues_internal(
-        residues, cx_smarts_db
-    )
+    seq, internal_modifications, external_modifications = \
+        decompose_residues_internal(residues, cx_smarts_db)
     return {
         "sequence": seq,
         "internal_modifications": internal_modifications,
@@ -49,7 +49,8 @@ def get_terminal_smiles_building_block(peptide_json, ResID, AtomName):
 
     for i in range(len(external_modifications)):
         mod = external_modifications[i]
-        attachment_points_on_sequence = mod.get("attachment_points_on_sequence")
+        attachment_points_on_sequence = mod.get(
+            "attachment_points_on_sequence")
 
         for key in attachment_points_on_sequence:
             attachment_point = attachment_points_on_sequence.get(key)
@@ -62,11 +63,13 @@ def get_terminal_smiles_building_block(peptide_json, ResID, AtomName):
 
 
 def get_C_terminal_smiles_building_block(peptide_json):
-    return get_terminal_smiles_building_block(peptide_json, ResID=-1, AtomName="CO")
+    return get_terminal_smiles_building_block(
+        peptide_json, ResID=-1, AtomName="CO")
 
 
 def get_N_terminal_smiles_building_block(peptide_json):
-    return get_terminal_smiles_building_block(peptide_json, ResID=1, AtomName="N")
+    return get_terminal_smiles_building_block(
+        peptide_json, ResID=1, AtomName="N")
 
 
 def smiles_are_identical(smiles1, smiles2):
@@ -115,18 +118,18 @@ def output_modified_residue(ResName, R_id):
 
 
 def append_pepseq_R_info(j):
-    l = parse_canonical2(j["sequence"])
+    seq_list = parse_canonical2(j["sequence"])
     ext_mods = j["external_modifications"]
     for ext_mod in ext_mods:
         att_points = ext_mod["attachment_points_on_sequence"]
         for R_id in att_points:
             att_point = att_points[R_id]
             ResID = int(att_point["ResID"])
-            ResName = l[ResID - 1]
+            ResName = seq_list[ResID - 1]
             new_s = output_modified_residue(ResName, R_id)
-            l[ResID - 1] = new_s
+            seq_list[ResID - 1] = new_s
     new_seq = ""
-    for symbol in l:
+    for symbol in seq_list:
         if len(symbol) > 1:
             new_seq = new_seq + "{%s}" % symbol
         else:
@@ -155,7 +158,8 @@ def decompose_peptide_smiles_with_termini(smiles, db_json):
 
         mod_smiles:
 
-            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+              modification with attachment
             points:
 
                 { Cys(R1) } <- is attached in [1*] attachment point on staple
@@ -217,15 +221,18 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles, db_json):
     Output:
         pepseq_string:
 
-            str = string in pepseq format H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
-        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified amino acid; {Cys(R1)} - is amino acid
+            str = string in pepseq format
+              H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
+          amino acid; {Cys(R1)} - is amino acid
         with staple attached, {Cys(R1)} - amino acid with staple attached
 
         modifications - external ones, with attachment points
 
         mod_smiles:
 
-            SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+              modification with attachment
             points:
 
                 { Cys(R1) } <- is attached in [1*] attachment point on staple
@@ -239,26 +246,27 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles, db_json):
     return pepseq_format, mod_smiles
 
 
-def mark_external_modifications_on_seq(l, peptide_json, mod_as_X=False):
+def mark_external_modifications_on_seq(seq_list, peptide_json, mod_as_X=False):
     external_modifications = peptide_json.get("external_modifications")
     for external_modification in external_modifications:
-        attachment_points = external_modification.get("attachment_points_on_sequence")
+        attachment_points = external_modification.get(
+            "attachment_points_on_sequence")
 
         for key in attachment_points:
             attachment_point = attachment_points.get(key)
             res_id = int(attachment_point.get("ResID"))
 
-            basic_res_name = l[res_id - 1]
+            basic_res_name = seq_list[res_id - 1]
             if mod_as_X:
                 new_res_name = "X"
             else:
                 new_res_name = "{mod%s}" % (basic_res_name)
 
-            l[res_id - 1] = new_res_name
-    return l
+            seq_list[res_id - 1] = new_res_name
+    return seq_list
 
 
-def mark_internal_modifications_on_seq(l, peptide_json, mod_as_X=False):
+def mark_internal_modifications_on_seq(seq_list, peptide_json, mod_as_X=False):
     internal_modifications = peptide_json.get("internal_modifications")
 
     for key in internal_modifications:
@@ -266,26 +274,28 @@ def mark_internal_modifications_on_seq(l, peptide_json, mod_as_X=False):
         mod_residue_ids = [int(i["ResID"]) for i in mod_residues]
 
         for res_id in mod_residue_ids:
-            basic_res_name = l[res_id - 1]
+            basic_res_name = seq_list[res_id - 1]
             if mod_as_X:
                 new_res_name = "X"
             else:
                 new_res_name = "{mod%s}" % (basic_res_name)
-            l[res_id - 1] = new_res_name
-    return l
+            seq_list[res_id - 1] = new_res_name
+    return seq_list
 
 
 def print_sequence(peptide_json, mod_as_X=False):
     basic_sequence = peptide_json.get("sequence")
-    l = list(basic_sequence)
+    aa_list = list(basic_sequence)
 
     N_terminus = peptide_json.get("N_terminus")
     C_terminus = peptide_json.get("C_terminus")
 
-    l = mark_external_modifications_on_seq(l, peptide_json, mod_as_X)
-    l = mark_internal_modifications_on_seq(l, peptide_json, mod_as_X)
+    aa_list = mark_external_modifications_on_seq(
+        aa_list, peptide_json, mod_as_X)
+    aa_list = mark_internal_modifications_on_seq(
+        aa_list, peptide_json, mod_as_X)
 
-    seq_marked = "".join(l)
+    seq_marked = "".join(aa_list)
     if N_terminus is not None:
         seq_marked = "%s~%s" % (N_terminus, seq_marked)
     if C_terminus is not None:

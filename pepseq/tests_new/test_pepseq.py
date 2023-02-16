@@ -3,7 +3,8 @@ import pkgutil
 
 import pytest
 import rdkit
-from pepseq.BuildingModifiedPeptideFromPeptideJSON import get_smiles_from_peptide_json
+from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
+    get_smiles_from_peptide_json
 from pepseq.BuildPeptideJSONFromSMILES import (
     from_smiles_to_pepseq_and_one_mod_smiles_strings,
 )
@@ -19,11 +20,26 @@ with open(db_path) as fp:
 s1l_vs_smiles = (
     (
         "QWERTYIPASDFGHKLCVNM",
-        "N[C@@]([H])(CCC(=O)N)C(=O)N[C@@]([H])(CC(=CN2)C1=C2C=CC=C1)C(=O)N[C@@]([H])(CCC(=O)O)C(=O)N[C@@]([H])(CCCNC(=N)N)C(=O)N[C@@]([H])([C@]([H])(O)C)C(=O)N[C@@]([H])(Cc1ccc(O)cc1)C(=O)N[C@@]([H])([C@]([H])(CC)C)C(=O)N1[C@@]([H])(CCC1)C(=O)N[C@@]([H])(C)C(=O)N[C@@]([H])(CO)C(=O)N[C@@]([H])(CC(=O)O)C(=O)N[C@@]([H])(Cc1ccccc1)C(=O)NCC(=O)N[C@@]([H])(CC1=CN=C-N1)C(=O)N[C@@]([H])(CCCCN)C(=O)N[C@@]([H])(CC(C)C)C(=O)N[C@@]([H])(CS)C(=O)N[C@@]([H])(C(C)C)C(=O)N[C@@]([H])(CC(=O)N)C(=O)N[C@@]([H])(CCSC)C(=O)O",
+        "N[C@@]([H])(CCC(=O)N)C(=O)N[C@@]([H])(CC(=CN2)C1=C2C=CC=C1)C" +
+        "(=O)N[C@@]([H])(CCC(=O)O)C(=O)N[C@@]([H])(CCCNC(=N)N)C(=O)N[" +
+        "C@@]([H])([C@]([H])(O)C)C(=O)N[C@@]([H])(Cc1ccc(O)cc1)C(=O)N" +
+        "[C@@]([H])([C@]([H])(CC)C)C(=O)N1[C@@]([H])(CCC1)C(=O)N[C@@]" +
+        "([H])(C)C(=O)N[C@@]([H])(CO)C(=O)N[C@@]([H])(CC(=O)O)C(=O)N[" +
+        "C@@]([H])(Cc1ccccc1)C(=O)NCC(=O)N[C@@]([H])(CC1=CN=C-N1)C(=O" +
+        ")N[C@@]([H])(CCCCN)C(=O)N[C@@]([H])(CC(C)C)C(=O)N[C@@]([H])(" +
+        "CS)C(=O)N[C@@]([H])(C(C)C)C(=O)N[C@@]([H])(CC(=O)N)C(=O)N[C@" +
+        "@]([H])(CCSC)C(=O)O",
     ),
     (
         "qwertyipasdfghklcvnm",
-        "N[C@]([H])(CCC(=O)N)C(=O)N[C@]([H])(CC(=CN2)C1=C2C=CC=C1)C(=O)N[C@]([H])(CCC(=O)O)C(=O)N[C@]([H])(CCCNC(=N)N)C(=O)N[C@]([H])([C@@]([H])(O)C)C(=O)N[C@]([H])(Cc1ccc(O)cc1)C(=O)N[C@]([H])([C@@]([H])(CC)C)C(=O)N1[C@]([H])(CCC1)C(=O)N[C@]([H])(C)C(=O)N[C@]([H])(CO)C(=O)N[C@]([H])(CC(=O)O)C(=O)N[C@]([H])(Cc1ccccc1)C(=O)NCC(=O)N[C@]([H])(CC1=CN=C-N1)C(=O)N[C@]([H])(CCCCN)C(=O)N[C@]([H])(CC(C)C)C(=O)N[C@]([H])(CS)C(=O)N[C@]([H])(C(C)C)C(=O)N[C@]([H])(CC(=O)N)C(=O)N[C@]([H])(CCSC)C(=O)O",
+        "N[C@]([H])(CCC(=O)N)C(=O)N[C@]([H])(CC(=CN2)C1=C2C=CC=C1)C(=" +
+        "O)N[C@]([H])(CCC(=O)O)C(=O)N[C@]([H])(CCCNC(=N)N)C(=O)N[C@](" +
+        "[H])([C@@]([H])(O)C)C(=O)N[C@]([H])(Cc1ccc(O)cc1)C(=O)N[C@](" +
+        "[H])([C@@]([H])(CC)C)C(=O)N1[C@]([H])(CCC1)C(=O)N[C@]([H])(C" +
+        ")C(=O)N[C@]([H])(CO)C(=O)N[C@]([H])(CC(=O)O)C(=O)N[C@]([H])(" +
+        "Cc1ccccc1)C(=O)NCC(=O)N[C@]([H])(CC1=CN=C-N1)C(=O)N[C@]([H])" +
+        "(CCCCN)C(=O)N[C@]([H])(CC(C)C)C(=O)N[C@]([H])(CS)C(=O)N[C@](" +
+        "[H])(C(C)C)C(=O)N[C@]([H])(CC(=O)N)C(=O)N[C@]([H])(CCSC)C(=O)O",
     ),
 )
 
@@ -31,11 +47,18 @@ s1l_vs_canonical_smiles = (
     ("ATA", rdkit.Chem.MolToSmiles(rdkit.Chem.MolFromSequence("ATA"))),
     (
         "QWERTYIPASDFGHKLCVNM",
-        rdkit.Chem.MolToSmiles(rdkit.Chem.MolFromSequence("QWERTYIPASDFGHKLCVNM")),
+        rdkit.Chem.MolToSmiles(rdkit.Chem.MolFromSequence(
+            "QWERTYIPASDFGHKLCVNM")),
     ),
     (
         "QWERTYIPASDFGHKLCVNM",
-        "CC[C@H](C)[C@H](NC(=O)[C@H](Cc1ccc(O)cc1)NC(=O)[C@@H](NC(=O)[C@H](CCCNC(=N)N)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@H](Cc1c[nH]c2ccccc12)NC(=O)[C@@H](N)CCC(N)=O)[C@@H](C)O)C(=O)N1CCC[C@H]1C(=O)N[C@@H](C)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](Cc1ccccc1)C(=O)NCC(=O)N[C@@H](Cc1cnc[nH]1)C(=O)N[C@@H](CCCCN)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](CS)C(=O)N[C@H](C(=O)N[C@@H](CC(N)=O)C(=O)N[C@@H](CCSC)C(=O)O)C(C)C",
+        "CC[C@H](C)[C@H](NC(=O)[C@H](Cc1ccc(O)cc1)NC(=O)[C@@H](NC(=O)" +
+        "[C@H](CCCNC(=N)N)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@H](Cc1c[nH]c2" +
+        "ccccc12)NC(=O)[C@@H](N)CCC(N)=O)[C@@H](C)O)C(=O)N1CCC[C@H]1C" +
+        "(=O)N[C@@H](C)C(=O)N[C@@H](CO)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@" +
+        "@H](Cc1ccccc1)C(=O)NCC(=O)N[C@@H](Cc1cnc[nH]1)C(=O)N[C@@H](C" +
+        "CCCN)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](CS)C(=O)N[C@H](C(=O)N[" +
+        "C@@H](CC(N)=O)C(=O)N[C@@H](CCSC)C(=O)O)C(C)C",
     ),
     (
         "qwertyipasdfghklcvnm",
@@ -59,11 +82,13 @@ pepseq_vs_canonical_smiles = (
 pepseq_vs_smiles_moded = (
     (
         "ALA{modX}",
-        "N[C@@]([H])(C)C(=O)N[C@@]([H])(CC(C)C)C(=O)N[C@@]([H])(C)C(=O)N[C@@]([H])(CCCN)C(=O)O",
+        "N[C@@]([H])(C)C(=O)N[C@@]([H])(CC(C)C)C(=O)N[C@@]([H])(C)C(=" +
+        "O)N[C@@]([H])(CCCN)C(=O)O",
     ),
     (
         "H~ADRPE~OH",
-        "C[C@H](N)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCCNC(=N)N)C(=O)N1CCC[C@@H]1C(=O)N[C@@H](CCC(=O)O)C(=O)O",
+        "C[C@H](N)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCCNC(=N)N)C(=O)N" +
+        "1CCC[C@@H]1C(=O)N[C@@H](CCC(=O)O)C(=O)O",
     ),
 )
 
@@ -77,7 +102,8 @@ correct_peptide_json = {
     "pepseq_format": "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2",
     "external_modifications": [
         {
-            "smiles": "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O",
+            "smiles": "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NC" +
+                "COC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O",
             "max_attachment_point_id": 2,
             "attachment_points_on_sequence": {
                 1: {
@@ -99,8 +125,14 @@ correct_peptide_json = {
 
 
 fixture_pepseq = "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2"
-one_mod_smiles = "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
-correct_smiles = "[H]N[C@@H](Cc1c[nH]cn1)C(=O)NC(C)(C)C(=O)N[C@@H](CCC(N)=O)C(=O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@H]1CSCC(=O)NCC[C@@H](C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O)NC(=O)CSC[C@@H](C(=O)N[C@@H](Cc2ccc(O)cc2)C(=O)N[C@@H](CO)C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC1=O)[C@@H](C)O"
+one_mod_smiles = "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(=" + \
+    "O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
+correct_smiles = "[H]N[C@@H](Cc1c[nH]cn1)C(=O)NC(C)(C)C(=O)N[C@@H](CC" + \
+    "C(N)=O)C(=O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@H]1" + \
+    "CSCC(=O)NCC[C@@H](C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)" + \
+    "C(=O)O)NC(=O)CSC[C@@H](C(=O)N[C@@H](Cc2ccc(O)cc2)C(=O)N[C@@H](CO" + \
+    ")C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)N" + \
+    "C1=O)[C@@H](C)O"
 
 
 def mols_are_identical(mol1, mol2):
@@ -123,15 +155,25 @@ def test_calculate():
     r1 = calculate(pepseq_value, smiles)
     r2 = calculate(pepseq_value, [])
 
+    complete_smiles = "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)O)NC(=O)[C@H](CC" + \
+        "C(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCC" + \
+        "N2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[" + \
+        "C@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O"
+
     assert r1 == {
-        "complete_smiles": "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O",
+        "complete_smiles": complete_smiles,
         "length": 12,
         "mw": 1307.45,
         "sequence": "CACDAPEPsEQC",
     }
 
+    complete_smiles = "[H]N[C@@H](CS)C(=O)N[C@@H](C)C(=O)N[C@@H](CS)C" + \
+        "(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](C)C(=O)N1CCC[C@H]1C(=O)N[C@@H]" + \
+        "(CCC(=O)O)C(=O)N1CCC[C@H]1C(=O)N[C@H](CO)C(=O)N[C@@H](CCC(=O)O)" + \
+        "C(=O)N[C@@H](CCC(N)=O)C(=O)N[C@@H](CS)C(=O)O"
+
     assert r2 == {
-        "complete_smiles": "[H]N[C@@H](CS)C(=O)N[C@@H](C)C(=O)N[C@@H](CS)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](C)C(=O)N1CCC[C@H]1C(=O)N[C@@H](CCC(=O)O)C(=O)N1CCC[C@H]1C(=O)N[C@H](CO)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](CCC(N)=O)C(=O)N[C@@H](CS)C(=O)O",
+        "complete_smiles": complete_smiles,
         "length": 12,
         "mw": 1252.37,
         "sequence": "CACDAPEPsEQC",
@@ -173,9 +215,10 @@ def test_from_pepseq_string_and_mod_smiles_to_peptide():
 
 def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
 
-    pepseq_format, mod_smiles = from_smiles_to_pepseq_and_one_mod_smiles_strings(
-        correct_smiles, db_json
-    )
+    pepseq_format, mod_smiles = \
+        from_smiles_to_pepseq_and_one_mod_smiles_strings(
+            correct_smiles, db_json
+            )
 
     assert pepseq_format == fixture_pepseq
     assert mod_smiles == one_mod_smiles

@@ -18,8 +18,8 @@ def output_modified_residue(ResName, R_id):
 def parentheses_locs_list(parentheses_locs: list):
     ls = []
     for k, v in parentheses_locs.items():
-        l = k, v
-        ls.append(l)
+        parentheses_pair = k, v
+        ls.append(parentheses_pair)
     ls = sorted(ls)
     return ls
 
@@ -45,7 +45,8 @@ def find_parentheses(s: str):
             try:
                 parentheses_locs[stack.pop()] = i
             except IndexError:
-                raise IndexError("Too many close parentheses at index {}".format(i))
+                raise IndexError(
+                    "Too many close parentheses at index {}".format(i))
     if stack:
         raise IndexError(
             "No matching close parenthesis to open parenthesis "
@@ -56,17 +57,20 @@ def find_parentheses(s: str):
 
 def parse_canonical(canonical_sequence):
     """
-    canonical_sequence = "{%s}%s{%s}" % (n_term_symbol, sequence_str_wo_termini, c_term_symbol)
+    canonical_sequence = "{%s}%s{%s}" % (n_term_symbol,
+      sequence_str_wo_termini, c_term_symbol)
     """
     indices_of_brackets = find_parentheses(canonical_sequence)
     symbols = []
     previous_close_index = 0
     for open_index, close_index in indices_of_brackets:
 
-        one_letter_codes_fragment = canonical_sequence[previous_close_index:open_index]
+        one_letter_codes_fragment = canonical_sequence[
+            previous_close_index:open_index]
         symbols += list(one_letter_codes_fragment)
 
-        fragment_in_bracket = canonical_sequence[(open_index + 1) : close_index]
+        fragment_in_bracket = canonical_sequence[
+            (open_index + 1): close_index]
 
         symbols.append(fragment_in_bracket)
 
@@ -76,17 +80,20 @@ def parse_canonical(canonical_sequence):
 
 def parse_canonical2(canonical_sequence):
     """
-    canonical_sequence = "{%s}%s{%s}" % (n_term_symbol, sequence_str_wo_termini, c_term_symbol)
+    canonical_sequence = "{%s}%s{%s}" % (n_term_symbol,
+      sequence_str_wo_termini, c_term_symbol)
     """
     indices_of_brackets = find_parentheses(canonical_sequence)
     symbols = []
     previous_close_index = 0
     for open_index, close_index in indices_of_brackets:
 
-        one_letter_codes_fragment = canonical_sequence[previous_close_index:open_index]
+        one_letter_codes_fragment = canonical_sequence[
+            previous_close_index:open_index]
         symbols += list(one_letter_codes_fragment)
 
-        fragment_in_bracket = canonical_sequence[(open_index + 1) : close_index]
+        fragment_in_bracket = canonical_sequence[
+            (open_index + 1): close_index]
 
         symbols.append(fragment_in_bracket)
 
@@ -123,6 +130,8 @@ def find_termini(sequence_str, db_json):
 
 
 def get_canonical(sequence_str, db_json):
-    n_term, c_term, sequence_str_wo_termini = find_termini(sequence_str, db_json)
-    canonical_sequence = "{%s}%s{%s}" % (n_term, sequence_str_wo_termini, c_term)
+    n_term, c_term, sequence_str_wo_termini = find_termini(sequence_str,
+                                                           db_json)
+    canonical_sequence = "{%s}%s{%s}" % (n_term, sequence_str_wo_termini,
+                                         c_term)
     return canonical_sequence
