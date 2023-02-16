@@ -1,3 +1,4 @@
+import rdkit
 from pepseq.Peptide.utils.Parser import find_termini, parse_canonical2
 
 
@@ -30,6 +31,9 @@ def decompose_symbol(s):
 
 
 def get_attachment_points_on_sequence_json(symbols):
+    """
+
+    """
     att_points = {}
 
     for res_id in range(len(symbols)):
@@ -63,24 +67,45 @@ def get_base_seq(symbols):
     return base_seq
 
 
-def get_ext_mod(pepseq, smiles="[1*]C[2*] |$R1;placeholder;R2$|"):
+def get_single_modification_json(
+        attachment_points_on_sequence, mod_smiles: str):
+    mod_mol = rdkit.Chem.MolFromSmiles(mod_smiles)
+    mod_atoms = mod_mol.GetAtoms()
+
+    radical_ids = set(
+        [atom.GetIsotope() for atom in mod_atoms if (atom.GetAtomicNum() == 0)]
+        )
+    min_att_points = {
+        radical_id: attachment_points_on_sequence[radical_id]
+        for radical_id in radical_ids}
+
+    max_attachment_point_id = max(
+            [int(i) for i in min_att_points.keys()]
+        )
+
+    ext_mod = {
+        "smiles": mod_smiles,
+        "max_attachment_point_id": max_attachment_point_id,
+        "attachment_points_on_sequence": min_att_points,
+        }
+    return ext_mod
+
+
+def get_ext_mod_json(pepseq, smiles: list):
     symbols = parse_canonical2(pepseq)
     attachment_points_on_sequence = \
         get_attachment_points_on_sequence_json(symbols)
     if attachment_points_on_sequence.keys():
-        max_attachment_point_id = max(
-            [int(i) for i in attachment_points_on_sequence.keys()]
-        )
 
-        ext_mod = {
-            "smiles": smiles,
-            "max_attachment_point_id": max_attachment_point_id,
-            "attachment_points_on_sequence": attachment_points_on_sequence,
-        }
-        return ext_mod
+        ext_mod_jsons = []
+        for mod_smiles in smiles:
+            ext_mod_json = get_single_modification_json(
+                attachment_points_on_sequence, mod_smiles)
+            ext_mod_jsons.append(ext_mod_json)
+    return ext_mod_jsons
 
 
-def get_pep_json(pepseq_format, db_json, mod_smiles=None):
+def get_pep_json(pepseq_format, db_json, mod_smiles_list=None):
     """
 
     Input:
@@ -131,11 +156,10 @@ def get_pep_json(pepseq_format, db_json, mod_smiles=None):
         "pepseq_format": pepseq_format,
     }
 
-    if mod_smiles is not None:
-        ext_mod = get_ext_mod(pepseq, mod_smiles)
-
+    if mod_smiles_list is not None:
+        ext_mod = get_ext_mod_json(pepseq, mod_smiles_list)
         if ext_mod is not None:
-            pep_json["external_modifications"] = [ext_mod]
+            pep_json["external_modifications"] = ext_mod
         else:
             pep_json["external_modifications"] = []
     else:

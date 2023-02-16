@@ -178,6 +178,20 @@ def test_calculate():
         "mw": 1252.37,
         "sequence": "CACDAPEPsEQC",
     }
+    pepseq_value = '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}AK{Cys(R3)}'
+    smiles = ['[1*]CNCC[2*]', '[3*]CNCC']
+    r3 = calculate(pepseq_value, smiles)
+
+    assert r3 == {
+        'complete_smiles': '[H]N[C@H]1CSCNCCSC[C@@H](C(=O)N[C@@H](C)C' +
+        '(=O)N[C@@H](CCCCN)C(=O)N[C@@H](CSCNCC)C(=O)O)NC(=O)[C@H](CCC' +
+        '(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCCN' +
+        '2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C' +
+        '@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O',
+        'length': 15,
+        'mw': 1666.95,
+        'sequence': 'CACDAPEPsEQCAKC'
+        }
     return
 
 
@@ -191,21 +205,21 @@ def test_peptide_from_pepseq(pepseq, smiles):
 
 def test_from_pepseq_and_one_mod_smiles_strings_to_peptide_json():
 
-    peptide_json = get_pep_json(fixture_pepseq, db_json, one_mod_smiles)
+    peptide_json = get_pep_json(fixture_pepseq, db_json, [one_mod_smiles])
 
     assert peptide_json == correct_peptide_json
     return
 
 
 def test_from_pepseq_string_and_mod_smiles_to_smiles():
-    peptide_json = get_pep_json(fixture_pepseq, db_json, one_mod_smiles)
+    peptide_json = get_pep_json(fixture_pepseq, db_json, [one_mod_smiles])
     smiles = get_smiles_from_peptide_json(peptide_json, db_json)
     assert smiles == correct_smiles
     return
 
 
 def test_from_pepseq_string_and_mod_smiles_to_peptide():
-    peptide_json = get_pep_json(fixture_pepseq, db_json, one_mod_smiles)
+    peptide_json = get_pep_json(fixture_pepseq, db_json, [one_mod_smiles])
     peptide = from_json(peptide_json)
     peptide.sequence == correct_peptide_json["sequence"]
     peptide.length == 13
