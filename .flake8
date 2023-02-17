@@ -1,0 +1,4 @@
+[flake8]
+max-line-length=120
+max-doc-length=120
+exclude=fixtures, labgears_api/v2/db/migrations, srcignore=BLK100,E712,W503,W504,E722
