@@ -1,7 +1,6 @@
 import networkx as nx
 import rdkit
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, \
-     nx_to_mol
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
 from pepseq.Peptide.utils.chemistry.MonomerConnector import find_R
 
 
@@ -31,8 +30,7 @@ def find_max_ResID(G):
     return ResID
 
 
-def cap_terminus(mol, terminus, smiles_building_blocks_db, TerminusResID=None,
-                 ResID=1):
+def cap_terminus(mol, terminus, smiles_building_blocks_db, TerminusResID=None, ResID=1):
 
     mol_G = mol_to_nx(mol)
     mol_G = relabel_to_str(mol_G)
@@ -61,8 +59,7 @@ def cap_terminus(mol, terminus, smiles_building_blocks_db, TerminusResID=None,
     G_union = nx.union(mol_G, terminus_G, rename=("", "%s_" % TerminusResID))
 
     G_union.add_edge(
-        mol_atom, union_terminus_atom,
-        bond_type=rdkit.Chem.rdchem.BondType.SINGLE
+        mol_atom, union_terminus_atom, bond_type=rdkit.Chem.rdchem.BondType.SINGLE
     )
 
     for node in (mol_R1, union_terminus_R1):
@@ -72,13 +69,11 @@ def cap_terminus(mol, terminus, smiles_building_blocks_db, TerminusResID=None,
 
 def cap_N_terminus(mol, terminus, smiles_building_blocks_db):
     return cap_terminus(
-        mol, terminus, smiles_building_blocks_db, TerminusResID="N_terminus",
-        ResID=1
+        mol, terminus, smiles_building_blocks_db, TerminusResID="N_terminus", ResID=1
     )
 
 
 def cap_C_terminus(mol, terminus, smiles_building_blocks_db):
     return cap_terminus(
-        mol, terminus, smiles_building_blocks_db, TerminusResID="C_terminus",
-        ResID=-1
+        mol, terminus, smiles_building_blocks_db, TerminusResID="C_terminus", ResID=-1
     )

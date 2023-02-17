@@ -39,8 +39,7 @@ def to_smiles(peptide: Peptide, include_modifications: bool = True) -> str:
     return peptide.smiles
 
 
-def to_json(peptide: Peptide, include_modifications: bool = True
-            ) -> Dict[str, Any]:
+def to_json(peptide: Peptide, include_modifications: bool = True) -> Dict[str, Any]:
     """Encodes peptide to JSON representation
 
     Args:

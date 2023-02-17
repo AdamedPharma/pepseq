@@ -1,4 +1,5 @@
 import rdkit
+
 from pepseq.Peptide.utils.Parser import find_termini, parse_canonical2
 
 
@@ -31,9 +32,7 @@ def decompose_symbol(s):
 
 
 def get_attachment_points_on_sequence_json(symbols):
-    """
-
-    """
+    """ """
     att_points = {}
 
     for res_id in range(len(symbols)):
@@ -41,8 +40,7 @@ def get_attachment_points_on_sequence_json(symbols):
         decomposition = decompose_symbol(symbol)
         if type(decomposition) == tuple:
             res_name, attachment_point_id = decomposition
-            attachment_point_json = get_attachment_point_json(
-                res_id, decomposition)
+            attachment_point_json = get_attachment_point_json(res_id, decomposition)
             att_points[int(attachment_point_id)] = attachment_point_json
     return att_points
 
@@ -67,40 +65,38 @@ def get_base_seq(symbols):
     return base_seq
 
 
-def get_single_modification_json(
-        attachment_points_on_sequence, mod_smiles: str):
+def get_single_modification_json(attachment_points_on_sequence, mod_smiles: str):
     mod_mol = rdkit.Chem.MolFromSmiles(mod_smiles)
     mod_atoms = mod_mol.GetAtoms()
 
     radical_ids = set(
         [atom.GetIsotope() for atom in mod_atoms if (atom.GetAtomicNum() == 0)]
-        )
+    )
     min_att_points = {
         radical_id: attachment_points_on_sequence[radical_id]
-        for radical_id in radical_ids}
+        for radical_id in radical_ids
+    }
 
-    max_attachment_point_id = max(
-            [int(i) for i in min_att_points.keys()]
-        )
+    max_attachment_point_id = max([int(i) for i in min_att_points.keys()])
 
     ext_mod = {
         "smiles": mod_smiles,
         "max_attachment_point_id": max_attachment_point_id,
         "attachment_points_on_sequence": min_att_points,
-        }
+    }
     return ext_mod
 
 
 def get_ext_mod_json(pepseq, smiles: list):
     symbols = parse_canonical2(pepseq)
-    attachment_points_on_sequence = \
-        get_attachment_points_on_sequence_json(symbols)
+    attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
     if attachment_points_on_sequence.keys():
 
         ext_mod_jsons = []
         for mod_smiles in smiles:
             ext_mod_json = get_single_modification_json(
-                attachment_points_on_sequence, mod_smiles)
+                attachment_points_on_sequence, mod_smiles
+            )
             ext_mod_jsons.append(ext_mod_json)
     return ext_mod_jsons
 

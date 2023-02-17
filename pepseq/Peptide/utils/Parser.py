@@ -45,8 +45,7 @@ def find_parentheses(s: str):
             try:
                 parentheses_locs[stack.pop()] = i
             except IndexError:
-                raise IndexError(
-                    "Too many close parentheses at index {}".format(i))
+                raise IndexError("Too many close parentheses at index {}".format(i))
     if stack:
         raise IndexError(
             "No matching close parenthesis to open parenthesis "
@@ -65,12 +64,10 @@ def parse_canonical(canonical_sequence):
     previous_close_index = 0
     for open_index, close_index in indices_of_brackets:
 
-        one_letter_codes_fragment = canonical_sequence[
-            previous_close_index:open_index]
+        one_letter_codes_fragment = canonical_sequence[previous_close_index:open_index]
         symbols += list(one_letter_codes_fragment)
 
-        fragment_in_bracket = canonical_sequence[
-            (open_index + 1): close_index]
+        fragment_in_bracket = canonical_sequence[(open_index + 1): close_index]
 
         symbols.append(fragment_in_bracket)
 
@@ -88,12 +85,10 @@ def parse_canonical2(canonical_sequence):
     previous_close_index = 0
     for open_index, close_index in indices_of_brackets:
 
-        one_letter_codes_fragment = canonical_sequence[
-            previous_close_index:open_index]
+        one_letter_codes_fragment = canonical_sequence[previous_close_index:open_index]
         symbols += list(one_letter_codes_fragment)
 
-        fragment_in_bracket = canonical_sequence[
-            (open_index + 1): close_index]
+        fragment_in_bracket = canonical_sequence[(open_index + 1): close_index]
 
         symbols.append(fragment_in_bracket)
 
@@ -130,8 +125,6 @@ def find_termini(sequence_str, db_json):
 
 
 def get_canonical(sequence_str, db_json):
-    n_term, c_term, sequence_str_wo_termini = find_termini(sequence_str,
-                                                           db_json)
-    canonical_sequence = "{%s}%s{%s}" % (n_term, sequence_str_wo_termini,
-                                         c_term)
+    n_term, c_term, sequence_str_wo_termini = find_termini(sequence_str, db_json)
+    canonical_sequence = "{%s}%s{%s}" % (n_term, sequence_str_wo_termini, c_term)
     return canonical_sequence

@@ -31,9 +31,11 @@ class TerminusError(Exception):
 
 class ExcessTildeError(Exception):
     def __init__(self):
-        self.message = " Your sequence string contains too many more " +\
-            "than 2 tilde termini separators.  0 for both N and C terminus" +\
-            " not modified; 2 for one or both termini modified."
+        self.message = (
+            " Your sequence string contains too many more "
+            + "than 2 tilde termini separators.  0 for both N and C terminus"
+            + " not modified; 2 for one or both termini modified."
+        )
 
         super().__init__(self.message)
 

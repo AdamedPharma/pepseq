@@ -42,11 +42,10 @@ peptide_json = {
 
 
 def test_building():
-    mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json,
-                                                           db_json)
+    mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     assert (
         rdkit.Chem.MolToSmiles(mol)
-        == "[H]N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@@H](C)C(=O)N[" +
-           "C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(=O)O)NC(=O)CNC2=O)N" +
-           "C(=O)[C@H](CO)NC1=O"
+        == "[H]N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@@H](C)C(=O)N["
+        + "C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(=O)O)NC(=O)CNC2=O)N"
+        + "C(=O)[C@H](CO)NC1=O"
     )

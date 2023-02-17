@@ -2,8 +2,7 @@ import json
 import os
 from typing import Any, Dict
 
-from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
-    get_smiles_from_peptide_json
+from pepseq.BuildingModifiedPeptideFromPeptideJSON import get_smiles_from_peptide_json
 from pepseq.BuildPeptideJSONFromSMILES import decompose_peptide_smiles
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.Peptide.models.Peptide import Peptide
@@ -39,8 +38,7 @@ def from_smiles(smiles: str, db_json: Dict = db_json) -> Peptide:
     return peptide
 
 
-def from_json(peptide_json: Dict[str, Any],
-              db_json: Dict = db_json) -> Peptide:
+def from_json(peptide_json: Dict[str, Any], db_json: Dict = db_json) -> Peptide:
     """Read (modified) peptide from json
 
     pepseq json should looks as below:
