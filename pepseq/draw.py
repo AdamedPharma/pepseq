@@ -13,7 +13,5 @@ def draw_pepseq(
     """
 
     symbols = get_pep_json(pepseq)["symbols"]
-    symbols[0] = '%s-' % (symbols[0])
-    symbols[-1] = '-%s' % (symbols[-1])
     png_string = draw_symbols(symbols, width=width, height=height)
     return png_string

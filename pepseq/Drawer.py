@@ -147,6 +147,7 @@ def generate_kwargs_for_text_in_ellipse_balls(symbols, y, forward=True,
             x += step_x
         else:
             x -= step_x
+
     return kwargs_list
 
 
@@ -178,7 +179,8 @@ def generate_kwargs_for_ellipse_balls(symbols, y, forward=True, is_corner=False,
             'x': x,
             'rgb_fractions': rgb_fractions,
             'outline_rgb_fractions': outline_rgb_fractions,
-            'outline_width': outline_width
+            'outline_width': outline_width,
+            'radius': 50,
             }
         kwargs_list.append(kwargs)
         if forward:
@@ -279,11 +281,43 @@ def get_kwargs_from_symbols(symbols):
         all_kwargs_text_list += text_kwargs_list
         is_start = False
         y += 55
+    if all_kwargs_list[-1]['x'] > all_kwargs_list[-2]['x']:
+        all_kwargs_list[-1]['x'] -= 15
+    elif all_kwargs_list[-1]['x'] < all_kwargs_list[-2]['x']:
+        all_kwargs_list[-1]['x'] += 15
+
+    all_kwargs_list[-1]['radius'] = 35
+    all_kwargs_list[0]['radius'] = 35
+
+    all_kwargs_list[-1]['outline_width'] = 0
+    all_kwargs_list[0]['outline_width'] = 0
+
+    all_kwargs_list[0]['x'] += 15
+
+    all_kwargs_list[0]['rgb_fractions'] = (0.3, 0.3, 0.3)
+    all_kwargs_list[-1]['rgb_fractions'] = (0.3, 0.3, 0.3)
+
+    all_kwargs_list[0]['outline_rgb_fractions'] = (0.3, 0.3, 0.3)
+    all_kwargs_list[-1]['outline_rgb_fractions'] = (0.3, 0.3, 0.3)
+
+    offset = max(3 - len(all_kwargs_text_list[0]['text']), 0)
+    all_kwargs_text_list[0]['x'] += offset * 10
+
+    all_kwargs_text_list[-1]['x'] = all_kwargs_list[-1]['x'] - 30
+
+    offset = max(3 - len(all_kwargs_text_list[-1]['text']), 0)
+    all_kwargs_text_list[-1]['x'] += offset * 10
+
+    all_kwargs_text_list[0]['font_size'] = 22
+    all_kwargs_text_list[-1]['font_size'] = 22
+
+    all_kwargs_list['y']
+
     return all_kwargs_list, all_kwargs_text_list
 
 
 def draw_ellipse_ball(cairo_context: cairo.Context, x: int, y: int, rgb_fractions: tuple,
-                      outline_rgb_fractions=(0.3, 0.3, 0.3), outline_width=2):
+                      outline_rgb_fractions=(0.3, 0.3, 0.3), outline_width=2, radius=50):
     """
     draws an ellipse on cairo.Context provided
     at x and y coordinates
@@ -298,11 +332,11 @@ def draw_ellipse_ball(cairo_context: cairo.Context, x: int, y: int, rgb_fraction
     cairo_context.translate(x, y)
     cairo_context.scale(1, 0.7)
     cairo_context.set_source_rgb(*outline_rgb_fractions)
-    r = 50 + outline_width
+    r = radius + outline_width
     cairo_context.arc(0, 0, r, 0, 2 * math.pi)
     cairo_context.fill()
     cairo_context.set_source_rgb(*rgb_fractions)
-    cairo_context.arc(0, 0, 50, 0, 2 * math.pi)
+    cairo_context.arc(0, 0, radius, 0, 2 * math.pi)
     cairo_context.fill()
     cairo_context.restore()
     return cairo_context
@@ -323,10 +357,12 @@ def draw_ellipse_balls(cairo_context: cairo.Context, keyword_args_sequence: list
     for kwargs in keyword_args_sequence:
         x = kwargs['x']
         y = kwargs['y']
+        radius = kwargs['radius']
         rgb_fractions = kwargs['rgb_fractions']
         outline_rgb_fractions = kwargs.get('outline_rgb_fractions', (0.3, 0.3, 0.3))
         outline_width = kwargs.get('outline_width', 2)
-        cairo_context = draw_ellipse_ball(cairo_context, x, y, rgb_fractions, outline_rgb_fractions, outline_width)
+        cairo_context = draw_ellipse_ball(cairo_context, x, y, rgb_fractions,
+                                          outline_rgb_fractions, outline_width, radius=radius)
     return cairo_context
 
 
