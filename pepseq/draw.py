@@ -6,6 +6,7 @@ def draw_pepseq(
     pepseq: str,
     width: int = 1124,
     height: int = 640,
+    omit_standard_termini: bool = False
 ):
     """
     Draw Peptide Schema Image based on sequence. Save it to (image_file_name)
@@ -13,5 +14,22 @@ def draw_pepseq(
     """
 
     symbols = get_pep_json(pepseq)["symbols"]
-    png_string = draw_symbols(symbols, width=width, height=height)
+    indices_to_exclude = []
+
+    termini_present = set(['N', 'C'])
+
+    if omit_standard_termini:
+        if symbols[0] == 'H':
+            indices_to_exclude.append(0)
+            termini_present.remove('N')
+        last_index = len(symbols) - 1
+        if symbols[last_index] == 'OH':
+            indices_to_exclude.append(last_index)
+            termini_present.remove('C')
+
+    termini_present = list(termini_present)
+
+    new_symbols = [symbols[i] for i in range(len(symbols)) if i not in indices_to_exclude]
+
+    png_string = draw_symbols(new_symbols, width=width, height=height, termini_present=termini_present)
     return png_string

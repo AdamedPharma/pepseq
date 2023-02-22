@@ -117,7 +117,7 @@ def get_start_x(
 
 
 def generate_kwargs_for_text_in_ellipse_balls(symbols, y, forward=True,
-                                              is_corner=False, is_start=False, left_margin=100):
+                                              is_corner=False, is_start=False, left_margin=100,):
     step_x = 100
     startx = get_start_x(
                 left_margin=left_margin,
@@ -264,7 +264,7 @@ def get_fragment_kwargs(symbols, y=70, is_start=True, fragment_direction='forwar
     return kwargsy, kwargsy_text
 
 
-def get_kwargs_from_symbols(symbols):
+def get_kwargs_from_symbols(symbols, termini_present=['N', 'C']):
     fragments = list(schema_layout_generator_from_symbols(symbols))
     y = 70
     is_start = True
@@ -281,37 +281,41 @@ def get_kwargs_from_symbols(symbols):
         all_kwargs_text_list += text_kwargs_list
         is_start = False
         y += 55
-    if all_kwargs_list[-1]['x'] > all_kwargs_list[-2]['x']:
-        all_kwargs_list[-1]['x'] -= 15
-    elif all_kwargs_list[-1]['x'] < all_kwargs_list[-2]['x']:
-        all_kwargs_list[-1]['x'] += 15
+    if 'N' in termini_present:
+        all_kwargs_list[0]['radius'] = 35
+        all_kwargs_list[0]['outline_width'] = 0
+        all_kwargs_list[0]['x'] += 15
+        all_kwargs_list[0]['rgb_fractions'] = (0.3, 0.3, 0.3)
+        all_kwargs_list[0]['outline_rgb_fractions'] = (0.3, 0.3, 0.3)
+        offset = max(3 - len(all_kwargs_text_list[0]['text']), 0)
+        all_kwargs_text_list[0]['x'] += offset * 10
+        all_kwargs_text_list[0]['font_size'] = 22
 
-    all_kwargs_list[-1]['radius'] = 35
-    all_kwargs_list[0]['radius'] = 35
+    if 'C' in termini_present:
+        if all_kwargs_list[-1]['x'] > all_kwargs_list[-2]['x']:
+            all_kwargs_list[-1]['x'] -= 15
+        elif all_kwargs_list[-1]['x'] < all_kwargs_list[-2]['x']:
+            all_kwargs_list[-1]['x'] += 15
 
-    all_kwargs_list[-1]['outline_width'] = 0
-    all_kwargs_list[0]['outline_width'] = 0
+        all_kwargs_list[-1]['radius'] = 35
 
-    all_kwargs_list[0]['x'] += 15
+        all_kwargs_list[-1]['outline_width'] = 0
+        all_kwargs_list[-1]['rgb_fractions'] = (0.3, 0.3, 0.3)
 
-    all_kwargs_list[0]['rgb_fractions'] = (0.3, 0.3, 0.3)
-    all_kwargs_list[-1]['rgb_fractions'] = (0.3, 0.3, 0.3)
+        all_kwargs_list[-1]['outline_rgb_fractions'] = (0.3, 0.3, 0.3)
+        all_kwargs_text_list[-1]['x'] = all_kwargs_list[-1]['x'] - 30
+        offset = max(3 - len(all_kwargs_text_list[-1]['text']), 0)
+        all_kwargs_text_list[-1]['x'] += offset * 10
+        all_kwargs_text_list[-1]['font_size'] = 22
 
-    all_kwargs_list[0]['outline_rgb_fractions'] = (0.3, 0.3, 0.3)
-    all_kwargs_list[-1]['outline_rgb_fractions'] = (0.3, 0.3, 0.3)
+    middle_index = int(len(all_kwargs_list)/2)
+    middle_y = all_kwargs_list[middle_index]['y']
+    target_y = 320
+    y_offset = target_y - middle_y
 
-    offset = max(3 - len(all_kwargs_text_list[0]['text']), 0)
-    all_kwargs_text_list[0]['x'] += offset * 10
-
-    all_kwargs_text_list[-1]['x'] = all_kwargs_list[-1]['x'] - 30
-
-    offset = max(3 - len(all_kwargs_text_list[-1]['text']), 0)
-    all_kwargs_text_list[-1]['x'] += offset * 10
-
-    all_kwargs_text_list[0]['font_size'] = 22
-    all_kwargs_text_list[-1]['font_size'] = 22
-
-    all_kwargs_list['y']
+    for i in range(len(all_kwargs_text_list)):
+        all_kwargs_text_list[i]['y'] += y_offset
+        all_kwargs_list[i]['y'] += y_offset
 
     return all_kwargs_list, all_kwargs_text_list
 
@@ -413,10 +417,10 @@ def get_png_string_from_surface(surface):
     return pngData
 
 
-def draw_symbols(symbols, width=1024, height=1024):
+def draw_symbols(symbols, width=1024, height=1024, termini_present=['N', 'C']):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     cairo_context = cairo.Context(surface)
-    kwargs_list, kwargs_text_list = get_kwargs_from_symbols(symbols)
+    kwargs_list, kwargs_text_list = get_kwargs_from_symbols(symbols, termini_present=termini_present)
     draw_ellipse_balls(cairo_context, kwargs_list)
     draw_text_in_ellipse_balls(cairo_context, kwargs_text_list)
     png_string = get_png_string_from_surface(surface)
