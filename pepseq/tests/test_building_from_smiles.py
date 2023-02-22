@@ -1,7 +1,8 @@
 import json
 import pkgutil
 
-from pepseq.BuildPeptideJSONFromSMILES import decompose_peptide_smiles_with_termini
+from pepseq.BuildPeptideJSONFromSMILES import \
+    decompose_peptide_smiles_with_termini
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
 with open(db_path) as fp:

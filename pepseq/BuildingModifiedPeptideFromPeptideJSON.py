@@ -1,12 +1,14 @@
 import networkx as nx
 import rdkit
 
-from pepseq.Peptide.utils.chemistry.cap_termini import cap_C_terminus, cap_N_terminus
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
-from pepseq.Peptide.utils.chemistry.MonomerConnector import (
-    get_molecule_from_list_of_residue_symbols,
-)
-from pepseq.Peptide.utils.Parser import find_termini, get_canonical, parse_canonical
+from pepseq.Peptide.utils.chemistry.cap_termini import (cap_C_terminus,
+                                                        cap_N_terminus)
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
+                                                                  nx_to_mol)
+from pepseq.Peptide.utils.chemistry.MonomerConnector import \
+    get_molecule_from_list_of_residue_symbols
+from pepseq.Peptide.utils.Parser import (find_termini, get_canonical,
+                                         parse_canonical)
 
 
 def add_internal_bond(G, res1_id, atom_name_1, res2_id, atom_name_2):

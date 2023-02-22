@@ -3,14 +3,8 @@ from typing import AnyStr, TypeVar
 
 from rdkit.Chem import MolFromSmiles
 from rdkit.Chem.Descriptors import TPSA, ExactMolWt, MolLogP, MolWt
-from rdkit.Chem.Lipinski import (
-    HeavyAtomCount,
-    NumHAcceptors,
-    NumHDonors,
-    NumHeteroatoms,
-    NumRotatableBonds,
-    RingCount,
-)
+from rdkit.Chem.Lipinski import (HeavyAtomCount, NumHAcceptors, NumHDonors,
+                                 NumHeteroatoms, NumRotatableBonds, RingCount)
 from rdkit.Chem.rdMolDescriptors import CalcMolFormula
 
 Parameters = namedtuple("Parameters", "name smiles")

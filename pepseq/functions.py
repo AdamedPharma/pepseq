@@ -2,11 +2,9 @@ import json
 import os
 
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
-from pepseq.Peptide.utils.validation import (
-    check_for_nested_brackets,
-    check_parentheses,
-    validate_termini,
-)
+from pepseq.Peptide.utils.validation import (check_for_nested_brackets,
+                                             check_parentheses,
+                                             validate_termini)
 from pepseq.read import from_json
 
 absolute_path = os.path.dirname(__file__)
@@ -24,7 +22,7 @@ def validate_pepseq(pepseq: str) -> bool:
     return True
 
 
-def calculate(pepseq: str, smiles: list[str]) -> dict:
+def calculate(pepseq: str, smiles: list[str] = None) -> dict:
     peptide_json = get_pep_json(pepseq, db_json, smiles)
     peptide = from_json(peptide_json)
     complete_smiles = peptide.complete_smiles

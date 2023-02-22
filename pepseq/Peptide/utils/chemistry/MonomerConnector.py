@@ -3,7 +3,8 @@ from typing import TypeVar
 import networkx as nx
 import rdkit
 import rdkit.Chem
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
+                                                                  nx_to_mol)
 
 AminoAcidInstance = TypeVar("AminoAcidInstance")
 

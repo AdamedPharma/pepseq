@@ -1,12 +1,9 @@
 import rdkit
 
-from pepseq.Backbone import (
-    BreakingIntoResidueCandidateSubgraphs,
-    MarkingPeptideBackbone,
-)
-from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import (
-    decompose_residues_internal,
-)
+from pepseq.Backbone import (BreakingIntoResidueCandidateSubgraphs,
+                             MarkingPeptideBackbone)
+from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import \
+    decompose_residues_internal
 from pepseq.Peptide.utils.Parser import parse_canonical2
 
 

@@ -3,10 +3,10 @@ import pkgutil
 
 import pytest
 import rdkit
-from pepseq.BuildingModifiedPeptideFromPeptideJSON import get_smiles_from_peptide_json
-from pepseq.BuildPeptideJSONFromSMILES import (
-    from_smiles_to_pepseq_and_one_mod_smiles_strings,
-)
+from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
+    get_smiles_from_peptide_json
+from pepseq.BuildPeptideJSONFromSMILES import \
+    from_smiles_to_pepseq_and_one_mod_smiles_strings
 from pepseq.functions import calculate
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.read import from_json, from_pepseq
@@ -98,6 +98,7 @@ correct_peptide_json = {
     "C_terminus": "NH2",
     "N_terminus": "H",
     "pepseq_format": "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2",
+    "symbols": ["H", "H", "aMeAla", "Q", "G", "T", "Y", "Cys(R1)", "D", "A", "Q", "Cys(R2)", "Y", "S", "NH2"],
     "external_modifications": [
         {
             "smiles": "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NC"

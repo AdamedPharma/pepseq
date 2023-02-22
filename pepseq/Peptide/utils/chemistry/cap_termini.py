@@ -1,6 +1,7 @@
 import networkx as nx
 import rdkit
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
+                                                                  nx_to_mol)
 from pepseq.Peptide.utils.chemistry.MonomerConnector import find_R
 
 

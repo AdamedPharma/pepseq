@@ -2,9 +2,8 @@ import json
 import pkgutil
 
 import rdkit
-from pepseq.BuildingModifiedPeptideFromPeptideJSON import (
-    BuildingModifiedPeptideFromPeptideJSON,
-)
+from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
+    BuildingModifiedPeptideFromPeptideJSON
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
 with open(db_path) as fp:

@@ -1,9 +1,5 @@
-from pepseq.Peptide.exceptions import (
-    ExcessTildeError,
-    NestedBracketError,
-    TerminusError,
-    ValidationError,
-)
+from pepseq.Peptide.exceptions import (ExcessTildeError, NestedBracketError,
+                                       TerminusError, ValidationError)
 
 
 def validate_termini(s):

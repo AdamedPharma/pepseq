@@ -1,0 +1,35 @@
+color_coding = {
+    "peptide_code": {
+        "1": "green",
+        "2": "purple",
+        "3": "yellow",
+        "8": "blue",
+        "9": "yellow_ellipse",
+    },
+    "staple": {
+        "L-Orn": "light orange",
+        "DAMBA": "light green",
+        "TriAAc": "light blue",
+    },
+    "linker": {
+        "1PEG": "light orange",
+        "2PEG": "light green",
+        "2PEG(3)": "light blue",
+        "3PEG": "light orange",
+        "Muc": "light green",
+        "PEG(3)": "light blue",
+        "PEG(4)": "light orange",
+    },
+    "lipid": {
+        "A077-DAP-B286": "light orange",
+        "A083-DAP-B321": "light green",
+        "C15": "light blue",
+        "C15-NH2": "light orange",
+        "C16": "light green",
+        "C17": "light blue",
+        "C18": "light orange",
+        "C19": "light green",
+        "C20": "light blue",
+        "Coumarin": "light orange",
+    },
+}

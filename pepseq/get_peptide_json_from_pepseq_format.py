@@ -1,6 +1,17 @@
+import json
+import os
+from typing import Dict
+
 import rdkit
 
 from pepseq.Peptide.utils.Parser import find_termini, parse_canonical2
+
+absolute_path = os.path.dirname(__file__)
+relative_db_path = "Peptide/database/db.json"
+full_db_path = os.path.join(absolute_path, relative_db_path)
+
+with open(full_db_path) as fp:
+    db_json = json.load(fp)
 
 
 def get_attachment_point_json(res_id, decomposition):
@@ -101,7 +112,7 @@ def get_ext_mod_json(pepseq, smiles: list):
     return ext_mod_jsons
 
 
-def get_pep_json(pepseq_format, db_json, mod_smiles_list=None):
+def get_pep_json(pepseq_format, db_json: Dict = db_json, mod_smiles_list=None):
     """
 
     Input:
@@ -143,6 +154,8 @@ def get_pep_json(pepseq_format, db_json, mod_smiles_list=None):
     symbols = parse_canonical2(pepseq)
     base_seq = get_base_seq(symbols)
 
+    all_symbols = [N_terminus] + symbols + [C_terminus]
+
     pep_json = {
         "length": len(symbols),
         "sequence": base_seq,
@@ -150,7 +163,8 @@ def get_pep_json(pepseq_format, db_json, mod_smiles_list=None):
         "C_terminus": C_terminus,
         "N_terminus": N_terminus,
         "pepseq_format": pepseq_format,
-    }
+        "symbols": all_symbols
+        }
 
     if mod_smiles_list is not None:
         ext_mod = get_ext_mod_json(pepseq, mod_smiles_list)
