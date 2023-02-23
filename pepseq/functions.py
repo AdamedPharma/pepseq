@@ -15,14 +15,14 @@ with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 
-def validate_pepseq(pepseq: str) -> bool:
+def validate_pepseq(pepseq: str):
     validate_termini(pepseq)
     check_parentheses(pepseq)
     check_for_nested_brackets(pepseq)
-    return True
 
 
 def calculate(pepseq: str, smiles: list[str] = None) -> dict:
+    validate_pepseq(pepseq)
     peptide_json = get_pep_json(pepseq, db_json, smiles)
     peptide = from_json(peptide_json)
     complete_smiles = peptide.complete_smiles

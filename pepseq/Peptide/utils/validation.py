@@ -1,12 +1,10 @@
 from pepseq.Peptide.exceptions import (ExcessTildeError, NestedBracketError,
-                                       TerminusError, ValidationError)
+                                       ParenthesesError, ValidationError)
 
 
 def validate_termini(s):
     tilde_num = s.count("~")
-    if tilde_num == 1:
-        raise TerminusError()
-    elif tilde_num in [0, 2]:
+    if tilde_num in [0, 1, 2]:
         return True
     elif tilde_num > 2:
         raise ExcessTildeError
@@ -20,10 +18,11 @@ def check_parentheses(s):
         if c == "}":
             j -= 1
             if j < 0:
-                return False
+                raise ParenthesesError("Brackets do not match")
         elif c == "{":
             j += 1
-    return j == 0
+    if j != 0:
+        raise ParenthesesError("Brackets do not match")
 
 
 def check_for_nested_brackets(s):

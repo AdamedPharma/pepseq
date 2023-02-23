@@ -10,6 +10,10 @@ class NestedBracketError(ValidationError):
     pass
 
 
+class ParenthesesError(ValidationError):
+    pass
+
+
 class TerminusError(Exception):
     def __init__(self):
         self.message = (
