@@ -4,6 +4,7 @@ from typing import Dict
 
 import rdkit
 
+from pepseq.Peptide.exceptions import AttachmentPointsNonUniqueError
 from pepseq.Peptide.utils.Parser import find_termini, parse_canonical2
 
 absolute_path = os.path.dirname(__file__)
@@ -52,7 +53,11 @@ def get_attachment_points_on_sequence_json(symbols):
         if type(decomposition) == tuple:
             res_name, attachment_point_id = decomposition
             attachment_point_json = get_attachment_point_json(res_id, decomposition)
-            att_points[int(attachment_point_id)] = attachment_point_json
+            att_point_id = int(attachment_point_id)
+            if att_points.get(att_point_id) is not None:
+                raise AttachmentPointsNonUniqueError("Attachment Points labels on sequence are not unique.")
+
+            att_points[att_point_id] = attachment_point_json
     return att_points
 
 

@@ -6,6 +6,10 @@ class AttachmentPointsMismatchError(ValidationError):
     pass
 
 
+class AttachmentPointsNonUniqueError(ValidationError):
+    pass
+
+
 class UnattachedSmilesError(ValidationError):
     pass
 

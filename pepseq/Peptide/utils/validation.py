@@ -2,6 +2,7 @@ import rdkit
 from pepseq.get_peptide_json_from_pepseq_format import (
     get_attachment_points_on_sequence_json, get_pep_json)
 from pepseq.Peptide.exceptions import (AttachmentPointsMismatchError,
+                                       AttachmentPointsNonUniqueError,
                                        ExcessTildeError, InvalidSmilesError,
                                        NestedBracketError, ParenthesesError,
                                        UnattachedSmilesError, ValidationError)
@@ -35,22 +36,27 @@ def validate_smiles_codes(smiles_codes: list[str] = None):
 
 
 def get_attachment_points_on_smiles(smiles_code):
-    attachment_points_ids = set([])
+    attachment_points_ids = []
     mol = rdkit.Chem.MolFromSmiles(smiles_code)
     for atom in mol.GetAtoms():
         atomic_num = atom.GetAtomicNum()
         if atomic_num == 0:
             isotope = atom.GetIsotope()
-            attachment_points_ids.add(isotope)
+            attachment_points_ids.append(isotope)
     return attachment_points_ids
 
 
 def get_attachment_points_on_smiles_codes(smiles_codes):
-    attachment_points_ids = set([])
+    attachment_points_ids = []
     if smiles_codes is not None:
         for smiles_code in smiles_codes:
-            attachment_points_ids |= get_attachment_points_on_smiles(smiles_code)
-    return attachment_points_ids
+            attachment_points_ids += get_attachment_points_on_smiles(smiles_code)
+
+    unique_attachment_points_ids = set(attachment_points_ids)
+    if len(attachment_points_ids) > len(unique_attachment_points_ids):
+        raise AttachmentPointsNonUniqueError("Attachment Points labels on SMILES are not unique.")
+
+    return unique_attachment_points_ids
 
 
 def validate_matching_attachment_points(pepseq, smiles_codes):

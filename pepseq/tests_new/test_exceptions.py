@@ -3,6 +3,7 @@ from contextlib import contextmanager
 
 from pepseq.functions import calculate, validate_pepseq
 from pepseq.Peptide.exceptions import (AttachmentPointsMismatchError,
+                                       AttachmentPointsNonUniqueError,
                                        ExcessTildeError, InvalidSmilesError,
                                        NestedBracketError, ParenthesesError,
                                        UnattachedSmilesError)
@@ -53,6 +54,25 @@ class TestExceptions(unittest.TestCase):
                 validate_matching_attachment_points(pepseq, smiles)
             with self.assertRaises(AttachmentPointsMismatchError):
                 calculate(pepseq, smiles)
+
+    def test_validate_unique_attachment_points(self):
+        correct_pairs = [('CCC{Cys(R1)}S{Cys(R2)}', ['CCC[1*]', 'CCC[2*]'])]
+
+        for pepseq, smiles in correct_pairs:
+            with self.assertNotRaises(AttachmentPointsNonUniqueError):
+                validate_matching_attachment_points(pepseq, smiles)
+            with self.assertNotRaises(AttachmentPointsNonUniqueError):
+                calculate(pepseq, smiles)
+
+        incorrect_pairs = [('CCC{Cys(R1)}S', ['[2*]CCC[2*]']),
+                           ('C{Cys(R2)}CC{Cys(R1)}S{Cys(R1)}', ['CCC[1*]', 'CCC[2*]'])]
+
+        for pepseq, smiles in incorrect_pairs:
+            with self.assertRaises(AttachmentPointsNonUniqueError):
+                validate_matching_attachment_points(pepseq, smiles)
+            with self.assertRaises(AttachmentPointsNonUniqueError):
+                calculate(pepseq, smiles)
+        return
 
     def test_excess_tilde_error(self):
         with self.assertRaises(ExcessTildeError):
