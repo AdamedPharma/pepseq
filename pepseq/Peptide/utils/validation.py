@@ -1,5 +1,67 @@
-from pepseq.Peptide.exceptions import (ExcessTildeError, NestedBracketError,
-                                       ParenthesesError, ValidationError)
+import rdkit
+from pepseq.get_peptide_json_from_pepseq_format import (
+    get_attachment_points_on_sequence_json, get_pep_json)
+from pepseq.Peptide.exceptions import (AttachmentPointsMismatchError,
+                                       ExcessTildeError, InvalidSmilesError,
+                                       NestedBracketError, ParenthesesError,
+                                       UnattachedSmilesError, ValidationError)
+
+
+def has_attachment_point(smiles):
+    mol = rdkit.Chem.MolFromSmiles(smiles)
+    for atom in mol.GetAtoms():
+        if (atom.GetAtomicNum() == 0):
+            return True
+    return False
+
+
+def validate_attachment_points_on_smiles(smiles_codes: list[str]):
+    if smiles_codes is not None:
+        for i in range(len(smiles_codes)):
+            smiles_code = smiles_codes[i]
+            for smiles_code in smiles_codes:
+                if not has_attachment_point(smiles_code):
+                    raise UnattachedSmilesError('SMILES code no %d has no attachment point to Peptide' % (i+1))
+
+
+def validate_smiles_codes(smiles_codes: list[str] = None):
+    if smiles_codes is not None:
+        for i in range(len(smiles_codes)):
+            smiles_code = smiles_codes[i]
+            result = rdkit.Chem.MolFromSmiles(smiles_code)
+            if result is None:
+                raise InvalidSmilesError(
+                    'SMILES code no %d was invalid. Could not construct molecule from SMILES code' % (i+1))
+
+
+def get_attachment_points_on_smiles(smiles_code):
+    attachment_points_ids = set([])
+    mol = rdkit.Chem.MolFromSmiles(smiles_code)
+    for atom in mol.GetAtoms():
+        atomic_num = atom.GetAtomicNum()
+        if atomic_num == 0:
+            isotope = atom.GetIsotope()
+            attachment_points_ids.add(isotope)
+    return attachment_points_ids
+
+
+def get_attachment_points_on_smiles_codes(smiles_codes):
+    attachment_points_ids = set([])
+    if smiles_codes is not None:
+        for smiles_code in smiles_codes:
+            attachment_points_ids |= get_attachment_points_on_smiles(smiles_code)
+    return attachment_points_ids
+
+
+def validate_matching_attachment_points(pepseq, smiles_codes):
+    symbols = get_pep_json(pepseq)['symbols']
+    attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
+    attachment_point_ids_on_smiles = set(attachment_points_on_sequence.keys())
+    attachment_point_ids_on_sequence = get_attachment_points_on_smiles_codes(smiles_codes)
+    if (attachment_point_ids_on_sequence != attachment_point_ids_on_smiles):
+        raise AttachmentPointsMismatchError(
+            'Attachment Points on Sequence: %s do not Match Attachment Points on Smiles: %s' % (
+                str(attachment_point_ids_on_sequence), str(attachment_point_ids_on_smiles)))
 
 
 def validate_termini(s):
@@ -8,7 +70,6 @@ def validate_termini(s):
         return True
     elif tilde_num > 2:
         raise ExcessTildeError
-    return
 
 
 def check_parentheses(s):

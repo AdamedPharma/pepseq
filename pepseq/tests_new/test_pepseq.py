@@ -156,7 +156,7 @@ def test_calculate():
     smiles = ["[1*]CNCC[2*]"]
 
     r1 = calculate(pepseq_value, smiles)
-    r2 = calculate(pepseq_value, [])
+    r2 = calculate("CACDAPEPsEQC", None)
 
     complete_smiles = (
         "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)O)NC(=O)[C@H](CC"

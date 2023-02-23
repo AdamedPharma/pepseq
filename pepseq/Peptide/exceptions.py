@@ -2,6 +2,18 @@ class ValidationError(Exception):
     pass
 
 
+class AttachmentPointsMismatchError(ValidationError):
+    pass
+
+
+class UnattachedSmilesError(ValidationError):
+    pass
+
+
+class InvalidSmilesError(ValidationError):
+    pass
+
+
 class InvalidSymbolError(ValidationError):
     pass
 
