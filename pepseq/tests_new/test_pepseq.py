@@ -3,6 +3,7 @@ import pkgutil
 
 import pytest
 import rdkit
+
 from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
     get_smiles_from_peptide_json
 from pepseq.BuildPeptideJSONFromSMILES import \
@@ -157,6 +158,8 @@ def test_calculate():
 
     r1 = calculate(pepseq_value, smiles)
     r2 = calculate("CACDAPEPsEQC", None)
+    r4 = calculate("CACDAPEPsEQC", [])
+    r5 = calculate("CACDAPEPsEQC")
 
     complete_smiles = (
         "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)O)NC(=O)[C@H](CC"
@@ -179,12 +182,17 @@ def test_calculate():
         + "C(=O)N[C@@H](CCC(N)=O)C(=O)N[C@@H](CS)C(=O)O"
     )
 
-    assert r2 == {
+    no_smiles_result = {
         "complete_smiles": complete_smiles,
         "length": 12,
         "mw": 1252.37,
         "sequence": "CACDAPEPsEQC",
     }
+
+    assert r2 == no_smiles_result
+    assert r4 == no_smiles_result
+    assert r5 == no_smiles_result
+
     pepseq_value = "{Cys(R1)}ACDAPEPsEQ{Cys(R2)}AK{Cys(R3)}"
     smiles = ["[1*]CNCC[2*]", "[3*]CNCC"]
     r3 = calculate(pepseq_value, smiles)

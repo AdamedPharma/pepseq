@@ -22,7 +22,9 @@ def validate_pepseq(pepseq: str):
     check_for_nested_brackets(pepseq)
 
 
-def calculate(pepseq: str, smiles: list[str] = None) -> dict:
+def calculate(pepseq: str, smiles: list[str] = []) -> dict:
+    if smiles == []:
+        smiles = None
     validate_pepseq(pepseq)
     validate_smiles_codes(smiles)
     validate_attachment_points_on_smiles(smiles)
