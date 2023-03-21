@@ -55,7 +55,9 @@ def get_attachment_points_on_sequence_json(symbols):
             attachment_point_json = get_attachment_point_json(res_id, decomposition)
             att_point_id = int(attachment_point_id)
             if att_points.get(att_point_id) is not None:
-                raise AttachmentPointsNonUniqueError("Attachment Points labels on sequence are not unique.")
+                raise AttachmentPointsNonUniqueError(
+                    "Attachment Points labels on sequence are not unique."
+                )
 
             att_points[att_point_id] = attachment_point_json
     return att_points
@@ -107,7 +109,6 @@ def get_ext_mod_json(pepseq, smiles: list):
     symbols = parse_canonical2(pepseq)
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
     if attachment_points_on_sequence.keys():
-
         ext_mod_jsons = []
         for mod_smiles in smiles:
             ext_mod_json = get_single_modification_json(
@@ -168,8 +169,8 @@ def get_pep_json(pepseq_format, db_json: Dict = db_json, mod_smiles_list=None):
         "C_terminus": C_terminus,
         "N_terminus": N_terminus,
         "pepseq_format": pepseq_format,
-        "symbols": all_symbols
-        }
+        "symbols": all_symbols,
+    }
 
     if mod_smiles_list is not None:
         ext_mod = get_ext_mod_json(pepseq, mod_smiles_list)

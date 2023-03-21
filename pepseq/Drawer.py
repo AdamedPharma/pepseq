@@ -4,101 +4,34 @@ from io import BytesIO
 import cairo
 
 aa_color_dict = {
-    'F': {
-        'hexcolor': '#649DA0',
-        'rgb_fractions': (0.390625, 0.61328125, 0.625)
-        },
-    'Y': {
-        'hexcolor': '#7cbfb6',
-        'rgb_fractions': (0.484375, 0.74609375, 0.7109375)
-        },
-    'W': {
-        'hexcolor': '#5f9583',
-        'rgb_fractions': (0.37109375, 0.58203125, 0.51171875)
-        },
-    'I': {
-        'hexcolor': '#698B69',
-        'rgb_fractions': (0.41015625, 0.54296875, 0.41015625)
-        },
-    'L': {
-        'hexcolor': '#7daa7d',
-        'rgb_fractions': (0.48828125, 0.6640625, 0.48828125)
-        },
-    'V': {
-        'hexcolor': '#9BCD9B',
-        'rgb_fractions': (0.60546875, 0.80078125, 0.60546875)
-        },
-    'A': {
-        'hexcolor': '#a5d4a5',
-        'rgb_fractions': (0.64453125, 0.828125, 0.64453125)
-        },
-    'X': {
-        'hexcolor': '#de7f3b',
-        'rgb_fractions': (0.8671875, 0.49609375, 0.23046875)
-        },
-    'M': {
-        'hexcolor': '#80373b',
-        'rgb_fractions': (0.5, 0.21484375, 0.23046875)
-        },
-    'C': {
-        'hexcolor': '#95325b',
-        'rgb_fractions': (0.58203125, 0.1953125, 0.35546875)
-        },
-    'P': {
-        'hexcolor': '#e2b540',
-        'rgb_fractions': (0.8828125, 0.70703125, 0.25)
-        },
-    'G': {
-        'hexcolor': '#dcc750',
-        'rgb_fractions': (0.859375, 0.77734375, 0.3125)
-        },
-    'T': {
-        'hexcolor': '#808cbc',
-        'rgb_fractions': (0.5, 0.546875, 0.734375)
-        },
-    'S': {
-        'hexcolor': '#abb7d8',
-        'rgb_fractions': (0.66796875, 0.71484375, 0.84375)
-        },
-    'Q': {
-        'hexcolor': '#74badc',
-        'rgb_fractions': (0.453125, 0.7265625, 0.859375)
-        },
-    'N': {
-        'hexcolor': '#6ab7d2',
-        'rgb_fractions': (0.4140625, 0.71484375, 0.8203125)
-        },
-    'H': {
-        'hexcolor': '#664a73',
-        'rgb_fractions': (0.3984375, 0.2890625, 0.44921875)
-        },
-    'R': {
-        'hexcolor': '#104E8B',
-        'rgb_fractions': (0.0625, 0.3046875, 0.54296875)
-        },
-    'K': {
-        'hexcolor': '#1c407d',
-        'rgb_fractions': (0.109375, 0.25, 0.48828125)
-        },
-    'E': {
-        'hexcolor': '#c73333',
-        'rgb_fractions': (0.77734375, 0.19921875, 0.19921875)
-        },
-    'D': {
-        'hexcolor': '#d74242',
-        'rgb_fractions': (0.83984375, 0.2578125, 0.2578125)
-        },
-    '-': {
-        'hexcolor': '#bcbab3',
-        'rgb_fractions': (0.734375, 0.7265625, 0.69921875)
-        }
-    }
+    "F": {"hexcolor": "#649DA0", "rgb_fractions": (0.390625, 0.61328125, 0.625)},
+    "Y": {"hexcolor": "#7cbfb6", "rgb_fractions": (0.484375, 0.74609375, 0.7109375)},
+    "W": {"hexcolor": "#5f9583", "rgb_fractions": (0.37109375, 0.58203125, 0.51171875)},
+    "I": {"hexcolor": "#698B69", "rgb_fractions": (0.41015625, 0.54296875, 0.41015625)},
+    "L": {"hexcolor": "#7daa7d", "rgb_fractions": (0.48828125, 0.6640625, 0.48828125)},
+    "V": {"hexcolor": "#9BCD9B", "rgb_fractions": (0.60546875, 0.80078125, 0.60546875)},
+    "A": {"hexcolor": "#a5d4a5", "rgb_fractions": (0.64453125, 0.828125, 0.64453125)},
+    "X": {"hexcolor": "#de7f3b", "rgb_fractions": (0.8671875, 0.49609375, 0.23046875)},
+    "M": {"hexcolor": "#80373b", "rgb_fractions": (0.5, 0.21484375, 0.23046875)},
+    "C": {"hexcolor": "#95325b", "rgb_fractions": (0.58203125, 0.1953125, 0.35546875)},
+    "P": {"hexcolor": "#e2b540", "rgb_fractions": (0.8828125, 0.70703125, 0.25)},
+    "G": {"hexcolor": "#dcc750", "rgb_fractions": (0.859375, 0.77734375, 0.3125)},
+    "T": {"hexcolor": "#808cbc", "rgb_fractions": (0.5, 0.546875, 0.734375)},
+    "S": {"hexcolor": "#abb7d8", "rgb_fractions": (0.66796875, 0.71484375, 0.84375)},
+    "Q": {"hexcolor": "#74badc", "rgb_fractions": (0.453125, 0.7265625, 0.859375)},
+    "N": {"hexcolor": "#6ab7d2", "rgb_fractions": (0.4140625, 0.71484375, 0.8203125)},
+    "H": {"hexcolor": "#664a73", "rgb_fractions": (0.3984375, 0.2890625, 0.44921875)},
+    "R": {"hexcolor": "#104E8B", "rgb_fractions": (0.0625, 0.3046875, 0.54296875)},
+    "K": {"hexcolor": "#1c407d", "rgb_fractions": (0.109375, 0.25, 0.48828125)},
+    "E": {"hexcolor": "#c73333", "rgb_fractions": (0.77734375, 0.19921875, 0.19921875)},
+    "D": {"hexcolor": "#d74242", "rgb_fractions": (0.83984375, 0.2578125, 0.2578125)},
+    "-": {"hexcolor": "#bcbab3", "rgb_fractions": (0.734375, 0.7265625, 0.69921875)},
+}
 
 
 def get_start_x(
     left_margin=100, is_corner=None, forward=None, step_x=None, is_start=None
 ):
-
     right_margin = left_margin + (8.6 * step_x)
     last_right = left_margin + (8 * step_x)
 
@@ -116,15 +49,22 @@ def get_start_x(
             return last_right
 
 
-def generate_kwargs_for_text_in_ellipse_balls(symbols, y, forward=True,
-                                              is_corner=False, is_start=False, left_margin=100,):
+def generate_kwargs_for_text_in_ellipse_balls(
+    symbols,
+    y,
+    forward=True,
+    is_corner=False,
+    is_start=False,
+    left_margin=100,
+):
     step_x = 100
     startx = get_start_x(
-                left_margin=left_margin,
-                is_corner=is_corner,
-                forward=forward,
-                step_x=step_x,
-                is_start=is_start)
+        left_margin=left_margin,
+        is_corner=is_corner,
+        forward=forward,
+        step_x=step_x,
+        is_start=is_start,
+    )
     x = startx
     kwargs_list = []
 
@@ -136,12 +76,7 @@ def generate_kwargs_for_text_in_ellipse_balls(symbols, y, forward=True,
         else:
             font_size = 22
             text_x = x - 47
-        kwargs = {
-            'x': text_x,
-            'y': y,
-            'font_size': font_size,
-            'text': symbol
-            }
+        kwargs = {"x": text_x, "y": y, "font_size": font_size, "text": symbol}
         kwargs_list.append(kwargs)
         if forward:
             x += step_x
@@ -151,14 +86,17 @@ def generate_kwargs_for_text_in_ellipse_balls(symbols, y, forward=True,
     return kwargs_list
 
 
-def generate_kwargs_for_ellipse_balls(symbols, y, forward=True, is_corner=False, is_start=False, left_margin=100):
+def generate_kwargs_for_ellipse_balls(
+    symbols, y, forward=True, is_corner=False, is_start=False, left_margin=100
+):
     step_x = 100
     startx = get_start_x(
-                left_margin=left_margin,
-                is_corner=is_corner,
-                forward=forward,
-                step_x=step_x,
-                is_start=is_start)
+        left_margin=left_margin,
+        is_corner=is_corner,
+        forward=forward,
+        step_x=step_x,
+        is_start=is_start,
+    )
     x = startx
     kwargs_list = []
 
@@ -167,7 +105,7 @@ def generate_kwargs_for_ellipse_balls(symbols, y, forward=True, is_corner=False,
         symbol_dict = aa_color_dict.get(symbol)
 
         if symbol_dict is not None:
-            rgb_fractions = symbol_dict['rgb_fractions']
+            rgb_fractions = symbol_dict["rgb_fractions"]
             outline_rgb_fractions = (0.3, 0.3, 0.3)
             outline_width = 2
         else:
@@ -175,13 +113,13 @@ def generate_kwargs_for_ellipse_balls(symbols, y, forward=True, is_corner=False,
             outline_rgb_fractions = (1.0, 0.0, 0.0)
             outline_width = 6
         kwargs = {
-            'y': y,
-            'x': x,
-            'rgb_fractions': rgb_fractions,
-            'outline_rgb_fractions': outline_rgb_fractions,
-            'outline_width': outline_width,
-            'radius': 50,
-            }
+            "y": y,
+            "x": x,
+            "rgb_fractions": rgb_fractions,
+            "outline_rgb_fractions": outline_rgb_fractions,
+            "outline_width": outline_width,
+            "radius": 50,
+        }
         kwargs_list.append(kwargs)
         if forward:
             x += step_x
@@ -224,7 +162,6 @@ def get_fragment_length(remaining_length=None, num_iteration=None):
 
 
 def schema_layout_generator_from_symbols(symbols):
-
     remaining_symbols = symbols
     remaining_symbols.reverse()
 
@@ -251,20 +188,24 @@ def schema_layout_generator_from_symbols(symbols):
         num_iteration += 1
 
 
-def get_fragment_kwargs(symbols, y=70, is_start=True, fragment_direction='forward',
-                        is_corner=False):
-    if fragment_direction == 'forward':
+def get_fragment_kwargs(
+    symbols, y=70, is_start=True, fragment_direction="forward", is_corner=False
+):
+    if fragment_direction == "forward":
         forward = True
-    elif fragment_direction == 'reverse':
+    elif fragment_direction == "reverse":
         forward = False
 
-    kwargsy = generate_kwargs_for_ellipse_balls(symbols, y, forward, is_corner, is_start)
-    kwargsy_text = generate_kwargs_for_text_in_ellipse_balls(symbols, y+10, forward,
-                                                             is_corner, is_start)
+    kwargsy = generate_kwargs_for_ellipse_balls(
+        symbols, y, forward, is_corner, is_start
+    )
+    kwargsy_text = generate_kwargs_for_text_in_ellipse_balls(
+        symbols, y + 10, forward, is_corner, is_start
+    )
     return kwargsy, kwargsy_text
 
 
-def get_kwargs_from_symbols(symbols, termini_present=['N', 'C']):
+def get_kwargs_from_symbols(symbols, termini_present=["N", "C"]):
     fragments = list(schema_layout_generator_from_symbols(symbols))
     y = 70
     is_start = True
@@ -275,53 +216,65 @@ def get_kwargs_from_symbols(symbols, termini_present=['N', 'C']):
     for fragment in fragments:
         seq_fragment, fragment_length, fragment_direction, is_corner = fragment
 
-        kwargs_list, text_kwargs_list = get_fragment_kwargs(seq_fragment, y, is_start=is_start,
-                                                            fragment_direction=fragment_direction, is_corner=is_corner)
+        kwargs_list, text_kwargs_list = get_fragment_kwargs(
+            seq_fragment,
+            y,
+            is_start=is_start,
+            fragment_direction=fragment_direction,
+            is_corner=is_corner,
+        )
         all_kwargs_list += kwargs_list
         all_kwargs_text_list += text_kwargs_list
         is_start = False
         y += 55
-    if 'N' in termini_present:
-        all_kwargs_list[0]['radius'] = 35
-        all_kwargs_list[0]['outline_width'] = 0
-        all_kwargs_list[0]['x'] += 15
-        all_kwargs_list[0]['rgb_fractions'] = (0.3, 0.3, 0.3)
-        all_kwargs_list[0]['outline_rgb_fractions'] = (0.3, 0.3, 0.3)
-        offset = max(3 - len(all_kwargs_text_list[0]['text']), 0)
-        all_kwargs_text_list[0]['x'] += offset * 10
-        all_kwargs_text_list[0]['font_size'] = 22
+    if "N" in termini_present:
+        all_kwargs_list[0]["radius"] = 35
+        all_kwargs_list[0]["outline_width"] = 0
+        all_kwargs_list[0]["x"] += 15
+        all_kwargs_list[0]["rgb_fractions"] = (0.3, 0.3, 0.3)
+        all_kwargs_list[0]["outline_rgb_fractions"] = (0.3, 0.3, 0.3)
+        offset = max(3 - len(all_kwargs_text_list[0]["text"]), 0)
+        all_kwargs_text_list[0]["x"] += offset * 10
+        all_kwargs_text_list[0]["font_size"] = 22
 
-    if 'C' in termini_present:
-        if all_kwargs_list[-1]['x'] > all_kwargs_list[-2]['x']:
-            all_kwargs_list[-1]['x'] -= 15
-        elif all_kwargs_list[-1]['x'] < all_kwargs_list[-2]['x']:
-            all_kwargs_list[-1]['x'] += 15
+    if "C" in termini_present:
+        if all_kwargs_list[-1]["x"] > all_kwargs_list[-2]["x"]:
+            all_kwargs_list[-1]["x"] -= 15
+        elif all_kwargs_list[-1]["x"] < all_kwargs_list[-2]["x"]:
+            all_kwargs_list[-1]["x"] += 15
 
-        all_kwargs_list[-1]['radius'] = 35
+        all_kwargs_list[-1]["radius"] = 35
 
-        all_kwargs_list[-1]['outline_width'] = 0
-        all_kwargs_list[-1]['rgb_fractions'] = (0.3, 0.3, 0.3)
+        all_kwargs_list[-1]["outline_width"] = 0
+        all_kwargs_list[-1]["rgb_fractions"] = (0.3, 0.3, 0.3)
 
-        all_kwargs_list[-1]['outline_rgb_fractions'] = (0.3, 0.3, 0.3)
-        all_kwargs_text_list[-1]['x'] = all_kwargs_list[-1]['x'] - 30
-        offset = max(3 - len(all_kwargs_text_list[-1]['text']), 0)
-        all_kwargs_text_list[-1]['x'] += offset * 10
-        all_kwargs_text_list[-1]['font_size'] = 22
+        all_kwargs_list[-1]["outline_rgb_fractions"] = (0.3, 0.3, 0.3)
+        all_kwargs_text_list[-1]["x"] = all_kwargs_list[-1]["x"] - 30
+        offset = max(3 - len(all_kwargs_text_list[-1]["text"]), 0)
+        all_kwargs_text_list[-1]["x"] += offset * 10
+        all_kwargs_text_list[-1]["font_size"] = 22
 
-    middle_index = int(len(all_kwargs_list)/2)
-    middle_y = all_kwargs_list[middle_index]['y']
+    middle_index = int(len(all_kwargs_list) / 2)
+    middle_y = all_kwargs_list[middle_index]["y"]
     target_y = 320
     y_offset = target_y - middle_y
 
     for i in range(len(all_kwargs_text_list)):
-        all_kwargs_text_list[i]['y'] += y_offset
-        all_kwargs_list[i]['y'] += y_offset
+        all_kwargs_text_list[i]["y"] += y_offset
+        all_kwargs_list[i]["y"] += y_offset
 
     return all_kwargs_list, all_kwargs_text_list
 
 
-def draw_ellipse_ball(cairo_context: cairo.Context, x: int, y: int, rgb_fractions: tuple,
-                      outline_rgb_fractions=(0.3, 0.3, 0.3), outline_width=2, radius=50):
+def draw_ellipse_ball(
+    cairo_context: cairo.Context,
+    x: int,
+    y: int,
+    rgb_fractions: tuple,
+    outline_rgb_fractions=(0.3, 0.3, 0.3),
+    outline_width=2,
+    radius=50,
+):
     """
     draws an ellipse on cairo.Context provided
     at x and y coordinates
@@ -359,14 +312,21 @@ def draw_ellipse_balls(cairo_context: cairo.Context, keyword_args_sequence: list
 
     """
     for kwargs in keyword_args_sequence:
-        x = kwargs['x']
-        y = kwargs['y']
-        radius = kwargs['radius']
-        rgb_fractions = kwargs['rgb_fractions']
-        outline_rgb_fractions = kwargs.get('outline_rgb_fractions', (0.3, 0.3, 0.3))
-        outline_width = kwargs.get('outline_width', 2)
-        cairo_context = draw_ellipse_ball(cairo_context, x, y, rgb_fractions,
-                                          outline_rgb_fractions, outline_width, radius=radius)
+        x = kwargs["x"]
+        y = kwargs["y"]
+        radius = kwargs["radius"]
+        rgb_fractions = kwargs["rgb_fractions"]
+        outline_rgb_fractions = kwargs.get("outline_rgb_fractions", (0.3, 0.3, 0.3))
+        outline_width = kwargs.get("outline_width", 2)
+        cairo_context = draw_ellipse_ball(
+            cairo_context,
+            x,
+            y,
+            rgb_fractions,
+            outline_rgb_fractions,
+            outline_width,
+            radius=radius,
+        )
     return cairo_context
 
 
@@ -389,7 +349,9 @@ def draw_text_in_ellipse(cairo_context, x: int, y: int, text: str, font_size=34)
     return cairo_context
 
 
-def draw_text_in_ellipse_balls(cairo_context: cairo.Context, keyword_args_sequence: list):
+def draw_text_in_ellipse_balls(
+    cairo_context: cairo.Context, keyword_args_sequence: list
+):
     """
     draws text inside a chain of ellipses on cairo.Context provided
     a sequence of keyword argument dictionaries
@@ -401,10 +363,10 @@ def draw_text_in_ellipse_balls(cairo_context: cairo.Context, keyword_args_sequen
 
     """
     for kwargs in keyword_args_sequence:
-        x = kwargs['x']
-        y = kwargs['y']
-        text = kwargs['text']
-        font_size = kwargs['font_size']
+        x = kwargs["x"]
+        y = kwargs["y"]
+        text = kwargs["text"]
+        font_size = kwargs["font_size"]
         cairo_context = draw_text_in_ellipse(cairo_context, x, y, text, font_size)
     return cairo_context
 
@@ -417,10 +379,12 @@ def get_png_string_from_surface(surface):
     return pngData
 
 
-def draw_symbols(symbols, width=1024, height=1024, termini_present=['N', 'C']):
+def draw_symbols(symbols, width=1024, height=1024, termini_present=["N", "C"]):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     cairo_context = cairo.Context(surface)
-    kwargs_list, kwargs_text_list = get_kwargs_from_symbols(symbols, termini_present=termini_present)
+    kwargs_list, kwargs_text_list = get_kwargs_from_symbols(
+        symbols, termini_present=termini_present
+    )
     draw_ellipse_balls(cairo_context, kwargs_list)
     draw_text_in_ellipse_balls(cairo_context, kwargs_text_list)
     png_string = get_png_string_from_surface(surface)

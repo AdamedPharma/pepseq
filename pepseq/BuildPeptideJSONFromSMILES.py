@@ -1,14 +1,16 @@
 import rdkit
 
-from pepseq.Backbone import (BreakingIntoResidueCandidateSubgraphs,
-                             MarkingPeptideBackbone)
-from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import \
-    decompose_residues_internal
+from pepseq.Backbone import (
+    BreakingIntoResidueCandidateSubgraphs,
+    MarkingPeptideBackbone,
+)
+from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import (
+    decompose_residues_internal,
+)
 from pepseq.Peptide.utils.Parser import parse_canonical2
 
 
 def get_cx_smarts_db(db_json):
-
     cx_smarts_db = {}
     smiles_dict = db_json["smiles"].get("aa")
 
@@ -205,7 +207,7 @@ def decompose_peptide_smiles_with_termini(smiles, db_json):
     return peptide_json
 
 
-def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles, db_json):
+def from_smiles_to_pepseq_and_mod_smiles_strings(smiles, db_json):
     """
     Input:
 
@@ -236,8 +238,45 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles, db_json):
 
     peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json)
     pepseq_format = peptide_json["pepseq_format"]
-    mod_smiles = peptide_json["external_modifications"][0]["smiles"]
-    return pepseq_format, mod_smiles
+    mod_smiles_list = [
+        ext_mod["smiles"] for ext_mod in peptide_json["external_modifications"]
+    ]
+    return pepseq_format, mod_smiles_list
+
+
+def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles, db_json):
+    """
+    Input:
+
+        SMILES - string of peptide sequence with modified amino acids
+            modification(s)
+
+    Output:
+        pepseq_string:
+
+            str = string in pepseq format
+              H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
+          amino acid; {Cys(R1)} - is amino acid
+        with staple attached, {Cys(R1)} - amino acid with staple attached
+
+        modifications - external ones, with attachment points
+
+        mod_smiles:
+
+            SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+              modification with attachment
+            points:
+
+                { Cys(R1) } <- is attached in [1*] attachment point on staple
+                { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    """
+
+    pepseq_format, mod_smiles_list = from_smiles_to_pepseq_and_mod_smiles_strings(
+        smiles, db_json
+    )
+    return pepseq_format, mod_smiles_list[0]
 
 
 def mark_external_modifications_on_seq(seq_list, peptide_json, mod_as_X=False):

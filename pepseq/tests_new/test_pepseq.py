@@ -3,7 +3,6 @@ import pkgutil
 
 import pytest
 import rdkit
-
 from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
     get_smiles_from_peptide_json
 from pepseq.BuildPeptideJSONFromSMILES import \
