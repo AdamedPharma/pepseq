@@ -1,18 +1,13 @@
 import json
 import os
 
-from pepseq.BuildPeptideJSONFromSMILES import (
-    from_smiles_to_pepseq_and_mod_smiles_strings,
-)
+from pepseq.BuildPeptideJSONFromSMILES import \
+    from_smiles_to_pepseq_and_mod_smiles_strings
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.Peptide.utils.validation import (
-    check_for_nested_brackets,
-    check_parentheses,
-    validate_attachment_points_on_smiles,
-    validate_matching_attachment_points,
-    validate_smiles_codes,
-    validate_termini,
-)
+    check_for_nested_brackets, check_parentheses,
+    validate_attachment_points_on_smiles, validate_matching_attachment_points,
+    validate_smiles_codes, validate_termini)
 from pepseq.read import from_json
 
 absolute_path = os.path.dirname(__file__)

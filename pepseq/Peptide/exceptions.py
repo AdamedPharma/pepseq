@@ -22,6 +22,10 @@ class InvalidSymbolError(ValidationError):
     pass
 
 
+class InvalidSequenceError(ValidationError):
+    pass
+
+
 class NestedBracketError(ValidationError):
     pass
 

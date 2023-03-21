@@ -1,12 +1,15 @@
 import networkx as nx
 import rdkit
 
-from pepseq.Peptide.utils.chemistry.cap_termini import cap_C_terminus, cap_N_terminus
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
-from pepseq.Peptide.utils.chemistry.MonomerConnector import (
-    get_molecule_from_list_of_residue_symbols,
-)
-from pepseq.Peptide.utils.Parser import find_termini, get_canonical, parse_canonical
+from pepseq.Peptide.exceptions import InvalidSequenceError, InvalidSymbolError
+from pepseq.Peptide.utils.chemistry.cap_termini import (cap_C_terminus,
+                                                        cap_N_terminus)
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
+                                                                  nx_to_mol)
+from pepseq.Peptide.utils.chemistry.MonomerConnector import \
+    get_molecule_from_list_of_residue_symbols
+from pepseq.Peptide.utils.Parser import (find_termini, get_canonical,
+                                         parse_canonical)
 
 
 def add_internal_bond(G, res1_id, atom_name_1, res2_id, atom_name_2):
@@ -106,62 +109,75 @@ def get_residue_symbols_from_sequence(
 
 
 def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=None):
-    canonical_sequence = get_canonical(sequence, db_json)
-    symbols_list_w_termini = parse_canonical(canonical_sequence)
-    if N_terminus is None:
-        N_terminus = symbols_list_w_termini[0]
-    if C_terminus is None:
-        C_terminus = symbols_list_w_termini[-1]
-    residue_symbols = symbols_list_w_termini[1:-1]
+    try:
+        canonical_sequence = get_canonical(sequence, db_json)
+        symbols_list_w_termini = parse_canonical(canonical_sequence)
+        if N_terminus is None:
+            N_terminus = symbols_list_w_termini[0]
+        if C_terminus is None:
+            C_terminus = symbols_list_w_termini[-1]
+        residue_symbols = symbols_list_w_termini[1:-1]
 
-    keys = [
-        "l_proteogenic_3letter",
-        "d_proteogenic_3letter",
-        "d_proteogenic_2letter",
-        "d_proteogenic_4letter",
-        "modified_aa_codes",
-    ]
+        keys = [
+            "l_proteogenic_3letter",
+            "d_proteogenic_3letter",
+            "d_proteogenic_2letter",
+            "d_proteogenic_4letter",
+            "modified_aa_codes",
+        ]
 
-    coding = db_json.get("coding").get("l_proteogenic_3letter")
-    for key in keys:
-        coding.update(db_json.get("coding").get(key))
+        coding = db_json.get("coding").get("l_proteogenic_3letter")
+        for key in keys:
+            coding.update(db_json.get("coding").get(key))
 
-    for i in range(len(residue_symbols)):
-        symbol = residue_symbols[i]
-        if db_json["smiles"]["aa"].get(symbol) is None:
-            residue_symbols[i] = coding.get(symbol)
+        for i in range(len(residue_symbols)):
+            symbol = residue_symbols[i]
+            if db_json["smiles"]["aa"].get(symbol) is None:
+                residue_symbols[i] = coding.get(symbol)
+                if residue_symbols[i] is None:
+                    raise InvalidSymbolError("Residue Symbol: %s not found in database." % symbol)
+                    return
 
-    smiles_building_blocks_db = {}
+        smiles_building_blocks_db = {}
 
-    for residue_symbol in residue_symbols:
-        smiles_building_blocks_db[residue_symbol] = db_json["smiles"]["aa"].get(
-            residue_symbol
+        for residue_symbol in residue_symbols:
+            residue_db_entry = db_json["smiles"]["aa"].get(residue_symbol)
+            if residue_db_entry is None:
+                raise InvalidSymbolError("Residue Symbol: %s not found in database." % residue_symbol)
+
+            smiles_building_blocks_db[residue_symbol] = residue_db_entry["smiles_radical"]
+
+        if N_terminus == "H":
+            N_terminus = "proton"
+
+        smiles_building_blocks_db[N_terminus] = db_json["smiles"]["n_terms"].get(
+            N_terminus
         )["smiles_radical"]
 
-    if N_terminus == "H":
-        N_terminus = "proton"
+        smiles_building_blocks_db[C_terminus] = db_json["smiles"]["c_terms"][C_terminus][
+            "smiles_radical"
+        ]
 
-    smiles_building_blocks_db[N_terminus] = db_json["smiles"]["n_terms"].get(
-        N_terminus
-    )["smiles_radical"]
+        mol = get_molecule_from_list_of_residue_symbols(
+            residue_symbols, smiles_building_blocks_db
+        )
 
-    smiles_building_blocks_db[C_terminus] = db_json["smiles"]["c_terms"][C_terminus][
-        "smiles_radical"
-    ]
+        mol_w_n_terminus = cap_N_terminus(
+            mol, terminus=N_terminus, smiles_building_blocks_db=smiles_building_blocks_db
+        )
 
-    mol = get_molecule_from_list_of_residue_symbols(
-        residue_symbols, smiles_building_blocks_db
-    )
+        mol_w_nc_terminus = cap_C_terminus(
+            mol_w_n_terminus,
+            terminus=C_terminus,
+            smiles_building_blocks_db=smiles_building_blocks_db,
+        )
 
-    mol_w_n_terminus = cap_N_terminus(
-        mol, terminus=N_terminus, smiles_building_blocks_db=smiles_building_blocks_db
-    )
+    except InvalidSymbolError:
+        raise InvalidSymbolError()
 
-    mol_w_nc_terminus = cap_C_terminus(
-        mol_w_n_terminus,
-        terminus=C_terminus,
-        smiles_building_blocks_db=smiles_building_blocks_db,
-    )
+    except Exception:
+
+        raise InvalidSequenceError("Invalid Sequence ")
 
     return mol_w_nc_terminus
 

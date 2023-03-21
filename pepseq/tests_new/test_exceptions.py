@@ -5,8 +5,8 @@ from pepseq.functions import calculate, validate_pepseq
 from pepseq.Peptide.exceptions import (AttachmentPointsMismatchError,
                                        AttachmentPointsNonUniqueError,
                                        ExcessTildeError, InvalidSmilesError,
-                                       NestedBracketError, ParenthesesError,
-                                       UnattachedSmilesError)
+                                       InvalidSymbolError, NestedBracketError,
+                                       ParenthesesError, UnattachedSmilesError)
 from pepseq.Peptide.utils.validation import (
     check_for_nested_brackets, check_parentheses,
     validate_attachment_points_on_smiles, validate_matching_attachment_points,
@@ -21,6 +21,11 @@ class TestExceptions(unittest.TestCase):
             yield None
         except exc_type:
             raise self.failureException('{} raised'.format(exc_type.__name__))
+
+    def test_invalid_symbol(self):
+        with self.assertRaises(InvalidSymbolError):
+            calculate('CSCU')
+        return
 
     def test_invalid_smiles_error(self):
         with self.assertRaises(InvalidSmilesError):
