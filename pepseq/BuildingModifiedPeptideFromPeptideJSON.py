@@ -136,14 +136,14 @@ def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=No
                 residue_symbols[i] = coding.get(symbol)
                 if residue_symbols[i] is None:
                     raise InvalidSymbolError("Residue Symbol: %s not found in database." % symbol)
-                    return
 
         smiles_building_blocks_db = {}
 
         for residue_symbol in residue_symbols:
             residue_db_entry = db_json["smiles"]["aa"].get(residue_symbol)
             if residue_db_entry is None:
-                raise InvalidSymbolError("Residue Symbol: %s not found in database." % residue_symbol)
+                error_msg = "Residue Symbol: %s not found in database." % residue_symbol
+                raise InvalidSymbolError(error_msg)
 
             smiles_building_blocks_db[residue_symbol] = residue_db_entry["smiles_radical"]
 
@@ -172,8 +172,8 @@ def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=No
             smiles_building_blocks_db=smiles_building_blocks_db,
         )
 
-    except InvalidSymbolError:
-        raise InvalidSymbolError()
+    except InvalidSymbolError as exc:
+        raise InvalidSymbolError(exc.msg)
 
     except Exception:
 

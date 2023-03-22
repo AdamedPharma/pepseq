@@ -62,8 +62,8 @@ def get_attachment_points_on_smiles_codes(smiles_codes):
 def validate_matching_attachment_points(pepseq, smiles_codes):
     symbols = get_pep_json(pepseq)['symbols']
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
-    attachment_point_ids_on_smiles = set(attachment_points_on_sequence.keys())
-    attachment_point_ids_on_sequence = get_attachment_points_on_smiles_codes(smiles_codes)
+    attachment_point_ids_on_sequence = set(attachment_points_on_sequence.keys())
+    attachment_point_ids_on_smiles = get_attachment_points_on_smiles_codes(smiles_codes)
     if (attachment_point_ids_on_sequence != attachment_point_ids_on_smiles):
         raise AttachmentPointsMismatchError(
             'Attachment Points on Sequence: %s do not Match Attachment Points on Smiles: %s' % (

@@ -23,8 +23,10 @@ class TestExceptions(unittest.TestCase):
             raise self.failureException('{} raised'.format(exc_type.__name__))
 
     def test_invalid_symbol(self):
-        with self.assertRaises(InvalidSymbolError):
+        with self.assertRaises(InvalidSymbolError) as cm:
             calculate('CSCU')
+        self.assertEqual(str(cm.exception), 'Residue Symbol: U not found in database.')
+
         return
 
     def test_invalid_smiles_error(self):
@@ -36,8 +38,9 @@ class TestExceptions(unittest.TestCase):
         return
 
     def test_smiles_wo_attachment_points_error(self):
-        with self.assertRaises(UnattachedSmilesError):
+        with self.assertRaises(UnattachedSmilesError) as cm:
             validate_attachment_points_on_smiles(['CCC'])
+        self.assertEqual(str(cm.exception), 'SMILES code no 1 has no attachment point to Peptide')
 
         with self.assertNotRaises(UnattachedSmilesError):
             validate_attachment_points_on_smiles(['CCC[1*]'])
@@ -55,8 +58,11 @@ class TestExceptions(unittest.TestCase):
         incorrect_pairs = [('CCC{Cys(R1)}S', ['CCC[2*]'])]
 
         for pepseq, smiles in incorrect_pairs:
-            with self.assertRaises(AttachmentPointsMismatchError):
+            with self.assertRaises(AttachmentPointsMismatchError) as cm:
                 validate_matching_attachment_points(pepseq, smiles)
+            self.assertEqual(str(cm.exception),
+                             'Attachment Points on Sequence: {1} do not Match Attachment Points on Smiles: {2}')
+
             with self.assertRaises(AttachmentPointsMismatchError):
                 calculate(pepseq, smiles)
 
