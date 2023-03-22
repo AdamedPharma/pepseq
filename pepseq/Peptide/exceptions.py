@@ -42,9 +42,9 @@ class ParenthesesError(ValidationError):
 class TerminusError(Exception):
     def __init__(self):
         self.message = (
-            " You have indicated only one of N and C termini, by tilde"
-            + " separator. When indicating termini, both N and C termini"
-            + " must be indicated."
+            " Only one of termini has been defined with tilde (~)"
+            + " separator. When defining termini, both N and C termini"
+            + " must be specified."
             + " If either N or C terminus is not modified use: 'H~' for"
             + " unmodified N terminus; '~OH' for unmodified C terminus."
             + " E.g. 'H~SEQ~NH2' for aminated C terminus and N terminus"
@@ -61,9 +61,9 @@ class TerminusError(Exception):
 class ExcessTildeError(Exception):
     def __init__(self):
         self.message = (
-            " Your sequence string contains too many more "
-            + "than 2 tilde termini separators.  0 for both N and C terminus"
-            + " not modified; 2 for one or both termini modified."
+            " Sequence string must contain 0 or 2"
+            + " tilde (~) termini separators. Use none if both N and C terminus"
+            + " aren't modified; Two if one or both termini modified."
         )
 
         super().__init__(self.message)
