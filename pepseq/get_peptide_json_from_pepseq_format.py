@@ -17,7 +17,7 @@ with open(full_db_path) as fp:
 
 def get_attachment_point_json(res_id, decomposition):
     ResName, attachment_point_id = decomposition
-    d_atom_name = {"Cys": "SG", "Lys": "NZ"}
+    d_atom_name = {"Cys": "SG", "Lys": "NZ", "Ala": "CB", "Gly": "CA"}
 
     if ResName in d_atom_name:
         AtomName = d_atom_name[ResName]
@@ -64,7 +64,7 @@ def get_attachment_points_on_sequence_json(symbols):
 
 
 def get_base_seq(symbols):
-    three_to_one = {"Cys": "C", "Lys": "K"}
+    three_to_one = {"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"}
 
     base_seq = ""
 

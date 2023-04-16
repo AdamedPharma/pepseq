@@ -118,6 +118,16 @@ def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=No
             C_terminus = symbols_list_w_termini[-1]
         residue_symbols = symbols_list_w_termini[1:-1]
 
+        if ('[' in N_terminus) and (']' in N_terminus):
+            N_terminus_smiles = N_terminus[1:-1]
+        else:
+            N_terminus_smiles = None
+
+        if ('[' in C_terminus) and (']' in C_terminus):
+            C_terminus_smiles = C_terminus[1:-1]
+        else:
+            C_terminus_smiles = None
+
         keys = [
             "l_proteogenic_3letter",
             "d_proteogenic_3letter",
@@ -150,26 +160,30 @@ def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=No
         if N_terminus == "H":
             N_terminus = "proton"
 
-        smiles_building_blocks_db[N_terminus] = db_json["smiles"]["n_terms"].get(
-            N_terminus
-        )["smiles_radical"]
+        if N_terminus in db_json["smiles"]["n_terms"]:
+            smiles_building_blocks_db[N_terminus] = db_json["smiles"]["n_terms"].get(
+                N_terminus
+            )["smiles_radical"]
 
-        smiles_building_blocks_db[C_terminus] = db_json["smiles"]["c_terms"][C_terminus][
-            "smiles_radical"
-        ]
+        if C_terminus in db_json["smiles"]["c_terms"]:
+            smiles_building_blocks_db[C_terminus] = db_json["smiles"]["c_terms"][C_terminus][
+                "smiles_radical"
+            ]
 
         mol = get_molecule_from_list_of_residue_symbols(
             residue_symbols, smiles_building_blocks_db
         )
 
         mol_w_n_terminus = cap_N_terminus(
-            mol, terminus=N_terminus, smiles_building_blocks_db=smiles_building_blocks_db
+            mol, terminus=N_terminus, smiles_building_blocks_db=smiles_building_blocks_db,
+            terminus_smiles=N_terminus_smiles
         )
 
         mol_w_nc_terminus = cap_C_terminus(
             mol_w_n_terminus,
             terminus=C_terminus,
             smiles_building_blocks_db=smiles_building_blocks_db,
+            terminus_smiles=C_terminus_smiles
         )
 
     except InvalidSymbolError as exc:

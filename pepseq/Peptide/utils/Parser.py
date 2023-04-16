@@ -104,17 +104,28 @@ def find_termini(sequence_str, db_json):
 
     else:
         n_terms = db_json["smiles"]["n_terms"].keys()
-        if sequence_split[0] in n_terms:
-            n_term = sequence_split[0]
+        potential_n_term = sequence_split[0]
+
+        if ('[' in potential_n_term) and (']' in potential_n_term):
+            seq_start_index = len(potential_n_term) + 1
+            n_term = potential_n_term
+
+        elif sequence_split[0] in n_terms:
+            n_term = potential_n_term
             seq_start_index = len(n_term) + 1
         else:
             n_term = "H"
             seq_start_index = 0
 
         c_terms = db_json["smiles"]["c_terms"].keys()
+        potential_c_term = sequence_split[-1]
 
-        if sequence_split[-1] in c_terms:
-            c_term = sequence_split[-1]
+        if ('[' in potential_c_term) and (']' in potential_c_term):
+            c_term = potential_c_term
+            seq_end_index = -1 * (len(c_term) + 1)
+
+        elif potential_c_term in c_terms:
+            c_term = potential_c_term
             seq_end_index = -1 * (len(c_term) + 1)
 
         else:

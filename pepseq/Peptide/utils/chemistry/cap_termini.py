@@ -31,7 +31,7 @@ def find_max_ResID(G):
     return ResID
 
 
-def cap_terminus(mol, terminus, smiles_building_blocks_db, TerminusResID=None, ResID=1):
+def cap_terminus(mol, terminus=None, smiles_building_blocks_db=None, TerminusResID=None, ResID=1, terminus_smiles=None):
 
     mol_G = mol_to_nx(mol)
     mol_G = relabel_to_str(mol_G)
@@ -46,8 +46,8 @@ def cap_terminus(mol, terminus, smiles_building_blocks_db, TerminusResID=None, R
     mol_R1 = str(find_R(mol_G, ResID=str(ResID), r_id=mol_r_id))
 
     mol_atom = list(mol_G.neighbors(mol_R1))[0]
-
-    terminus_smiles = smiles_building_blocks_db[terminus]
+    if terminus_smiles is None:
+        terminus_smiles = smiles_building_blocks_db[terminus]
     terminus_G = prepare_ter_G(terminus_smiles, ResID=TerminusResID)
 
     terminus_R1 = find_R(terminus_G, ResID=TerminusResID, r_id=1)
@@ -68,13 +68,15 @@ def cap_terminus(mol, terminus, smiles_building_blocks_db, TerminusResID=None, R
     return nx_to_mol(G_union)
 
 
-def cap_N_terminus(mol, terminus, smiles_building_blocks_db):
+def cap_N_terminus(mol, terminus=None, smiles_building_blocks_db=None, terminus_smiles=None):
     return cap_terminus(
-        mol, terminus, smiles_building_blocks_db, TerminusResID="N_terminus", ResID=1
+        mol, terminus, smiles_building_blocks_db, TerminusResID="N_terminus", ResID=1,
+        terminus_smiles=terminus_smiles
     )
 
 
-def cap_C_terminus(mol, terminus, smiles_building_blocks_db):
+def cap_C_terminus(mol, terminus=None, smiles_building_blocks_db=None, terminus_smiles=None):
     return cap_terminus(
-        mol, terminus, smiles_building_blocks_db, TerminusResID="C_terminus", ResID=-1
+        mol, terminus, smiles_building_blocks_db, TerminusResID="C_terminus", ResID=-1,
+        terminus_smiles=terminus_smiles
     )
