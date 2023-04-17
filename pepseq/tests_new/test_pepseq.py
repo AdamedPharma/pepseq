@@ -139,6 +139,8 @@ correct_peptide_json = {
 
 fixture_pepseq = "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2"
 fixture_pepseq_2 = "CH3~Y{Gly(R1)}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~NH2"
+fixture_pepseq_3 = "CH3~Y{ala(R1)}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~NH2"
+
 one_mod_smiles = (
     "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(="
     + "O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
@@ -170,6 +172,21 @@ correct_smiles_2 = (
     + "H]cn1)C(=O)N1CCC[C@H]1C(=O)N[C@@H](CO)C(=O)N[C@@H](CO)C(=O)NCC(=O"
     + ")N[C@@H](CCC(N)=O)C(=O)N1CCC[C@H]1C(=O)N1CCC[C@H]1C(=O)N1CCC[C@H]"
     + "1C(=O)N[C@@H](CO)C(N)=O)C(C)C)[C@@H](C)O)[C@@H](C)O"
+)
+
+correct_smiles_3 = (
+    "CCCCCSC[C@@H](NC(=O)[C@H](Cc1ccc(O)cc1)NC)C(=O)N[C@@H](CCC(N)=O)C(="
+    + "O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccccc1)C(=O)N[C@H](C(=O)N[C@@H](C"
+    + "O)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@@H](CO)"
+    + "C(=O)N[C@@H](CCCCN)C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@@H](CC(C)C)"
+    + "C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](CS)C(=O)N"
+    + "[C@@H](C)C(=O)N[C@@H](C)C(=O)N[C@@H](CCCCN)C(=O)N[C@@H](CC(=O)O)C"
+    + "(=O)N[C@@H](Cc1ccccc1)C(=O)N[C@H](C(=O)N[C@@H](CS)C(=O)N[C@@H](Cc"
+    + "1c[nH]c2ccccc12)C(=O)N[C@@H](CC(C)C)C(=O)N[C@@H](CC(C)C)C(=O)N[C@"
+    + "@H](CC(=O)O)C(=O)N[C@@H](Cc1c[nH]cn1)C(=O)N[C@@H](Cc1c[nH]cn1)C(="
+    + "O)N1CCC[C@H]1C(=O)N[C@@H](CO)C(=O)N[C@@H](CO)C(=O)NCC(=O)N[C@@H]("
+    + "CCC(N)=O)C(=O)N1CCC[C@H]1C(=O)N1CCC[C@H]1C(=O)N1CCC[C@H]1C(=O)N[C"
+    + "@@H](CO)C(N)=O)C(C)C)[C@@H](C)O)[C@@H](C)O"
 )
 
 
@@ -271,6 +288,13 @@ def test_from_pepseq_string_and_mod_smiles_to_smiles_2():
     peptide_json = get_pep_json(fixture_pepseq_2, db_json, [one_mod_smiles_2])
     smiles = get_smiles_from_peptide_json(peptide_json, db_json)
     assert smiles == correct_smiles_2
+    return
+
+
+def test_from_pepseq_string_and_mod_smiles_to_smiles_3():
+    peptide_json = get_pep_json(fixture_pepseq_3, db_json, [one_mod_smiles_2])
+    smiles = get_smiles_from_peptide_json(peptide_json, db_json)
+    assert smiles == correct_smiles_3
     return
 
 

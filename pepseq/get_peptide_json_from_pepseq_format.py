@@ -17,7 +17,7 @@ with open(full_db_path) as fp:
 
 def get_attachment_point_json(res_id, decomposition):
     ResName, attachment_point_id = decomposition
-    d_atom_name = {"Cys": "SG", "Lys": "NZ", "Ala": "CB", "Gly": "CA"}
+    d_atom_name = {"Cys": "SG", "Lys": "NZ", "Ala": "CB", "Gly": "CA", "ala": "CB"}
 
     if ResName in d_atom_name:
         AtomName = d_atom_name[ResName]
