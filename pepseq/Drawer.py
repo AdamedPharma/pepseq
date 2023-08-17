@@ -49,6 +49,37 @@ def get_start_x(
             return last_right
 
 
+def get_rev_x_and_font_size(symbol, variable_font_size=True):
+    length = len(symbol)
+    if not variable_font_size:
+        if length == 1:
+            font_size = 34
+            rev_x = 15
+
+        elif length == 3:
+            font_size = 22
+            rev_x = 30
+
+        else:
+            font_size = 22
+            rev_x = 45
+    else:
+        f = (21/34)**(1/5)
+        font_size = round(34 * (f**(length-1)))
+        d_rev_x = {
+            1 : (15+0),
+            2: (15+7),
+            3: (15+15),
+            4: (15+18),
+            5: (15+24),
+            6: (15+32)
+            }
+
+        rev_x = d_rev_x.get(length, 47)
+
+    return rev_x, font_size
+
+
 def generate_kwargs_for_text_in_ellipse_balls(
     symbols,
     y,
@@ -68,15 +99,19 @@ def generate_kwargs_for_text_in_ellipse_balls(
     x = startx
     kwargs_list = []
 
+    
+
     for symbol_position in range(len(symbols)):
         symbol = symbols[symbol_position]
-        if len(symbol) == 1:
-            font_size = 34
-            text_x = x - 15
-        else:
-            font_size = 22
-            text_x = x - 47
-        kwargs = {"x": text_x, "y": y, "font_size": font_size, "text": symbol}
+
+        rev_x, font_size = get_rev_x_and_font_size(symbol)
+        text_x = x - rev_x
+        if is_start and (symbol_position ==0):
+            text_x += 15
+
+
+        kwargs = {
+            "x": text_x, "y": y, "font_size": font_size, "text": symbol}
         kwargs_list.append(kwargs)
         if forward:
             x += step_x
@@ -379,7 +414,7 @@ def get_png_string_from_surface(surface):
     return pngData
 
 
-def draw_symbols(symbols, width=1024, height=1024, termini_present=["N", "C"]):
+def draw_symbols(symbols, width=1024, height=1024, termini_present=["N", "C"], out=None):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     cairo_context = cairo.Context(surface)
     kwargs_list, kwargs_text_list = get_kwargs_from_symbols(
@@ -387,8 +422,16 @@ def draw_symbols(symbols, width=1024, height=1024, termini_present=["N", "C"]):
     )
     draw_ellipse_balls(cairo_context, kwargs_list)
     draw_text_in_ellipse_balls(cairo_context, kwargs_text_list)
-    png_string = get_png_string_from_surface(surface)
 
-    surface.flush()
-    surface.finish()
-    return png_string
+    if out is not None:
+        surface.write_to_png(out)
+        surface.flush()
+        surface.finish()
+        return out
+    else:
+
+        png_string = get_png_string_from_surface(surface)
+
+        surface.flush()
+        surface.finish()
+        return png_string
