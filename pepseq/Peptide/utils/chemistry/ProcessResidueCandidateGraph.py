@@ -4,7 +4,7 @@ from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
                                                                   nx_to_mol)
 
 
-def match_to_res_id(mol, ResID, cx_smarts_db):
+def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict):
     G = mol_to_nx(mol)
     max_cover = 0
     max_aa = None
@@ -30,7 +30,7 @@ def match_to_res_id(mol, ResID, cx_smarts_db):
     return (max_aa, max_aa_mol, max_match)
 
 
-def get_res_matches(mol, cx_smarts_db):
+def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db):
     res_matches = {}
     G = mol_to_nx(mol)
     ResIDs_by_atom = nx.get_node_attributes(G, "ResID")
@@ -224,7 +224,7 @@ def split_connections_by_type(connections):
     return res_res_connections, external_mod_connections
 
 
-def decompose(mol, cx_smarts_db):
+def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db):
     res_matches = get_res_matches(mol, cx_smarts_db)
     mol = propagate_matches(mol, res_matches)
     G = mol_to_nx(mol)
@@ -284,6 +284,7 @@ def get_connections(subgraph_pair_tuples, G):
 
 
 def full_decomposition(mol, cx_smarts_db):
+
     mol, res_matches, modification_graphs = decompose(mol, cx_smarts_db)
     G = mol_to_nx(mol)
 
@@ -346,9 +347,22 @@ def translate_external_modification(mod, offset=0):
     return mod
 
 
+def sequence_dict_to_string(sequence_dict):
+    sequence_string = ""
+    for res_id in sorted(sequence_dict.keys()):
+        symbol = sequence_dict.get(res_id)
+        if len(symbol) > 1:
+            symbol = "{%s}" % symbol
+        sequence_string = sequence_string + symbol
+    return sequence_string
+
+
 def decompose_residues_internal(residues_internal, cx_smarts_db):
-    d_seq = {}
-    # max_attachment_point_id = 0
+    """
+
+    """
+    sequence_dict = {}
+
     internal_modifications = []
     external_modifications = []
 
@@ -359,22 +373,10 @@ def decompose_residues_internal(residues_internal, cx_smarts_db):
 
         if modifications.get("external_modifications"):
             for modification in modifications.get("external_modifications"):
-                # modification = translate_external_modification(
-                #    modification, offset=max_attachment_point_id
-                # )
                 external_modifications.append(modification)
-            # max_attachment_point_id = modification.get(
-            # "max_attachment_point_id")
 
         for res_id in res_matches:
-            d_seq[int(res_id)] = res_matches[res_id]
+            sequence_dict[int(res_id)] = res_matches[res_id]
 
-    seq = ""
-    for res_id in sorted(d_seq.keys()):
-        symbol = d_seq.get(res_id)
-        if len(symbol) > 1:
-            symbol = "{%s}" % symbol
-        seq = seq + symbol
-
-    # seq = "".join(d_seq[res_id] for res_id in sorted(d_seq.keys()))
-    return seq, internal_modifications, external_modifications
+    sequence_string = sequence_dict_to_string(sequence_dict)
+    return sequence_string, internal_modifications, external_modifications

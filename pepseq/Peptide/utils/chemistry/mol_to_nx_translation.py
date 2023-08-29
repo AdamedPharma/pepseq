@@ -1,6 +1,19 @@
 import networkx as nx
 import rdkit
 import rdkit.Chem
+import pandas as pd
+
+
+def mol_to_nx_json(mol: rdkit.Chem.rdchem.Mol) -> dict:
+    for atom in mol.GetAtoms():
+
+        kwargs = {}
+
+        for prop in atom.GetPropNames():
+            prop_val = atom.GetProp(prop)
+            kwargs[prop] = prop_val
+
+    return
 
 
 def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
@@ -109,3 +122,57 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
 
     rdkit.Chem.SanitizeMol(mol)
     return mol
+
+
+
+def nx_to_json(G: nx.classes.graph.Graph) -> dict:
+    nodes_list = list( G.nodes(data=True) )
+    node_dicts = [ node_tuple[1] for node_tuple in nodes_list ]
+    node_ids = [node_tuple[0] for node_tuple in nodes_list ]
+
+    df = pd.DataFrame(node_dicts)
+    df['node_id'] = node_ids
+
+    rows = df.where(df.notnull(),None).values.tolist()
+    nodes_tuple = tuple([tuple(row) for row in rows])
+    nodes_columns = ['atomic_num', 'formal_charge', 'chiral_tag',
+        'hybridization', 'num_explicit_hs', 'is_aromatic',
+        'isotope', 'AtomName', 'ResID', 'node_id']
+
+    edges_list = list(G.edges(data=True))
+
+    df_edges = pd.DataFrame([ i[2] for i in edges_list ])
+
+    bond_start =  [i[0] for i in edges_list]
+    bond_end =  [i[1] for i in edges_list]
+
+    df_edges['bond_start'] = bond_start
+    df_edges['bond_end'] = bond_end
+
+
+    df_edges = df_edges.where(df_edges.notnull(), False)
+
+    edges_tuple = tuple([tuple(i) for i in df_edges.values.tolist()])
+
+
+    edges_columns = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
+
+    nodes_columns = ['atomic_num', 'formal_charge', 'chiral_tag', 'hybridization',
+                    'num_explicit_hs', 'is_aromatic', 'isotope', 'AtomName',
+                    'ResID', 'node_id']
+
+
+    mol_j = {
+        'nodes_tuple': nodes_tuple,
+        'nodes_columns': nodes_columns,
+        'edges_tuple': edges_tuple,
+        'edges_columns': edges_columns,
+    }
+    return mol_j
+
+
+def get_mol_json(mol):
+    G = mol_to_nx(mol)
+    mol_j = nx_to_json(G)
+    return mol_j
+

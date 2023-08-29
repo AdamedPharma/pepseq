@@ -10,6 +10,8 @@ from pepseq.BuildPeptideJSONFromSMILES import \
 from pepseq.functions import calculate
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.read import from_json, from_pepseq
+import pepseq.Peptide.utils.Parser
+
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
 with open(db_path) as fp:
@@ -317,3 +319,128 @@ def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
     assert mod_smiles == one_mod_smiles
 
     return
+
+
+def test_find_termini():
+    pepseq_value = '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}'
+    assert pepseq.Peptide.utils.Parser.find_termini(pepseq_value, db_json) == (
+        'H', 'OH', '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}')
+
+
+def test_parse_canonical2():
+    canonical_sequence_value = '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}'
+    assert pepseq.Peptide.utils.Parser.parse_canonical2(canonical_sequence_value) == [
+    'Cys(R1)', 'A', 'C', 'D', 'A', 'P', 'E', 'P', 's', 'E', 'Q', 'Cys(R2)']
+
+
+def test_find_parentheses():
+    canonical_sequence = "{Cys(R1)}ACDAPEPsEQ{Cys(R2)}"
+    assert pepseq.Peptide.utils.Parser.find_parentheses(canonical_sequence) == [
+        (0, 8), (19, 27)]
+
+
+def test_get_base_seq():
+    symbols = [
+    'Cys(R1)', 'A', 'C', 'D', 'A', 'P', 'E', 'P', 's', 'E', 'Q', 'Cys(R2)']
+    base_seq = pepseq.get_peptide_json_from_pepseq_format.get_base_seq(symbols)
+    assert base_seq == 'CACDAPEPsEQC'
+
+
+def test_decompose_symbol():
+    assert pepseq.get_peptide_json_from_pepseq_format.decompose_symbol('Cys(R1)') == ('Cys', '1')
+    assert pepseq.get_peptide_json_from_pepseq_format.decompose_symbol('A') == 'A'
+
+
+def test_get_ext_mod_json():
+    mod_smiles_list = ["[1*]CNCC[2*]"]
+    pepseq_value = '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}'
+
+    assert pepseq.get_peptide_json_from_pepseq_format.get_ext_mod_json(
+    pepseq_value, mod_smiles_list) == [
+        {
+            'smiles': '[1*]CNCC[2*]',
+            'max_attachment_point_id': 2,
+            'attachment_points_on_sequence': {
+                1: {
+                    'attachment_point_id': '1',
+                    'ResID': '1',
+                    'AtomName': 'SG',
+                    'ResidueName': 'Cys'
+                    },
+                2: {
+                    'attachment_point_id': '2',
+                    'ResID': '12',
+                    'AtomName': 'SG',
+                    'ResidueName': 'Cys'
+                    }
+                }
+            }
+        ]
+
+def test_get_attachment_points_on_sequence_json():
+    symbols = ['Cys(R1)', 'A', 'C', 'D', 'A', 'P', 'E', 'P', 's', 'E', 'Q', 'Cys(R2)']
+    assert pepseq.get_peptide_json_from_pepseq_format.get_attachment_points_on_sequence_json(symbols) == {
+        1: {
+            'attachment_point_id': '1',
+            'ResID': '1',
+            'AtomName': 'SG',
+            'ResidueName': 'Cys'
+        },
+        2: {
+            'attachment_point_id': '2',
+            'ResID': '12',
+            'AtomName': 'SG',
+            'ResidueName': 'Cys'
+        }
+        }
+
+
+def test_get_single_modification_json():
+    attachment_points_on_sequence = {
+        1: {
+            'attachment_point_id': '1',
+            'ResID': '1',
+            'AtomName': 'SG',
+            'ResidueName': 'Cys'
+        },
+        2: {
+            'attachment_point_id': '2',
+            'ResID': '12',
+            'AtomName': 'SG',
+            'ResidueName': 'Cys'
+        }
+        }    
+
+    mod_smiles = "[1*]CNCC[2*]"
+
+    pepseq.get_peptide_json_from_pepseq_format.get_single_modification_json(
+                    attachment_points_on_sequence, mod_smiles
+                ) == {
+        'smiles': '[1*]CNCC[2*]',
+        'max_attachment_point_id': 2,
+        'attachment_points_on_sequence': {
+            1: {
+                'attachment_point_id': '1',
+                'ResID': '1',
+                'AtomName': 'SG',
+                'ResidueName': 'Cys'
+            },
+            2: {
+                'attachment_point_id': '2',
+                'ResID': '12',
+                'AtomName': 'SG',
+                'ResidueName': 'Cys'
+            }
+        }
+    }
+
+
+def test_get_attachment_point_json():
+    decomposition = ('Cys', '1')
+    res_id = 0
+    assert pepseq.get_peptide_json_from_pepseq_format.get_attachment_point_json(res_id, decomposition) == {
+        'attachment_point_id': '1',
+        'ResID': '1',
+        'AtomName': 'SG',
+        'ResidueName': 'Cys'
+        }

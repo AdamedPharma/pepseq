@@ -53,7 +53,6 @@ def find_parentheses(s: str):
         )
     return parentheses_locs_list(parentheses_locs=parentheses_locs)
 
-
 def parse_canonical(canonical_sequence):
     """
     canonical_sequence = "{%s}%s{%s}" % (n_term_symbol,
