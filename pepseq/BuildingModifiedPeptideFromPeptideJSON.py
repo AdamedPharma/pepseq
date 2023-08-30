@@ -12,7 +12,8 @@ from pepseq.Peptide.utils.Parser import (find_termini, get_canonical,
                                          parse_canonical)
 
 
-def add_internal_bond(G, res1_id, atom_name_1, res2_id, atom_name_2):
+def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
+                    res2_id: int, atom_name_2: str) -> nx.classes.graph.Graph:
     Cys1_SG = [
         n
         for n, v in G.nodes(data=True)
@@ -27,11 +28,11 @@ def add_internal_bond(G, res1_id, atom_name_1, res2_id, atom_name_2):
     return G
 
 
-def add_disulfide_bond(G, res1_id, res2_id):
+def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) -> nx.classes.graph.Graph:
     return add_internal_bond(G, res1_id, "SG", res2_id, "SG")
 
 
-def get_attachment_points(staple_graph):
+def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
     dummyAtoms = [
         n for n, v in staple_graph.nodes(data=True) if v.get("atomic_num") == 0
     ]
@@ -47,7 +48,7 @@ def get_attachment_points(staple_graph):
     return staple_graph, attachment_points_on_staple_dict
 
 
-def find_atom(G, ResID, AtomName):
+def find_atom(G: nx.classes.graph.Graph, ResID, AtomName: str) -> str:
     ResIDs = nx.get_node_attributes(G, "ResID")
     AtomNames = nx.get_node_attributes(G, "AtomName")
     SGs = [i for i in AtomNames if AtomNames[i] == AtomName]
@@ -56,8 +57,9 @@ def find_atom(G, ResID, AtomName):
 
 
 def add_staple(
-    peptide_graph, staple_graph, peptide_attachment_points, prefix="staple_1_"
-):
+    peptide_graph: nx.classes.graph.Graph, staple_graph: nx.classes.graph.Graph,
+    peptide_attachment_points, prefix="staple_1_"
+) -> nx.classes.graph.Graph:
     staple_graph, attachment_points_on_staple_dict = get_attachment_points(staple_graph)
 
     G_stapled_peptide_union = nx.union(peptide_graph, staple_graph, rename=("", prefix))
@@ -81,7 +83,7 @@ def add_staple(
     return G_stapled_peptide_union
 
 
-def get_peptide_json_from_sequence(sequence, db_json):
+def get_peptide_json_from_sequence(sequence: str, db_json: dict) -> dict:
     N_terminus, C_terminus, sequence_str_wo_termini = find_termini(sequence, db_json)
 
     peptide_json = {
@@ -96,8 +98,8 @@ def get_peptide_json_from_sequence(sequence, db_json):
 
 
 def get_residue_symbols_from_sequence(
-    sequence, db_json, N_terminus=None, C_terminus=None
-):
+    sequence: str, db_json: dict, N_terminus=None, C_terminus=None
+) -> list:
     canonical_sequence = get_canonical(sequence, db_json)
     symbols_list_w_termini = parse_canonical(canonical_sequence)
     if N_terminus is None:
@@ -108,7 +110,8 @@ def get_residue_symbols_from_sequence(
     return residue_symbols
 
 
-def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=None):
+def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
+                            C_terminus=None) -> rdkit.Chem.rdchem.Mol:
     try:
         canonical_sequence = get_canonical(sequence, db_json)
         symbols_list_w_termini = parse_canonical(canonical_sequence)
@@ -196,7 +199,7 @@ def get_molecule_from_sequence(sequence, db_json, N_terminus=None, C_terminus=No
     return mol_w_nc_terminus
 
 
-def get_smiles_from_sequence(sequence, db_json):
+def get_smiles_from_sequence(sequence: str, db_json: dict) -> str:
     mol = get_molecule_from_sequence(
         sequence, db_json, N_terminus=None, C_terminus=None
     )
@@ -204,7 +207,7 @@ def get_smiles_from_sequence(sequence, db_json):
     return smiles
 
 
-def get_molecule_from_json(j, db_json):
+def get_molecule_from_json(j: dict, db_json: dict) -> rdkit.Chem.rdchem.Mol:
     sequence = j["sequence"]
     N_terminus = j.get("N_terminus")
     C_terminus = j.get("C_terminus")
@@ -227,7 +230,7 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
     def __init__(self):
         return
 
-    def execute(self, peptide_json, db_json):
+    def execute(self, peptide_json: dict, db_json: dict) -> rdkit.Chem.rdchem.Mol:
         peptide_mol = get_molecule_from_json(peptide_json, db_json)
 
         peptide_graph = mol_to_nx(peptide_mol)
@@ -267,7 +270,7 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
         return nx_to_mol(peptide_graph)
 
 
-def get_smiles_from_peptide_json(peptide_json, db_json):
+def get_smiles_from_peptide_json(peptide_json: dict, db_json: dict) -> str:
     mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     smiles = rdkit.Chem.MolToSmiles(mol)
     return smiles

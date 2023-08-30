@@ -2,6 +2,22 @@ import networkx as nx
 import rdkit
 import rdkit.Chem
 import pandas as pd
+import matplotlib.pyplot as plt
+
+
+def get_edge_tuple(edge: tuple) -> tuple:
+    """
+    returns info on graph edge (representing 
+    molecule bond) in particular on type
+    and whether the bond is a peptide
+    backbone bond 
+    """
+    bond_start, bond_end, data = edge
+    bond_type = data.get('bond_type')
+    if bond_type is not None:
+        bond_type = int(bond_type)
+    is_peptide_bond = data.get('is_peptide_bond')
+    return  bond_type, is_peptide_bond, bond_start, bond_end
 
 
 def mol_to_nx_json(mol: rdkit.Chem.rdchem.Mol) -> dict:
@@ -140,26 +156,9 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
         'isotope', 'AtomName', 'ResID', 'node_id']
 
     edges_list = list(G.edges(data=True))
-
-    df_edges = pd.DataFrame([ i[2] for i in edges_list ])
-
-    bond_start =  [i[0] for i in edges_list]
-    bond_end =  [i[1] for i in edges_list]
-
-    df_edges['bond_start'] = bond_start
-    df_edges['bond_end'] = bond_end
-
-
-    df_edges = df_edges.where(df_edges.notnull(), False)
-
-    edges_tuple = tuple([tuple(i) for i in df_edges.values.tolist()])
-
+    edges_tuple = [get_edge_tuple(edge) for edge in edges_list]
 
     edges_columns = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
-
-    nodes_columns = ['atomic_num', 'formal_charge', 'chiral_tag', 'hybridization',
-                    'num_explicit_hs', 'is_aromatic', 'isotope', 'AtomName',
-                    'ResID', 'node_id']
 
 
     mol_j = {
@@ -171,8 +170,85 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
     return mol_j
 
 
-def get_mol_json(mol):
+def get_mol_json(mol: rdkit.Chem.rdchem.Mol) -> dict:
     G = mol_to_nx(mol)
     mol_j = nx_to_json(G)
     return mol_j
+
+
+def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
+    G = nx.Graph()
+
+    nodes_tuple = mol_json['nodes_tuple']
+
+    for node_tuple in nodes_tuple:
+        (atomic_num, formal_charge, chiral_tag, hybridization, 
+         num_explicit_hs, is_aromatic, isotope, AtomName, 
+         ResID, node_id) = node_tuple
+
+        G.add_node(
+                node_id,
+                atomic_num=atomic_num,
+                formal_charge=formal_charge,
+                chiral_tag=chiral_tag,
+                hybridization=hybridization,
+                num_explicit_hs=num_explicit_hs,
+                is_aromatic=is_aromatic,
+                isotope=isotope,
+                ResID = ResID,
+                AtomName = AtomName)
+    edges_tuple = mol_json['edges_tuple']
+
+    for edge_tuple in edges_tuple:
+        bond_type, is_peptide_bond, bond_start, bond_end = edge_tuple
+        G.add_edge(bond_start,
+                bond_end,
+                bond_type=bond_type,
+                is_peptide_bond=is_peptide_bond
+            )
+    return G
+
+def draw_peptide_json(peptide_json: dict, out: str= "simple_path.png") -> None:
+    G = nx.Graph()
+
+    sequence = peptide_json['sequence']
+
+    for i in range(len(sequence)):
+        G.add_node(i, aa='%d%s' %(i+1, sequence[i]), color='blue')
+    for i in range(1,len(sequence)):
+        G.add_edge(i-1, i, color='black', weight=2)
+
+    int_mods = peptide_json['internal_modifications']
+
+    for int_mod in int_mods:
+        int_res_ids = [int(i['ResID'])-1 for i in list(int_mod.values())[0]]
+
+        start_ss, end_ss = int_res_ids
+
+        G.add_edge(start_ss, end_ss, color='orange', weight=1)
+
+    ext_mods = peptide_json['external_modifications']
+
+    for i in range(len(ext_mods)):
+        ext_mod = ext_mods[i]
+        ext_node_name = 'mod_%d' %i 
+        G.add_node(ext_node_name, color='red',
+                   aa=ext_mod.get('smiles'))
+        att_points = [int(i['ResID'])-1 for i in list(
+        ext_mod['attachment_points_on_sequence'].values())]
+        for att_point_res_id in att_points:
+            G.add_edge(att_point_res_id, ext_node_name, color='green', weight=1)
+
+    colors = nx.get_edge_attributes(G,'color').values()
+    weights = nx.get_edge_attributes(G,'weight').values()
+    aas = nx.get_node_attributes(G,'aa')#.values()
+    node_colors = nx.get_node_attributes(G,'color').values()
+
+    labeldict = aas
+
+    nx.draw(G,  edge_color=colors, with_labels = True, labels=labeldict, width=list(weights), 
+           node_color=node_colors)
+
+    plt.savefig(out) # save as png
+
 

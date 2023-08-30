@@ -9,34 +9,34 @@ from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
 AminoAcidInstance = TypeVar("AminoAcidInstance")
 
 
-def smi_to_G(smiles):
+def smi_to_G(smiles: str) -> nx.classes.graph.Graph:
     mol = rdkit.Chem.MolFromSmiles(smiles)
     G = mol_to_nx(mol)
     return G
 
 
-def is_R(v, ResID, r_id):
+def is_R(v: dict, ResID, r_id) -> bool:
     return (v["atomic_num"] == 0) and (v["isotope"] == r_id) and (v["ResID"] == ResID)
 
 
-def find_R(G, ResID, r_id):
+def find_R(G: nx.classes.graph.Graph, ResID, r_id):
     R = [n for n, v in G.nodes(data=True) if is_R(v, ResID, r_id)][0]
     return R
 
 
-def find_N(G, ResID):
+def find_N(G: nx.classes.graph.Graph, ResID):
     R = find_R(G, ResID, r_id=1)
     N = list(G.neighbors(R))[0]
     return N
 
 
-def find_CO(G, ResID):
+def find_CO(G: nx.classes.graph.Graph, ResID):
     R = find_R(G, ResID, r_id=2)
     N = list(G.neighbors(R))[0]
     return N
 
 
-def merge_graph(G, ResID=1):
+def merge_graph(G: nx.classes.graph.Graph, ResID=1) -> nx.classes.graph.Graph:
     ResNextID = ResID + 1
 
     CO = find_CO(G, ResID)
@@ -51,7 +51,7 @@ def merge_graph(G, ResID=1):
     return G
 
 
-def get_residues_Gs(residue_symbols, smiles_building_blocks_db):
+def get_residues_Gs(residue_symbols: list, smiles_building_blocks_db: dict) -> list:
     Residue_Gs = []
 
     for i in range(len(residue_symbols)):
@@ -65,7 +65,7 @@ def get_residues_Gs(residue_symbols, smiles_building_blocks_db):
     return Residue_Gs
 
 
-def merge_residue_graphs(graphs):
+def merge_residue_graphs(graphs: list) -> nx.classes.graph.Graph:
 
     first_residue_graph = graphs[0]
     peptide_graph = nx.union(
@@ -84,8 +84,8 @@ def merge_residue_graphs(graphs):
 
 
 def get_molecule_from_list_of_residue_symbols(
-    residue_symbols, smiles_building_blocks_db
-):
+    residue_symbols: list, smiles_building_blocks_db
+) -> rdkit.Chem.rdchem.Mol:
     residue_graphs = get_residues_Gs(residue_symbols, smiles_building_blocks_db)
     peptide_graph = merge_residue_graphs(residue_graphs)
     return nx_to_mol(peptide_graph)
