@@ -142,6 +142,39 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
 
 
 def nx_to_json(G: nx.classes.graph.Graph) -> dict:
+    """
+    transforms a networkx  Graph
+    into JSON dict in the form
+
+
+
+    {
+    'nodes_tuple: [ #parameters for nodes representing Atoms
+        (
+            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+            is_aromatic, isotope, AtomName, ResID, node_id
+            ),
+        (
+            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+            is_aromatic, isotope, AtomName, ResID, node_id
+            )
+        )
+    
+    'nodes_columns': [
+        'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
+        'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
+        ],
+    'edges_tuple' = (
+        (
+            bond_type, is_peptide_bond, bond_start, bond_end
+            ),
+        (
+            bond_type, is_peptide_bond, bond_start, bond_end
+            ),
+        ),
+    'edges_columns' = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
+    }
+    """
     nodes_list = list( G.nodes(data=True) )
     node_dicts = [ node_tuple[1] for node_tuple in nodes_list ]
     node_ids = [node_tuple[0] for node_tuple in nodes_list ]
@@ -171,12 +204,76 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
 
 
 def get_mol_json(mol: rdkit.Chem.rdchem.Mol) -> dict:
+    """
+    transforms rdkit.Chem.rdchem.Mol molecule object into 
+
+    into JSON dict in the form
+
+    {
+    'nodes_tuple: [ #parameters for nodes representing Atoms
+        (
+            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+            is_aromatic, isotope, AtomName, ResID, node_id
+            ),
+        (
+            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+            is_aromatic, isotope, AtomName, ResID, node_id
+            )
+        )
+    
+    'nodes_columns': [
+        'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
+        'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
+        ],
+    'edges_tuple' = (
+        (
+            bond_type, is_peptide_bond, bond_start, bond_end
+            ),
+        (
+            bond_type, is_peptide_bond, bond_start, bond_end
+            ),
+        ),
+    'edges_columns' = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
+    }
+
+    """
     G = mol_to_nx(mol)
     mol_j = nx_to_json(G)
     return mol_j
 
 
 def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
+    """
+    transforms JSON dict in the form into a networkx  Graph
+
+    {
+    'nodes_tuple: [ #parameters for nodes representing Atoms
+        (
+            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+            is_aromatic, isotope, AtomName, ResID, node_id
+            ),
+        (
+            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+            is_aromatic, isotope, AtomName, ResID, node_id
+            )
+        )
+    
+    'nodes_columns': [
+        'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
+        'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
+        ],
+    'edges_tuple' = (
+        (
+            bond_type, is_peptide_bond, bond_start, bond_end
+            ),
+        (
+            bond_type, is_peptide_bond, bond_start, bond_end
+            ),
+        ),
+    'edges_columns' = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
+    }
+
+    """
     G = nx.Graph()
 
     nodes_tuple = mol_json['nodes_tuple']
@@ -208,7 +305,15 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
             )
     return G
 
-def draw_peptide_json(peptide_json: dict, out: str= "simple_path.png") -> None:
+
+def draw_peptide_json(peptide_json: dict, out: str= "simple_path.png") -> nx.Graph:
+    """
+    Draws schema of a modified peptide using  networkx Graph drawing function networkx.draw.
+    Nodes in the Graph represent Amino Acids in the sequence and external modifications.
+    External modifications are labeled as SMILES code.
+    Peptide bonds between the Amino Acids; attachment points for external modifications
+    and disulfide bridges are represented as edges.
+    """
     G = nx.Graph()
 
     sequence = peptide_json['sequence']
@@ -250,5 +355,6 @@ def draw_peptide_json(peptide_json: dict, out: str= "simple_path.png") -> None:
            node_color=node_colors)
 
     plt.savefig(out) # save as png
+    return G
 
 
