@@ -15,7 +15,7 @@ with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 
-def get_attachment_point_json(res_id, decomposition):
+def get_attachment_point_json(res_id: int, decomposition: tuple) -> Dict:
     ResName, attachment_point_id = decomposition
     d_atom_name = {"Cys": "SG", "Lys": "NZ", "Ala": "CB", "Gly": "CA", "ala": "CB"}
 
@@ -33,7 +33,7 @@ def get_attachment_point_json(res_id, decomposition):
     return att_point_json
 
 
-def decompose_symbol(s):
+def decompose_symbol(s: str) -> str:
     if ("(" in s) and (")" in s):
         inside_bracket = s.split("(")[1].split(")")[0]
         before_bracket = s.split("(")[0]
@@ -43,7 +43,7 @@ def decompose_symbol(s):
     return s
 
 
-def get_attachment_points_on_sequence_json(symbols):
+def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
     """ """
     att_points = {}
 
@@ -63,7 +63,7 @@ def get_attachment_points_on_sequence_json(symbols):
     return att_points
 
 
-def get_base_seq(symbols):
+def get_base_seq(symbols: list) -> str:
     three_to_one = {"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"}
 
     base_seq = ""
@@ -83,7 +83,7 @@ def get_base_seq(symbols):
     return base_seq
 
 
-def get_single_modification_json(attachment_points_on_sequence, mod_smiles: str):
+def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles: str) -> Dict:
     mod_mol = rdkit.Chem.MolFromSmiles(mod_smiles)
     mod_atoms = mod_mol.GetAtoms()
 
@@ -105,7 +105,7 @@ def get_single_modification_json(attachment_points_on_sequence, mod_smiles: str)
     return ext_mod
 
 
-def get_ext_mod_json(pepseq, smiles: list):
+def get_ext_mod_json(pepseq: str, smiles: list) -> list:
     symbols = parse_canonical2(pepseq)
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
     if attachment_points_on_sequence.keys():
@@ -118,7 +118,7 @@ def get_ext_mod_json(pepseq, smiles: list):
     return ext_mod_jsons
 
 
-def get_pep_json(pepseq_format, db_json: Dict = db_json, mod_smiles_list=None):
+def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None) -> Dict:
     """
 
     Input:

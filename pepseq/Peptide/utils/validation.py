@@ -8,7 +8,7 @@ from pepseq.Peptide.exceptions import (AttachmentPointsMismatchError,
                                        UnattachedSmilesError, ValidationError)
 
 
-def has_attachment_point(smiles):
+def has_attachment_point(smiles: str) -> bool:
     mol = rdkit.Chem.MolFromSmiles(smiles)
     for atom in mol.GetAtoms():
         if (atom.GetAtomicNum() == 0):
@@ -25,7 +25,7 @@ def validate_attachment_points_on_smiles(smiles_codes: list[str]):
                     raise UnattachedSmilesError('SMILES code no %d has no attachment point to Peptide' % (i+1))
 
 
-def validate_smiles_codes(smiles_codes: list[str] = None):
+def validate_smiles_codes(smiles_codes: list[str] | None = None):
     if smiles_codes is not None:
         for i in range(len(smiles_codes)):
             smiles_code = smiles_codes[i]
@@ -35,7 +35,7 @@ def validate_smiles_codes(smiles_codes: list[str] = None):
                     'SMILES code no %d was invalid. Could not construct molecule from SMILES code' % (i+1))
 
 
-def get_attachment_points_on_smiles(smiles_code):
+def get_attachment_points_on_smiles(smiles_code: str) -> list:
     attachment_points_ids = []
     mol = rdkit.Chem.MolFromSmiles(smiles_code)
     for atom in mol.GetAtoms():
@@ -46,7 +46,7 @@ def get_attachment_points_on_smiles(smiles_code):
     return attachment_points_ids
 
 
-def get_attachment_points_on_smiles_codes(smiles_codes):
+def get_attachment_points_on_smiles_codes(smiles_codes: list| None = None) -> set:
     attachment_points_ids = []
     if smiles_codes is not None:
         for smiles_code in smiles_codes:
@@ -59,7 +59,7 @@ def get_attachment_points_on_smiles_codes(smiles_codes):
     return unique_attachment_points_ids
 
 
-def validate_matching_attachment_points(pepseq, smiles_codes):
+def validate_matching_attachment_points(pepseq: str, smiles_codes: list):
     symbols = get_pep_json(pepseq)['symbols']
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
     attachment_point_ids_on_sequence = set(attachment_points_on_sequence.keys())
@@ -70,7 +70,7 @@ def validate_matching_attachment_points(pepseq, smiles_codes):
                 str(attachment_point_ids_on_sequence), str(attachment_point_ids_on_smiles)))
 
 
-def validate_termini(s):
+def validate_termini(s: str) -> bool:
     tilde_num = s.count("~")
     if tilde_num in [0, 1, 2]:
         return True

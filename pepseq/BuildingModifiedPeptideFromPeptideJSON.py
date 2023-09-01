@@ -98,7 +98,7 @@ def get_peptide_json_from_sequence(sequence: str, db_json: dict) -> dict:
 
 
 def get_residue_symbols_from_sequence(
-    sequence: str, db_json: dict, N_terminus=None, C_terminus=None
+    sequence: str, db_json: dict, N_terminus: str | None = None, C_terminus: str | None = None
 ) -> list:
     canonical_sequence = get_canonical(sequence, db_json)
     symbols_list_w_termini = parse_canonical(canonical_sequence)

@@ -13,7 +13,7 @@ AminoAcidInstance = TypeVar("AminoAcidInstance")
 PeptideWriter = TypeVar("PeptideWriter")
 
 
-def get_smiles_descriptors(smiles: AnyStr):
+def get_smiles_descriptors(smiles: AnyStr) -> dict:
     molecule = MolFromSmiles(smiles)
     descriptors: dict = {
         "mw": round(MolWt(molecule), 2),
@@ -34,7 +34,7 @@ def get_smiles_descriptors(smiles: AnyStr):
 
 
 class Peptide(object):
-    def __init__(self, smiles, peptide_json):
+    def __init__(self, smiles: str, peptide_json: dict):
         self.smiles = smiles
         self.complete_smiles = smiles
         self.peptide_json = peptide_json

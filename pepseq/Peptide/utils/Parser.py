@@ -7,7 +7,7 @@ DataBase = TypeVar("DataBase")
 SeqReader = TypeVar("SeqReader")
 
 
-def output_modified_residue(ResName: str, R_id: str):
+def output_modified_residue(ResName: str, R_id: str) -> str:
     d = {"C": "Cys", "K": "Lys"}
     if ResName in d:
         ResName = d[ResName]
@@ -15,7 +15,7 @@ def output_modified_residue(ResName: str, R_id: str):
     return s
 
 
-def parentheses_locs_list(parentheses_locs: list):
+def parentheses_locs_list(parentheses_locs: list) -> list:
     ls = []
     for k, v in parentheses_locs.items():
         parentheses_pair = k, v
@@ -24,7 +24,7 @@ def parentheses_locs_list(parentheses_locs: list):
     return ls
 
 
-def find_parentheses(s: str):
+def find_parentheses(s: str) -> list:
     """Find and return the location of the matching parentheses pairs in s.
 
     Given a string, s, return a dictionary of start: end pairs giving the
@@ -53,7 +53,7 @@ def find_parentheses(s: str):
         )
     return parentheses_locs_list(parentheses_locs=parentheses_locs)
 
-def parse_canonical(canonical_sequence: str):
+def parse_canonical(canonical_sequence: str) -> list:
     """
     canonical_sequence = "{%s}%s{%s}" % (n_term_symbol,
       sequence_str_wo_termini, c_term_symbol)
@@ -96,7 +96,7 @@ def parse_canonical2(canonical_sequence: str) -> list:
     return symbols
 
 
-def find_termini(sequence_str: str, db_json) -> tuple:
+def find_termini(sequence_str: str, db_json: dict) -> tuple:
     sequence_split = sequence_str.split("~")
     if len(sequence_split) == 1:
         return "H", "OH", sequence_str
@@ -134,7 +134,7 @@ def find_termini(sequence_str: str, db_json) -> tuple:
         return n_term, c_term, sequence_str_wo_termini
 
 
-def get_canonical(sequence_str: str, db_json) -> str:
+def get_canonical(sequence_str: str, db_json: dict) -> str:
     n_term, c_term, sequence_str_wo_termini = find_termini(sequence_str, db_json)
     canonical_sequence = "{%s}%s{%s}" % (n_term, sequence_str_wo_termini, c_term)
     return canonical_sequence

@@ -12,7 +12,7 @@ from pepseq.Backbone import (BreakingIntoResidueCandidateSubgraphs,
                              MarkingPeptideBackbone)
 
 
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx
 
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
@@ -50,62 +50,6 @@ peptide_json = {
 }
 
 
-def json_to_nx(mol_json: dict):
-    """
-    transforms custom JSON format
-    into nx.classes.graph.Graph graph
-    """
-
-    G = nx.Graph()
-
-    chirality_encoding = {
-        0: rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
-        1: rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CW,
-        2: rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CCW,
-    }
-
-    hybridization_encoding = {
-        1: rdkit.Chem.rdchem.HybridizationType.S,
-        2: rdkit.Chem.rdchem.HybridizationType.SP,
-        3: rdkit.Chem.rdchem.HybridizationType.SP2,
-        4: rdkit.Chem.rdchem.HybridizationType.SP3,
-    }
-
-    bond_type_encoding = {
-        1: rdkit.Chem.rdchem.BondType.SINGLE,
-        2: rdkit.Chem.rdchem.BondType.DOUBLE
-    }
-
-    for (atomic_num, formal_charge, chiral_tag_encoded, hybridization_encoded,
-         num_explicit_hs, is_aromatic, isotope, AtomName,
-         ResID, node_id) in nodes_tuple:
-        G.add_node(
-            node_id,
-            atomic_num=atomic_num,
-            formal_charge=formal_charge,
-            chiral_tag=chirality_encoding.get(chiral_tag_encoded, rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED),
-            hybridization=hybridization_encoding[ hybridization_encoded],
-            num_explicit_hs=num_explicit_hs,
-            is_aromatic=is_aromatic,
-            isotope=isotope,
-            AtomName = AtomName,
-            ResID=ResID,
-
-        )
-
-
-
-    for (bond_type_encoded, is_peptide_bond, bond_start, bond_end) in mol_json['edges_tuple']:
-        G.add_edge(
-            bond_start,
-            bond_end,
-            bond_type=bond_type_encoding[bond_type_encoded],
-            is_peptide_bond = is_peptide_bond,)
-    return G
-
-def json_to_mol(mol_json:dict):
-    G_mol = json_to_nx(mol_json)
-    return nx_to_mol(G_mol)
 
 
 def test_building():

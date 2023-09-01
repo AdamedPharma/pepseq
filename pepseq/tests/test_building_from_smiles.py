@@ -226,10 +226,10 @@ correct_res0_json = {
     'hybridization', 'num_explicit_hs', 'is_aromatic', 'isotope',
     'AtomName', 'ResID', 'node_id'],
  'edges_tuple': (
-     (1, 0, 1), (2, 1, 2), (1, 1, 3), (1, 3, 4), (1, 4, 5),
-     (1, 4, 56), (1, 5, 6), (1, 6, 7), (1, 7, 8), (1, 7, 9),
-     (1, 9, 10), (1, 10, 11), (1, 11, 12), (1, 11, 13), (1, 13, 14),
-     (1, 14, 15), (1, 15, 16), (1, 15, 49), (2, 16, 17), (2, 56, 57)
+     (1, None, 0, 1), (2, None, 1, 2), (1, None, 1, 3), (1, None, 3, 4), (1, None, 4, 5),
+     (1, None, 4, 56), (1, None, 5, 6), (1, None, 6, 7), (1, None, 7, 8), (1, None, 7, 9),
+     (1, None, 9, 10), (1, None, 10, 11), (1, None, 11, 12), (1, None, 11, 13), (1, None, 13, 14),
+     (1, None, 14, 15), (1, None, 15, 16), (1, None, 15, 49), (2, None, 16, 17), (2, None, 56, 57)
      ),
  'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']}
 
@@ -247,8 +247,9 @@ correct_res2_json = {
      'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
      'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'],
  'edges_tuple': (
-     (1, 42, 29), (1, 47, 24), (2, 47, 48), (1, 23, 24), (1, 24, 25), (1, 25, 26),
-     (1, 26, 27), (1, 27, 28), (1, 28, 29), (1, 29, 30), (2, 30, 31)
+     (1, None, 42, 29), (1, None, 47, 24), (2, None, 47, 48), (1, None, 23, 24),
+     (1, None, 24, 25), (1, None, 25, 26), (1, None, 26, 27), (1, None, 27, 28),
+     (1, None, 28, 29), (1, None, 29, 30), (2, None, 30, 31)
  ),
  'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']}
 
@@ -266,8 +267,9 @@ correct_res3_json = {
         'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
     ],
  'edges_tuple': (
-     (1, 32, 33), (1, 33, 34), (1, 33, 39), (1, 34, 35), (1, 35, 36), (1, 36, 37),
-     (1, 37, 38), (1, 39, 40), (2, 39, 41)
+     (1, None, 32, 33), (1, None, 33, 34), (1, None, 33, 39), (1, None, 34, 35),
+     (1, None, 35, 36), (1, None, 36, 37), (1, None, 37, 38), (1, None, 39, 40),
+     (2, None, 39, 41)
  ),
  'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
 }
@@ -368,7 +370,6 @@ def test_MarkingPeptideBackbone():
     cx_smarts_db = get_cx_smarts_db(db_json)
     correct_seq = 'CSCACGCK'
 
-    correct_internal_modifications
     seq, internal_modifications, external_modifications = decompose_residues_internal(
         residues, cx_smarts_db
     )

@@ -9,7 +9,7 @@ class Functionality(object):
     pass
 
 
-def generate_bb_smiles(num_res: int, OH=False) -> str:
+def generate_bb_smiles(num_res: int, OH: bool = False) -> str:
     """
     generates SMILES for polyGlycine peptide
     length (number of Gly residues) is given by num_res
@@ -23,7 +23,7 @@ def generate_bb_smiles(num_res: int, OH=False) -> str:
     return bb_smiles
 
 
-def generate_bb_mol(num_res: int, OH=False) -> rdkit.Chem.rdchem.Mol:
+def generate_bb_mol(num_res: int, OH: bool = False) -> rdkit.Chem.rdchem.Mol:
     """
     generates rdkit.Chem.rdchem.Mol molecule for polyGlycine peptide
     length (number of Gly residues) is given by num_res
@@ -37,7 +37,7 @@ def generate_bb_mol(num_res: int, OH=False) -> rdkit.Chem.rdchem.Mol:
 
 class GetLongestPolymerWithin(Functionality):
     """
-    The Longest Polymer of (monomer) form –[NCC(=O) ]*n- is being
+    The Longest Polymer of (monomer) form -[NCC(=O) ]*n- is being
       rdkit.substructureMatch
     of rdkit.MoleculeFromSMILES ProteinBackbone Is (SMARTS * N)?
     """
@@ -45,7 +45,7 @@ class GetLongestPolymerWithin(Functionality):
     def __init__(self):
         return
 
-    def execute(self, peptide_molecule):
+    def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> tuple:
         matches = [None]
         num_res = 0
         while matches:
@@ -58,16 +58,35 @@ class GetLongestPolymerWithin(Functionality):
 
 class MarkingPeptideBackbone(Functionality):
     """
-    This serves to assign backbone atoms with ResidueID and AtomName
-    This will allow us to identify PeptideBonds
-    And  Disulfide Bonds later (as well as cyclization or stapling i guess)
+    Input:
+
+    rdkit.Chem.rdchem.Mol object representing modified peptide molecule
+
+    Output:
+
+    rdkit.Chem.rdchem.Mol object representing modified peptide molecule
+    with:
+        - protein backbone atoms N-Ca-Co assigned new properties:
+          ResidueID and AtomName (N, CA, or CO)
+        
+        - protein backbone peptide bonds connecting residues
+          assigned new property ("is_peptide_bond" = "True")
+
+
+    Purpose:
+
+    Identifying Peptide Bonds and Protein Backbone Atoms allows as to
+    identify the sequence of amino acids in peptide. In the next steps
+    it allows us to separate peptide atoms from external modifications
+    like staples (e.g. ornithine) and identify internal connections
+    between non neighbouring residue like disulfide bridges.
 
     """
 
     def __init__(self):
         return
 
-    def execute(self, peptide_molecule):
+    def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
         bb_ats = ["N", "CA", "CO", "O"]
 
         match = GetLongestPolymerWithin().execute(peptide_molecule)
@@ -96,20 +115,26 @@ class MarkingPeptideBackbone(Functionality):
 
 class BreakingIntoResidueCandidateSubgraphs(Functionality):
     """
-    Breaking peptide bonds. <br>
-    Peptide bonds are identified and broken. <br>
-    We end with a list of subgraphs for 'Residues' (supposedly) <br>
 
-    For two cysteine residues bound by a disulfide bond we might end up with
-      subgraph
-    actually composed of two Residues. This is shown by subgraph having two
-      ResIds.<br>
+    We use nx.classes.graph.Graph representation of modified peptide molecules
+
+    Edges representing peptide bonds are deleted separating molecule object
+        into several subgraphs (nx.connected_components).
+    
+    Unmodified Residues become separate Graphs.
+
+    Modified Residues form same Graph with modification atoms and
+    need to be separated in next steps.
+
+    Set of Non neighboring residues connected covalently (e.g. through disulfide bonds)
+    form single graph and need to be separated in next steps.
+
     """
 
     def __init__(self):
         return
 
-    def execute(self, peptide_molecule):
+    def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> list:
         peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
         G = mol_to_nx(peptide_molecule)
         peptide_bonds = [

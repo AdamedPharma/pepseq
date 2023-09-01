@@ -34,8 +34,9 @@ aa_color_dict = {
 
 
 def get_start_x(
-    left_margin=100, is_corner=None, forward=None, step_x=None, is_start=None
-):
+    left_margin: int = 100, is_corner: bool = None, forward: bool = None, step_x: float = None,
+    is_start: bool = None
+) -> float:
     """
     Get starting X coordinate for 
 
@@ -67,7 +68,7 @@ def get_start_x(
             return last_right
 
 
-def get_rev_x_and_font_size(symbol, variable_font_size=True):
+def get_rev_x_and_font_size(symbol: str, variable_font_size: int = True) -> tuple:
     """
     """
     length = len(symbol)
@@ -101,14 +102,14 @@ def get_rev_x_and_font_size(symbol, variable_font_size=True):
 
 
 def generate_kwargs_for_text_in_ellipse_balls(
-    symbols,
-    y,
-    forward=True,
-    is_corner=False,
-    is_start=False,
-    left_margin=100,
-    step_x = 100
-):
+    symbols: list,
+    y: float,
+    forward: bool = True,
+    is_corner: bool = False,
+    is_start: bool = False,
+    left_margin: float = 100,
+    step_x: float = 100
+) -> list:
     """
     """
     
@@ -145,8 +146,9 @@ def generate_kwargs_for_text_in_ellipse_balls(
 
 
 def generate_kwargs_for_ellipse_balls(
-    symbols: list, y, forward=True, is_corner=False, is_start=False, left_margin=100
-):
+    symbols: list, y: float, forward: bool = True, is_corner: bool = False,
+    is_start: bool = False, left_margin: float = 100
+) -> list:
     """
     """
     step_x = 100
@@ -207,7 +209,7 @@ def generate_kwargs_for_ellipse_balls(
     return kwargs_list
 
 
-def get_is_corner(num_iteration=None):
+def get_is_corner(num_iteration: int = None) -> bool:
     """
     ACDEFGHIK       num_iteration = 0 => False
              L      num_iteration = 1 => True
@@ -220,7 +222,7 @@ def get_is_corner(num_iteration=None):
     return odd
 
 
-def get_direction(num_iteration=None):
+def get_direction(num_iteration: int = None) -> str:
     """
     ACDEFGHIK       num_iteration = 0 => forward
              L      num_iteration = 1 => reverse
@@ -318,8 +320,9 @@ def schema_layout_generator_from_symbols(symbols: list):
 
 
 def get_fragment_kwargs(
-    symbols, y=70, is_start=True, fragment_direction="forward", is_corner=False
-):
+    symbols: list, y: float = 70, is_start: bool = True, fragment_direction: str = "forward",
+    is_corner: bool = False
+) -> tuple:
     """
             seq_fragment, fragment_length, fragment_direction, is_corner = fragment
 
@@ -338,7 +341,7 @@ def get_fragment_kwargs(
     return kwargsy, kwargsy_text
 
 
-def get_N_terminus_params(params: dict):
+def get_N_terminus_params(params: dict) -> dict:
     """
     gets N terminus params
     """
@@ -355,7 +358,7 @@ def get_N_terminus_params(params: dict):
     return out_params
 
 
-def get_C_terminus_params(params: dict, previous_params:dict):
+def get_C_terminus_params(params: dict, previous_params:dict) -> dict:
     """
     gets C terminus params
     """
@@ -380,7 +383,7 @@ def get_C_terminus_params(params: dict, previous_params:dict):
 
     return out_params
 
-def get_kwargs_from_symbols(symbols: list, termini_present=["N", "C"]):
+def get_kwargs_from_symbols(symbols: list, termini_present: list = ["N", "C"]) -> tuple:
     """
     symbols = [
         'CH3', 'Y', 'aMeAla', 'Q', 'G', 'T', 'F', 'T', 'S', 'D', 'Y', 'S', 'K', 'Y', 'L'] + \
@@ -443,10 +446,10 @@ def draw_ellipse_ball(
     x: int,
     y: int,
     rgb_fractions: tuple,
-    outline_rgb_fractions=(0.3, 0.3, 0.3),
-    outline_width=2,
-    radius=50,
-):
+    outline_rgb_fractions: tuple = (0.3, 0.3, 0.3),
+    outline_width: int = 2,
+    radius: int = 50,
+) -> cairo.Context:
     """
     draws an ellipse on cairo.Context provided
     at x and y coordinates
@@ -471,7 +474,8 @@ def draw_ellipse_ball(
     return cairo_context
 
 
-def draw_ellipse_balls(cairo_context: cairo.Context, keyword_args_sequence: list):
+def draw_ellipse_balls(cairo_context: cairo.Context, keyword_args_sequence: list
+                       ) -> cairo.Context:
     """
     draws a chain of ellipses on cairo.Context provided
     a sequence of keyword argument dictionaries
@@ -502,7 +506,8 @@ def draw_ellipse_balls(cairo_context: cairo.Context, keyword_args_sequence: list
     return cairo_context
 
 
-def draw_text_in_ellipse(cairo_context, x: int, y: int, text: str, font_size=34):
+def draw_text_in_ellipse(cairo_context: cairo.Context, x: int, y: int, text: str,
+                          font_size=34) -> cairo.Context:
     """
     writes text in ellipse on cairo.Context
     at x and y coordinates
@@ -523,7 +528,7 @@ def draw_text_in_ellipse(cairo_context, x: int, y: int, text: str, font_size=34)
 
 def draw_text_in_ellipse_balls(
     cairo_context: cairo.Context, keyword_args_sequence: list
-):
+) -> cairo.Context:
     """
     draws text inside a chain of ellipses on cairo.Context provided
     a sequence of keyword argument dictionaries
@@ -543,7 +548,7 @@ def draw_text_in_ellipse_balls(
     return cairo_context
 
 
-def get_png_string_from_surface(surface: cairo.ImageSurface):
+def get_png_string_from_surface(surface: cairo.ImageSurface) -> bytes:
     """
     turns cairo.ImageSurface into png byte buffer
     and then into PNG image format string
@@ -555,7 +560,8 @@ def get_png_string_from_surface(surface: cairo.ImageSurface):
     return pngData
 
 
-def draw_symbols(symbols: list, width=1024, height=1024, termini_present=["N", "C"], out=None):
+def draw_symbols(symbols: list, width: int = 1024, height: int = 1024,
+                  termini_present: list = ["N", "C"], out: str = None) -> str:
     """
     From symbols list (a sequence already split into residue symbols)
     Input:

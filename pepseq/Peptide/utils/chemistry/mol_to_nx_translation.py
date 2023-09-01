@@ -20,18 +20,6 @@ def get_edge_tuple(edge: tuple) -> tuple:
     return  bond_type, is_peptide_bond, bond_start, bond_end
 
 
-def mol_to_nx_json(mol: rdkit.Chem.rdchem.Mol) -> dict:
-    for atom in mol.GetAtoms():
-
-        kwargs = {}
-
-        for prop in atom.GetPropNames():
-            prop_val = atom.GetProp(prop)
-            kwargs[prop] = prop_val
-
-    return
-
-
 def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
     """
     transforms rdkit.Chem.rdchem.Mol molecule
@@ -189,7 +177,7 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
         'isotope', 'AtomName', 'ResID', 'node_id']
 
     edges_list = list(G.edges(data=True))
-    edges_tuple = [get_edge_tuple(edge) for edge in edges_list]
+    edges_tuple = tuple([get_edge_tuple(edge) for edge in edges_list])
 
     edges_columns = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
 
@@ -304,6 +292,12 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
                 is_peptide_bond=is_peptide_bond
             )
     return G
+
+
+def mol_json_to_mol(mol_json: dict) -> rdkit.Chem.rdchem.Mol:
+    G = mol_json_to_nx(mol_json)
+    mol = nx_to_json(G)
+    return mol
 
 
 def draw_peptide_json(peptide_json: dict, out: str= "simple_path.png") -> nx.Graph:

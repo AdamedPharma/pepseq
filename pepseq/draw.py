@@ -7,7 +7,7 @@ def draw_pepseq(
     width: int = 1124,
     height: int = 640,
     omit_standard_termini: bool = False,
-):
+) -> str:
     """
     Draw Peptide Schema Image based on sequence. Save it to (image_file_name)
     if image_file_name is not provided an UUID is generated.

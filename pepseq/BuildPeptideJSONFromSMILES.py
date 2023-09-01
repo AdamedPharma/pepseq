@@ -7,7 +7,7 @@ from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import \
 from pepseq.Peptide.utils.Parser import parse_canonical2
 
 
-def get_cx_smarts_db(db_json):
+def get_cx_smarts_db(db_json: dict) -> dict:
     cx_smarts_db = {}
     smiles_dict = db_json["smiles"].get("aa")
 
@@ -19,7 +19,7 @@ def get_cx_smarts_db(db_json):
     return cx_smarts_db
 
 
-def decompose_peptide_smiles(smiles, db_json):
+def decompose_peptide_smiles(smiles: str, db_json: dict) -> dict:
     peptide_molecule = rdkit.Chem.MolFromSmiles(smiles)
     peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
 
@@ -37,7 +37,7 @@ def decompose_peptide_smiles(smiles, db_json):
     }
 
 
-def get_terminal_smiles_building_block(peptide_json, ResID, AtomName):
+def get_terminal_smiles_building_block(peptide_json: dict, ResID: int, AtomName: str) -> tuple:
     external_modifications = peptide_json.get("external_modifications")
     if ResID == -1:
         symbols = parse_canonical2(peptide_json.get("sequence"))
@@ -57,21 +57,21 @@ def get_terminal_smiles_building_block(peptide_json, ResID, AtomName):
                 return smiles, i
 
 
-def get_C_terminal_smiles_building_block(peptide_json):
+def get_C_terminal_smiles_building_block(peptide_json: dict) -> tuple:
     return get_terminal_smiles_building_block(peptide_json, ResID=-1, AtomName="CO")
 
 
-def get_N_terminal_smiles_building_block(peptide_json):
+def get_N_terminal_smiles_building_block(peptide_json: dict) -> tuple:
     return get_terminal_smiles_building_block(peptide_json, ResID=1, AtomName="N")
 
 
-def smiles_are_identical(smiles1, smiles2):
+def smiles_are_identical(smiles1: str, smiles2: str) -> True:
     mol1 = rdkit.Chem.MolFromSmiles(smiles1)
     mol2 = rdkit.Chem.MolFromSmiles(smiles2)
     return (mol1.HasSubstructMatch(mol2)) and (mol2.HasSubstructMatch(mol1))
 
 
-def get_term_symbol(smiles, db_json, group):
+def get_term_symbol(smiles: str, db_json: dict, group: str) -> str|None:
     terms = db_json.get("smiles").get(group)
 
     for term_symbol in terms:
@@ -80,7 +80,7 @@ def get_term_symbol(smiles, db_json, group):
             return term_symbol
 
 
-def get_c_term_from_peptide_json(peptide_json, db_json):
+def get_c_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
     tup = get_C_terminal_smiles_building_block(peptide_json)
 
     if tup is not None:
@@ -91,7 +91,7 @@ def get_c_term_from_peptide_json(peptide_json, db_json):
         return term_symbol, i
 
 
-def get_n_term_from_peptide_json(peptide_json, db_json):
+def get_n_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
     tup = get_N_terminal_smiles_building_block(peptide_json)
     if tup is not None:
         smiles, i = tup
@@ -102,7 +102,7 @@ def get_n_term_from_peptide_json(peptide_json, db_json):
         return term_symbol, i
 
 
-def output_modified_residue(ResName, R_id):
+def output_modified_residue(ResName: str, R_id: str) -> str:
     d = {"C": "Cys", "K": "Lys"}
     if ResName in d:
         ResName = d[ResName]
@@ -110,7 +110,7 @@ def output_modified_residue(ResName, R_id):
     return s
 
 
-def append_pepseq_R_info(j):
+def append_pepseq_R_info(j: dict) -> str:
     seq_list = parse_canonical2(j["sequence"])
     ext_mods = j["external_modifications"]
     for ext_mod in ext_mods:
@@ -130,7 +130,7 @@ def append_pepseq_R_info(j):
     return new_seq
 
 
-def decompose_peptide_smiles_with_termini(smiles, db_json):
+def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict) -> dict:
     """
     Input:
 
@@ -204,7 +204,7 @@ def decompose_peptide_smiles_with_termini(smiles, db_json):
     return peptide_json
 
 
-def from_smiles_to_pepseq_and_mod_smiles_strings(smiles, db_json):
+def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict) -> tuple:
     """
     Input:
 
@@ -241,7 +241,7 @@ def from_smiles_to_pepseq_and_mod_smiles_strings(smiles, db_json):
     return pepseq_format, mod_smiles_list
 
 
-def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles, db_json):
+def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict):
     """
     Input:
 
@@ -276,7 +276,7 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles, db_json):
     return pepseq_format, mod_smiles_list[0]
 
 
-def mark_external_modifications_on_seq(seq_list, peptide_json, mod_as_X=False):
+def mark_external_modifications_on_seq(seq_list: list, peptide_json: dict, mod_as_X: bool = False) -> list:
     external_modifications = peptide_json.get("external_modifications")
     for external_modification in external_modifications:
         attachment_points = external_modification.get("attachment_points_on_sequence")
@@ -295,7 +295,7 @@ def mark_external_modifications_on_seq(seq_list, peptide_json, mod_as_X=False):
     return seq_list
 
 
-def mark_internal_modifications_on_seq(seq_list, peptide_json, mod_as_X=False):
+def mark_internal_modifications_on_seq(seq_list: list, peptide_json: dict, mod_as_X: bool = False) -> list:
     internal_modifications = peptide_json.get("internal_modifications")
 
     for key in internal_modifications:
@@ -312,7 +312,7 @@ def mark_internal_modifications_on_seq(seq_list, peptide_json, mod_as_X=False):
     return seq_list
 
 
-def print_sequence(peptide_json, mod_as_X=False):
+def print_sequence(peptide_json: dict, mod_as_X: bool=False) -> str:
     basic_sequence = peptide_json.get("sequence")
     aa_list = list(basic_sequence)
 

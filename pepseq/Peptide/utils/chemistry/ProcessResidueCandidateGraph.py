@@ -4,7 +4,7 @@ from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
                                                                   nx_to_mol)
 
 
-def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict):
+def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict) -> tuple:
     G = mol_to_nx(mol)
     max_cover = 0
     max_aa = None
@@ -30,7 +30,7 @@ def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict):
     return (max_aa, max_aa_mol, max_match)
 
 
-def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db):
+def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
     res_matches = {}
     G = mol_to_nx(mol)
     ResIDs_by_atom = nx.get_node_attributes(G, "ResID")
@@ -42,7 +42,7 @@ def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db):
     return res_matches
 
 
-def propagate_matches(mol, res_matches):
+def propagate_matches(mol: rdkit.Chem.rdchem.Mol, res_matches: dict) -> rdkit.Chem.rdchem.Mol:
     G = mol_to_nx(mol)
     for ResID in res_matches:
         aa, aa_mol, match = res_matches[ResID]
@@ -59,7 +59,8 @@ def propagate_matches(mol, res_matches):
     return nx_to_mol(G)
 
 
-def get_connecting_edges(union_graph, H_graph, I_graph):
+def get_connecting_edges(union_graph: nx.classes.graph.Graph, H_graph: nx.classes.graph.Graph,
+                        I_graph: nx.classes.graph.Graph) -> list:
     out = [
         edge
         for edge in union_graph.edges
@@ -69,7 +70,7 @@ def get_connecting_edges(union_graph, H_graph, I_graph):
     return out
 
 
-def process_res_res_connection(res_atoms_1, res_atoms_2, connecting_edges):
+def process_res_res_connection(res_atoms_1: set, res_atoms_2: set, connecting_edges: list) -> list:
     attachment_point_pairs = []
     for connecting_edge in connecting_edges:
         res_1_attachment_point = (set(connecting_edge) & res_atoms_1).pop()
@@ -79,7 +80,7 @@ def process_res_res_connection(res_atoms_1, res_atoms_2, connecting_edges):
     return attachment_point_pairs
 
 
-def process_internal_connections(connections, res_matches, G):
+def process_internal_connections(connections, res_matches, G: nx.classes.graph.Graph) -> list:
     internal_connections = []
     connection_id = 0
 
@@ -133,7 +134,7 @@ def sorted_connection(connection):
     return [connection[i] for (res_id, i) in sorted_res_ids]
 
 
-def process_external_connections(connections, res_matches, modification_graphs, G):
+def process_external_connections(connections, res_matches, modification_graphs, G: nx.classes.graph.Graph):
     attachment_point_id = 0
     external_modifications = []
 
@@ -224,7 +225,7 @@ def split_connections_by_type(connections):
     return res_res_connections, external_mod_connections
 
 
-def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db):
+def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
     res_matches = get_res_matches(mol, cx_smarts_db)
     mol = propagate_matches(mol, res_matches)
     G = mol_to_nx(mol)
@@ -241,7 +242,7 @@ def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db):
     return mol, res_matches, modification_graphs
 
 
-def get_subgraph_tuples(res_matches, modification_graphs, G):
+def get_subgraph_tuples(res_matches, modification_graphs, G: nx.classes.graph.Graph):
     subgraph_tuples = []
 
     for res_id in sorted(res_matches.keys()):
@@ -272,7 +273,7 @@ def get_subgraph_pair_tuples(subgraph_tuples):
     return subgraph_pair_tuples
 
 
-def get_connections(subgraph_pair_tuples, G):
+def get_connections(subgraph_pair_tuples, G: nx.classes.graph.Graph):
     connections = []
 
     for res1, res2, subgraph1, subgraph2 in subgraph_pair_tuples:
@@ -283,7 +284,7 @@ def get_connections(subgraph_pair_tuples, G):
     return connections
 
 
-def full_decomposition(mol, cx_smarts_db):
+def full_decomposition(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
 
     mol, res_matches, modification_graphs = decompose(mol, cx_smarts_db)
     G = mol_to_nx(mol)
@@ -316,7 +317,7 @@ def translate_attachment_points_on_seq(attachment_points_on_seq, offset=0):
     return attachment_points_on_seq
 
 
-def translate_mod_smiles(smiles, offset=0):
+def translate_mod_smiles(smiles: str, offset=0):
     mol = rdkit.Chem.MolFromSmiles(smiles)
     for atom in mol.GetAtoms():
         if atom.GetAtomicNum() == 0:
@@ -327,7 +328,7 @@ def translate_mod_smiles(smiles, offset=0):
     return smiles
 
 
-def translate_external_modification(mod, offset=0):
+def translate_external_modification(mod: dict, offset=0) -> dict:
     mod_smiles = mod.get("mod_smiles")
     mod_smiles = translate_mod_smiles(mod_smiles, offset=offset)
 
@@ -347,7 +348,7 @@ def translate_external_modification(mod, offset=0):
     return mod
 
 
-def sequence_dict_to_string(sequence_dict):
+def sequence_dict_to_string(sequence_dict: dict) -> str:
     sequence_string = ""
     for res_id in sorted(sequence_dict.keys()):
         symbol = sequence_dict.get(res_id)
@@ -357,7 +358,7 @@ def sequence_dict_to_string(sequence_dict):
     return sequence_string
 
 
-def decompose_residues_internal(residues_internal, cx_smarts_db):
+def decompose_residues_internal(residues_internal, cx_smarts_db: dict) -> tuple:
     """
 
     """

@@ -15,22 +15,22 @@ def smi_to_G(smiles: str) -> nx.classes.graph.Graph:
     return G
 
 
-def is_R(v: dict, ResID, r_id) -> bool:
+def is_R(v: dict, ResID: int, r_id: int) -> bool:
     return (v["atomic_num"] == 0) and (v["isotope"] == r_id) and (v["ResID"] == ResID)
 
 
-def find_R(G: nx.classes.graph.Graph, ResID, r_id):
+def find_R(G: nx.classes.graph.Graph, ResID: int, r_id: int) -> dict:
     R = [n for n, v in G.nodes(data=True) if is_R(v, ResID, r_id)][0]
     return R
 
 
-def find_N(G: nx.classes.graph.Graph, ResID):
+def find_N(G: nx.classes.graph.Graph, ResID: int) -> int:
     R = find_R(G, ResID, r_id=1)
     N = list(G.neighbors(R))[0]
     return N
 
 
-def find_CO(G: nx.classes.graph.Graph, ResID):
+def find_CO(G: nx.classes.graph.Graph, ResID: int) -> int:
     R = find_R(G, ResID, r_id=2)
     N = list(G.neighbors(R))[0]
     return N
