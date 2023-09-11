@@ -12,6 +12,15 @@ from pepseq.Peptide.utils.validation import (
     validate_attachment_points_on_smiles, validate_matching_attachment_points,
     validate_smiles_codes, validate_termini)
 
+correct_pepseqs = ['ACDEF', 'H~ACDEF', 'H~ACDEF~OH', 'ACDEF~OH',
+                           'ACDEFG', 'ACGDEF', ]
+#correct_pepseqs = ['ACDE{Cys(R1)}F']
+
+correct_pairs = [('CCC{Cys(R1)}S{Cys(R2)}', ['CCC[1*]', 'CCC[2*]'])]
+
+
+
+
 
 class TestExceptions(unittest.TestCase):
 
@@ -47,7 +56,6 @@ class TestExceptions(unittest.TestCase):
         return
 
     def test_validate_matching_attachment_points(self):
-        correct_pairs = [('CCC{Cys(R1)}S{Cys(R2)}', ['CCC[1*]', 'CCC[2*]'])]
 
         for pepseq, smiles in correct_pairs:
             with self.assertNotRaises(AttachmentPointsMismatchError):
@@ -67,7 +75,6 @@ class TestExceptions(unittest.TestCase):
                 calculate(pepseq, smiles)
 
     def test_validate_unique_attachment_points(self):
-        correct_pairs = [('CCC{Cys(R1)}S{Cys(R2)}', ['CCC[1*]', 'CCC[2*]'])]
 
         for pepseq, smiles in correct_pairs:
             with self.assertNotRaises(AttachmentPointsNonUniqueError):
@@ -89,8 +96,6 @@ class TestExceptions(unittest.TestCase):
         with self.assertRaises(ExcessTildeError):
             validate_termini('H~CS~OH~OH')
 
-        correct_pepseqs = ['ACDEF', 'H~ACDEF', 'H~ACDEF~OH', 'ACDEF~OH']
-
         for correct_pepseq in correct_pepseqs:
             with self.assertNotRaises(ExcessTildeError):
                 validate_termini(correct_pepseq)
@@ -109,7 +114,6 @@ class TestExceptions(unittest.TestCase):
         for incorrect_pepseq in incorrect_pepseqs:
             with self.assertRaises(ParenthesesError):
                 check_parentheses(incorrect_pepseq)
-        correct_pepseqs = ['ACDE{Cys(R1)}F']
         for correct_pepseq in correct_pepseqs:
             with self.assertNotRaises(ParenthesesError):
                 check_for_nested_brackets(correct_pepseq)
@@ -126,9 +130,6 @@ class TestExceptions(unittest.TestCase):
         for incorrect_pepseq in incorrect_pepseqs:
             with self.assertRaises(ParenthesesError):
                 validate_pepseq(incorrect_pepseq)
-
-        correct_pepseqs = ['ACDEF', 'H~ACDEF', 'H~ACDEF~OH', 'ACDEF~OH',
-                           'ACDE{Cys(R1)}F', 'AC{Cys(R1)}DEF']
 
         for correct_pepseq in correct_pepseqs:
             with self.assertNotRaises(ExcessTildeError):
@@ -150,9 +151,6 @@ class TestExceptions(unittest.TestCase):
         for incorrect_pepseq in incorrect_pepseqs:
             with self.assertRaises(ParenthesesError):
                 calculate(incorrect_pepseq)
-
-        correct_pepseqs = ['ACDEF', 'H~ACDEF', 'H~ACDEF~OH', 'ACDEF~OH',
-                           'ACDEFG', 'ACGDEF']
 
         for correct_pepseq in correct_pepseqs:
             with self.assertNotRaises(ExcessTildeError):

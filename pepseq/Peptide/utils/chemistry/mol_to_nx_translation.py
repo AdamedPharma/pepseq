@@ -1,3 +1,4 @@
+import copy
 import networkx as nx
 import rdkit
 import rdkit.Chem
@@ -51,7 +52,7 @@ def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
             num_explicit_hs=atom.GetNumExplicitHs(),
             is_aromatic=atom.GetIsAromatic(),
             isotope=atom.GetIsotope(),
-            **kwargs
+            **copy.deepcopy(kwargs)
         )
 
     for bond in mol.GetBonds():
@@ -129,6 +130,47 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
 
 
 
+def get_chiral_tag_int(chiral_tag):
+    if chiral_tag == rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED:
+        chiral_tag_int = 0
+    elif chiral_tag == rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CW:
+        chiral_tag_int = 1
+    else:
+        chiral_tag_int = 0
+    return chiral_tag_int
+
+
+def get_hybridization_int(hybridization):
+    if hybridization == rdkit.Chem.rdchem.HybridizationType.SP3:
+        return 4
+    elif hybridization == rdkit.Chem.rdchem.HybridizationType.SP2:
+        return 3
+    elif hybridization == rdkit.Chem.rdchem.HybridizationType.SP:
+        return 2
+    elif  hybridization == rdkit.Chem.rdchem.HybridizationType.S:
+        return 1
+
+    
+def get_node_tuple(node_data):
+    idx, node_dict = node_data
+    keys = ['atomic_num', 'formal_charge', 'chiral_tag',
+        'hybridization', 'num_explicit_hs', 'is_aromatic',
+        'isotope', 'AtomName', 'ResID']
+    row = []
+    for key in keys:
+        if key == 'chiral_tag':
+            val = get_chiral_tag_int(node_dict.get('chiral_tag'))
+        elif key == 'hybridization':
+            val = get_hybridization_int(node_dict.get('hybridization'))
+        else:
+            val = node_dict.get(key)
+        row.append(val)
+    row.append(idx)
+    return row
+
+
+
+
 def nx_to_json(G: nx.classes.graph.Graph) -> dict:
     """
     transforms a networkx  Graph
@@ -170,8 +212,12 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
     df = pd.DataFrame(node_dicts)
     df['node_id'] = node_ids
 
-    rows = df.where(df.notnull(),None).values.tolist()
-    nodes_tuple = tuple([tuple(row) for row in rows])
+
+    node_rows = []
+    for node_data in nodes_list:
+        node_tuple = get_node_tuple(node_data)
+        node_rows.append(node_tuple)
+
     nodes_columns = ['atomic_num', 'formal_charge', 'chiral_tag',
         'hybridization', 'num_explicit_hs', 'is_aromatic',
         'isotope', 'AtomName', 'ResID', 'node_id']
@@ -183,7 +229,7 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
 
 
     mol_j = {
-        'nodes_tuple': nodes_tuple,
+        'nodes_tuple': node_rows,
         'nodes_columns': nodes_columns,
         'edges_tuple': edges_tuple,
         'edges_columns': edges_columns,
@@ -270,33 +316,56 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
         (atomic_num, formal_charge, chiral_tag, hybridization, 
          num_explicit_hs, is_aromatic, isotope, AtomName, 
          ResID, node_id) = node_tuple
+        
+        if (chiral_tag is None) or (chiral_tag == 0):
+            chiral_tag = rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED
+        elif chiral_tag == 1:
+            chiral_tag = rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CW
 
-        G.add_node(
-                node_id,
-                atomic_num=atomic_num,
+        if hybridization == 4:
+            hybridization = rdkit.Chem.rdchem.HybridizationType.SP3
+        elif hybridization == 3:
+            hybridization = rdkit.Chem.rdchem.HybridizationType.SP2
+        elif hybridization == 2:
+            hybridization = rdkit.Chem.rdchem.HybridizationType.SP
+        elif hybridization == 1:
+            hybridization = rdkit.Chem.rdchem.HybridizationType.S
+
+        kwargs = dict(atomic_num=atomic_num,
                 formal_charge=formal_charge,
                 chiral_tag=chiral_tag,
                 hybridization=hybridization,
                 num_explicit_hs=num_explicit_hs,
                 is_aromatic=is_aromatic,
-                isotope=isotope,
-                ResID = ResID,
-                AtomName = AtomName)
+                isotope=isotope)
+        if ResID is not None:
+            kwargs['ResID'] = ResID
+        if AtomName is not None:
+            kwargs['AtomName'] = AtomName
+        G.add_node( node_id, **kwargs)
     edges_tuple = mol_json['edges_tuple']
 
     for edge_tuple in edges_tuple:
         bond_type, is_peptide_bond, bond_start, bond_end = edge_tuple
+
+        if bond_type == 1:
+            bond_type = rdkit.Chem.rdchem.BondType.SINGLE
+        elif bond_type == 2:
+            bond_type = rdkit.Chem.rdchem.BondType.DOUBLE
+        kwargs = {}
+        if is_peptide_bond is not None:
+            kwargs = {'is_peptide_bond': is_peptide_bond}
         G.add_edge(bond_start,
                 bond_end,
                 bond_type=bond_type,
-                is_peptide_bond=is_peptide_bond
+                **kwargs
             )
     return G
 
 
 def mol_json_to_mol(mol_json: dict) -> rdkit.Chem.rdchem.Mol:
     G = mol_json_to_nx(mol_json)
-    mol = nx_to_json(G)
+    mol = nx_to_mol(G)
     return mol
 
 

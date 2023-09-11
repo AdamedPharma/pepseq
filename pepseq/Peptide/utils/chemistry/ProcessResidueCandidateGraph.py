@@ -5,6 +5,27 @@ from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
 
 
 def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict) -> tuple:
+    """
+    We use nx.classes.graph.Graph representation of molecule fragment resulting from
+    cutting peptide bonds.
+
+    We use database dictionary containing SMARTS codes for all 20 standard amino acid species
+    (L and D)
+    ( and some of the modified amino acids (e.g. aMeAla) )
+
+    From all matches we pick the one matching most atoms in the molecule fragment.
+
+    Input:
+
+    rdkit.Chem.rdchem.Mol representing one of the molecule fragments resulting from
+    cutting peptide bonds.
+
+    Output:
+
+    max_aa - symbol of amino acid matched with greatest cover
+
+    max_aa_mol -  rdkit.Chem.rdchem.Mol 
+    """
     G = mol_to_nx(mol)
     max_cover = 0
     max_aa = None
@@ -31,6 +52,13 @@ def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict) 
 
 
 def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
+    """
+    We use nx.classes.graph.Graph representation of modified peptide molecules
+
+
+
+    """
+
     res_matches = {}
     G = mol_to_nx(mol)
     ResIDs_by_atom = nx.get_node_attributes(G, "ResID")
@@ -43,6 +71,11 @@ def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
 
 
 def propagate_matches(mol: rdkit.Chem.rdchem.Mol, res_matches: dict) -> rdkit.Chem.rdchem.Mol:
+    """
+    We use nx.classes.graph.Graph representation of modified peptide molecules
+
+    """
+
     G = mol_to_nx(mol)
     for ResID in res_matches:
         aa, aa_mol, match = res_matches[ResID]
@@ -226,6 +259,11 @@ def split_connections_by_type(connections):
 
 
 def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
+    """
+    We use rdkit.Chem.rdchem.Mol representation of modified peptide molecules
+
+    """
+
     res_matches = get_res_matches(mol, cx_smarts_db)
     mol = propagate_matches(mol, res_matches)
     G = mol_to_nx(mol)
@@ -284,7 +322,11 @@ def get_connections(subgraph_pair_tuples, G: nx.classes.graph.Graph):
     return connections
 
 
-def full_decomposition(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
+def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
+    """
+    We use rdkit.Chem.rdchem.Mol representation of residue candidate
+
+    """
 
     mol, res_matches, modification_graphs = decompose(mol, cx_smarts_db)
     G = mol_to_nx(mol)
@@ -358,8 +400,9 @@ def sequence_dict_to_string(sequence_dict: dict) -> str:
     return sequence_string
 
 
-def decompose_residues_internal(residues_internal, cx_smarts_db: dict) -> tuple:
+def decompose_residues_internal(residues_internal: list, cx_smarts_db: dict) -> tuple:
     """
+
 
     """
     sequence_dict = {}
@@ -367,8 +410,8 @@ def decompose_residues_internal(residues_internal, cx_smarts_db: dict) -> tuple:
     internal_modifications = []
     external_modifications = []
 
-    for residue in residues_internal:
-        mol = nx_to_mol(residue)
+    for residue_candidate in residues_internal:
+        mol = nx_to_mol(residue_candidate)
         res_matches, modifications = full_decomposition(mol, cx_smarts_db)
         internal_modifications += modifications["internal_modifications"]
 
