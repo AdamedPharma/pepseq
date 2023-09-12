@@ -3,7 +3,7 @@ import pkgutil
 import rdkit
 
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_json, \
-    mol_json_to_mol, mol_json_to_nx
+    mol_json_to_mol, mol_json_to_nx, get_mol_json, nx_to_mol
 from pepseq.Backbone import (MarkingPeptideBackbone, BreakingIntoResidueCandidateSubgraphs)
 
 from pepseq.BuildPeptideJSONFromSMILES import \
@@ -11,7 +11,9 @@ from pepseq.BuildPeptideJSONFromSMILES import \
     decompose_peptide_smiles
 
 from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import \
-    decompose_residues_internal, get_res_matches, full_decomposition
+    decompose_residues_internal, get_res_matches, full_decomposition, get_matches, \
+    match_molecular_graph_to_res_id, decompose, get_subgraph_tuples, get_connections, \
+    get_subgraph_pair_tuples, split_connections_by_type
 
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
@@ -393,31 +395,6 @@ def test_get_res_matches():
     return
 
 
-def test_decompose():
-    r_json = {
-        'nodes_tuple': (
-            (8, 0, 0, 3, 0, False, 0, 'O', '14', 128), (7, 0, 0, 3, 0, False, 0, None, None, 129),
-            (7, 0, 0, 3, 0, False, 0, 'N', '14', 118), (6, 0, 1, 4, 1, False, 0, 'CA', '14', 119),
-            (6, 0, 0, 4, 0, False, 0, None, None, 120), (6, 0, 0, 4, 0, False, 0, None, None, 121),
-            (6, 0, 0, 4, 0, False, 0, None, None, 122), (7, 0, 0, 3, 0, False, 0, None, None, 123),
-            (6, 0, 0, 3, 0, False, 0, None, None, 124), (7, 0, 0, 3, 0, False, 0, None, None, 125),
-            (7, 0, 0, 3, 0, False, 0, None, None, 126), (6, 0, 0, 3, 0, False, 0, 'CO', '14', 127)
-        ),
-        'nodes_columns': [
-            'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
-            'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
-        ],
-        'edges_tuple': (
-            (2, 128, 127), (1, 129, 127), (1, 118, 119), (1, 119, 120), (1, 119, 127), (1, 120, 121),
-            (1, 121, 122), (1, 122, 123), (1, 123, 124), (2, 124, 125), (1, 124, 126)
-        ),
-    'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
-    }
-    
-    return
-
-
-
 def test_full_decomposition():
     residues_0_json = {
     'nodes_tuple': [
@@ -488,3 +465,202 @@ def test_full_decomposition():
 
 
     return
+
+residues_0_json = {'nodes_tuple': [[6, 0, 0, 4, 0, False, 0, None, None, 0],
+  [6, 0, 0, 3, 0, False, 0, None, None, 1],
+  [8, 0, 0, 3, 0, False, 0, None, None, 2],
+  [7, 0, 0, 3, 0, False, 0, 'N', '1', 3],
+  [6, 0, 1, 4, 1, False, 0, 'CA', '1', 4],
+  [6, 0, 0, 4, 0, False, 0, None, None, 5],
+  [16, 0, 0, 4, 0, False, 0, None, None, 6],
+  [6, 0, 0, 4, 0, False, 0, None, None, 7],
+  [35, 0, 0, 4, 0, False, 0, None, None, 8],
+  [6, 0, 0, 4, 0, False, 0, None, None, 9],
+  [7, 0, 0, 4, 0, False, 0, None, None, 10],
+  [15, 0, 0, 4, 0, False, 0, None, None, 11],
+  [11, 0, 0, 1, 0, False, 0, None, None, 12],
+  [16, 0, 0, 4, 0, False, 0, None, None, 13],
+  [6, 0, 0, 4, 0, False, 0, None, None, 14],
+  [6, 0, 1, 4, 1, False, 0, 'CA', '3', 15],
+  [6, 0, 0, 3, 0, False, 0, 'CO', '3', 16],
+  [8, 0, 0, 3, 0, False, 0, 'O', '3', 17],
+  [7, 0, 0, 3, 0, False, 0, 'N', '3', 49],
+  [6, 0, 0, 3, 0, False, 0, 'CO', '1', 56],
+  [8, 0, 0, 3, 0, False, 0, 'O', '1', 57]],
+ 'nodes_columns': ['atomic_num',
+  'formal_charge',
+  'chiral_tag',
+  'hybridization',
+  'num_explicit_hs',
+  'is_aromatic',
+  'isotope',
+  'AtomName',
+  'ResID',
+  'node_id'],
+ 'edges_tuple': ((1, None, 0, 1),
+  (2, None, 1, 2),
+  (1, None, 1, 3),
+  (1, None, 3, 4),
+  (1, None, 4, 5),
+  (1, None, 4, 56),
+  (1, None, 5, 6),
+  (1, None, 6, 7),
+  (1, None, 7, 8),
+  (1, None, 7, 9),
+  (1, None, 9, 10),
+  (1, None, 10, 11),
+  (1, None, 11, 12),
+  (1, None, 11, 13),
+  (1, None, 13, 14),
+  (1, None, 14, 15),
+  (1, None, 15, 16),
+  (1, None, 15, 49),
+  (2, None, 16, 17),
+  (2, None, 56, 57)),
+ 'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']}
+
+residues_0_mol = mol_json_to_mol(residues_0_json)
+
+
+def test_get_matches_dict():
+
+    matches_dict = get_matches(residues_0_mol, cx_smarts_db)
+
+    C_mol_json = {'nodes_tuple': [[0, 0, 0, None, 0, False, 0, None, None, 0],
+  [6, 0, 0, None, 0, False, 0, None, None, 1],
+  [6, 0, 0, None, 0, False, 0, None, None, 2],
+  [0, 0, 0, None, 0, False, 0, 'SG', None, 3],
+  [6, 0, 0, None, 0, False, 0, None, None, 4],
+  [8, 0, 0, None, 0, False, 0, None, None, 5]],
+ 'nodes_columns': ['atomic_num',
+  'formal_charge',
+  'chiral_tag',
+  'hybridization',
+  'num_explicit_hs',
+  'is_aromatic',
+  'isotope',
+  'AtomName',
+  'ResID',
+  'node_id'],
+ 'edges_tuple': ((1, None, 0, 1),
+  (1, None, 1, 2),
+  (1, None, 1, 4),
+  (1, None, 2, 3),
+  (2, None, 4, 5)),
+ 'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']}
+
+    assert get_mol_json(matches_dict['C'][0]) == C_mol_json
+    assert matches_dict['C'][1] == ((3, 4, 5, 6, 19, 20), (18, 15, 14, 13, 16, 17))
+    G = mol_to_nx(residues_0_mol)
+
+    max_aa, max_aa_mol, max_match = match_molecular_graph_to_res_id(G, ResID='1', matches_dict=matches_dict)
+    assert max_aa == 'C'
+    assert max_match == (3, 4, 5, 6, 19, 20)
+    assert get_mol_json(max_aa_mol) == C_mol_json
+
+
+
+def test_decompose():
+    mol_propagated, res_matches, modification_graphs = decompose(mol = residues_0_mol, cx_smarts_db = cx_smarts_db)
+    assert [rdkit.Chem.MolToSmiles(nx_to_mol(G)) for G in modification_graphs] == ['CC=O', '[Na]PNCCBr']
+    mol_propagated_json = {'nodes_tuple': [[6, 0, 0, 4, 0, False, 0, None, None, 0],
+    [6, 0, 0, 3, 0, False, 0, None, None, 1],
+    [8, 0, 0, 3, 0, False, 0, None, None, 2],
+    [7, 0, 0, 3, 0, False, 0, 'N', '1', 3],
+    [6, 0, 1, 4, 1, False, 0, 'CA', '1', 4],
+    [6, 0, 0, 4, 0, False, 0, None, '1', 5],
+    [16, 0, 0, 4, 0, False, 0, 'SG', '1', 6],
+    [6, 0, 0, 4, 0, False, 0, None, None, 7],
+    [35, 0, 0, 4, 0, False, 0, None, None, 8],
+    [6, 0, 0, 4, 0, False, 0, None, None, 9],
+    [7, 0, 0, 4, 0, False, 0, None, None, 10],
+    [15, 0, 0, 4, 0, False, 0, None, None, 11],
+    [11, 0, 0, 1, 0, False, 0, None, None, 12],
+    [16, 0, 0, 4, 0, False, 0, 'SG', '3', 13],
+    [6, 0, 0, 4, 0, False, 0, None, '3', 14],
+    [6, 0, 1, 4, 1, False, 0, 'CA', '3', 15],
+    [6, 0, 0, 3, 0, False, 0, 'CO', '3', 16],
+    [8, 0, 0, 3, 0, False, 0, 'O', '3', 17],
+    [7, 0, 0, 4, 0, False, 0, 'N', '3', 18],
+    [6, 0, 0, 3, 0, False, 0, 'CO', '1', 19],
+    [8, 0, 0, 3, 0, False, 0, 'O', '1', 20]],
+    'nodes_columns': ['atomic_num',
+    'formal_charge',
+    'chiral_tag',
+    'hybridization',
+    'num_explicit_hs',
+    'is_aromatic',
+    'isotope',
+    'AtomName',
+    'ResID',
+    'node_id'],
+    'edges_tuple': ((1, None, 0, 1),
+    (2, None, 1, 2),
+    (1, None, 1, 3),
+    (1, None, 3, 4),
+    (1, None, 4, 5),
+    (1, None, 4, 19),
+    (1, None, 5, 6),
+    (1, None, 6, 7),
+    (1, None, 7, 8),
+    (1, None, 7, 9),
+    (1, None, 9, 10),
+    (1, None, 10, 11),
+    (1, None, 11, 12),
+    (1, None, 11, 13),
+    (1, None, 13, 14),
+    (1, None, 14, 15),
+    (1, None, 15, 16),
+    (1, None, 15, 18),
+    (2, None, 16, 17),
+    (2, None, 19, 20)),
+    'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']}
+
+    assert get_mol_json(mol_propagated) == mol_propagated_json
+    G = mol_to_nx(mol_propagated)
+
+    subgraph_tuples = get_subgraph_tuples(res_matches, modification_graphs, G)
+
+    subgraph_i_json = {'nodes_tuple': [[6, 0, 0, 4, 0, False, 0, None, None, 7],
+    [35, 0, 0, 4, 0, False, 0, None, None, 8],
+    [6, 0, 0, 4, 0, False, 0, None, None, 9],
+    [7, 0, 0, 4, 0, False, 0, None, None, 10],
+    [15, 0, 0, 4, 0, False, 0, None, None, 11],
+    [11, 0, 0, 1, 0, False, 0, None, None, 12]],
+    'nodes_columns': ['atomic_num',
+    'formal_charge',
+    'chiral_tag',
+    'hybridization',
+    'num_explicit_hs',
+    'is_aromatic',
+    'isotope',
+    'AtomName',
+    'ResID',
+    'node_id'],
+    'edges_tuple': ((1, None, 7, 8),
+    (1, None, 7, 9),
+    (1, None, 9, 10),
+    (1, None, 10, 11),
+    (1, None, 11, 12)),
+    'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']}
+    name_i, subgraph_i = subgraph_tuples[3]
+
+    assert name_i == 'Mod_2'
+    assert nx_to_json(subgraph_i) == subgraph_i_json
+
+    subgraph_pair_tuples = get_subgraph_pair_tuples(subgraph_tuples)
+    connections = [('Res_1_C', 'Mod_1', [(1, 3)]),
+    ('Res_1_C', 'Mod_2', [(6, 7)]),
+    ('Res_3_C', 'Mod_2', [(11, 13)])]
+
+    assert get_connections(subgraph_pair_tuples, G) == connections
+
+    res_res_connections = []
+    external_mod_connections = {'1': [('Res_1_C', [(1, 3)])],
+ '2': [('Res_1_C', [(6, 7)]), ('Res_3_C', [(11, 13)])]}
+    
+    assert split_connections_by_type(connections) == (res_res_connections, external_mod_connections)
+
+    return
+
+

@@ -3,6 +3,39 @@ import rdkit
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
                                                                   nx_to_mol)
 
+def get_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
+    matches_dict = {}
+    for aa in cx_smarts_db:
+        aa_smarts = cx_smarts_db[aa]
+        aa_mol = rdkit.Chem.MolFromSmarts(aa_smarts)
+        matches = mol.GetSubstructMatches(aa_mol)
+        if matches:
+            matches_dict[aa] = (aa_mol, matches)
+    return matches_dict
+
+
+def match_molecular_graph_to_res_id(G: nx.classes.graph.Graph, ResID: str, matches_dict: dict) -> tuple:
+    max_cover = 0
+    max_aa = None
+    max_match = None
+    max_aa_mol = None
+    for aa in matches_dict:
+        aa_mol, matches = matches_dict[aa]
+
+        for match in matches:
+            match_subgraph = G.subgraph(match)
+            match_res_ids = set(
+                nx.get_node_attributes(match_subgraph, "ResID").values()
+            )
+            if (len(match_res_ids) == 1) and list(match_res_ids)[0] == ResID:
+                cover = len(match)
+                if cover > max_cover:
+                    max_cover = cover
+                    max_aa = aa
+                    max_match = match
+                    max_aa_mol = aa_mol
+    return (max_aa, max_aa_mol, max_match)
+
 
 def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict) -> tuple:
     """
@@ -26,57 +59,32 @@ def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict) 
 
     max_aa_mol -  rdkit.Chem.rdchem.Mol 
     """
-    G = mol_to_nx(mol)
-    max_cover = 0
-    max_aa = None
-    max_match = None
-    max_aa_mol = None
-    for aa in cx_smarts_db:
-        aa_smarts = cx_smarts_db[aa]
-        aa_mol = rdkit.Chem.MolFromSmarts(aa_smarts)
-        matches = mol.GetSubstructMatches(aa_mol)
+    matches_dict = get_matches(mol, cx_smarts_db)
 
-        for match in matches:
-            match_subgraph = G.subgraph(match)
-            match_res_ids = set(
-                nx.get_node_attributes(match_subgraph, "ResID").values()
-            )
-            if (len(match_res_ids) == 1) and list(match_res_ids)[0] == ResID:
-                cover = len(match)
-                if cover > max_cover:
-                    max_cover = cover
-                    max_aa = aa
-                    max_match = match
-                    max_aa_mol = aa_mol
+    G = mol_to_nx(mol)
+    max_aa, max_aa_mol, max_match = match_molecular_graph_to_res_id(G, ResID, matches_dict)
     return (max_aa, max_aa_mol, max_match)
+
 
 
 def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
     """
     We use nx.classes.graph.Graph representation of modified peptide molecules
 
-
-
     """
 
-    res_matches = {}
     G = mol_to_nx(mol)
+    res_matches = {}
     ResIDs_by_atom = nx.get_node_attributes(G, "ResID")
-    ResIDs = sorted(list(set(ResIDs_by_atom.values())))
+    fragment_ResIDs = sorted(list(set(ResIDs_by_atom.values())))
 
-    for ResID in ResIDs:
+    for ResID in fragment_ResIDs:
         (max_aa, max_aa_mol, max_match) = match_to_res_id(mol, ResID, cx_smarts_db)
         res_matches[ResID] = (max_aa, max_aa_mol, max_match)
     return res_matches
 
 
-def propagate_matches(mol: rdkit.Chem.rdchem.Mol, res_matches: dict) -> rdkit.Chem.rdchem.Mol:
-    """
-    We use nx.classes.graph.Graph representation of modified peptide molecules
-
-    """
-
-    G = mol_to_nx(mol)
+def propagate_matches_on_molecular_graph(G: nx.classes.graph.Graph, res_matches: dict) -> nx.classes.graph.Graph:
     for ResID in res_matches:
         aa, aa_mol, match = res_matches[ResID]
 
@@ -89,7 +97,7 @@ def propagate_matches(mol: rdkit.Chem.rdchem.Mol, res_matches: dict) -> rdkit.Ch
             if "AtomName" in atom_match.GetPropNames():
                 AtomName = atom_match.GetProp("AtomName")
                 G.nodes[atom_id]["AtomName"] = AtomName
-    return nx_to_mol(G)
+    return G
 
 
 def get_connecting_edges(union_graph: nx.classes.graph.Graph, H_graph: nx.classes.graph.Graph,
@@ -258,25 +266,30 @@ def split_connections_by_type(connections):
     return res_res_connections, external_mod_connections
 
 
-def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
-    """
-    We use rdkit.Chem.rdchem.Mol representation of modified peptide molecules
 
-    """
-
-    res_matches = get_res_matches(mol, cx_smarts_db)
-    mol = propagate_matches(mol, res_matches)
-    G = mol_to_nx(mol)
-
+def get_modification_graphs_from_fragment(G: nx.classes.graph.Graph) -> list:
     native_atom_ids = nx.get_node_attributes(G, "ResID").keys()
     external_modification_atom_ids = G.nodes - native_atom_ids
-
     G_external_modifications = G.subgraph(external_modification_atom_ids)
     g = (
         G_external_modifications.subgraph(c)
         for c in nx.connected_components(G_external_modifications)
     )
     modification_graphs = list(g)
+    return modification_graphs
+
+def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> tuple:
+    """
+    We use rdkit.Chem.rdchem.Mol representation of fragment
+
+    """
+
+    res_matches = get_res_matches(mol, cx_smarts_db)
+    G = mol_to_nx(mol)
+    
+    G = propagate_matches_on_molecular_graph(G, res_matches)
+    modification_graphs = get_modification_graphs_from_fragment(G)
+    mol = nx_to_mol(G)
     return mol, res_matches, modification_graphs
 
 
