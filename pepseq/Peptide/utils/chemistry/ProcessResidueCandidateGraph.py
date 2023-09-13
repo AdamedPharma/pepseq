@@ -100,25 +100,31 @@ def propagate_matches_on_molecular_graph(G: nx.classes.graph.Graph, res_matches:
     return G
 
 
+def get_connecting(edges: list, nodes1: list, nodes2: list):
+    return [
+        edge
+        for edge in edges
+        if (edge[0] in nodes1 and edge[1] in nodes2)
+        or (edge[0] in nodes2 and edge[1] in nodes1)
+    ]
+
+
 def get_connecting_edges(union_graph: nx.classes.graph.Graph, H_graph: nx.classes.graph.Graph,
                         I_graph: nx.classes.graph.Graph) -> list:
-    out = [
-        edge
-        for edge in union_graph.edges
-        if (edge[0] in H_graph and edge[1] in I_graph)
-        or (edge[0] in I_graph and edge[1] in H_graph)
-    ]
-    return out
+    edges = list(union_graph.edges)
+    nodes1 = list(H_graph.nodes)
+    nodes2 = list(I_graph.nodes)
+    return get_connecting(edges, nodes1, nodes2)
 
 
-def process_res_res_connection(res_atoms_1: set, res_atoms_2: set, connecting_edges: list) -> list:
-    attachment_point_pairs = []
-    for connecting_edge in connecting_edges:
-        res_1_attachment_point = (set(connecting_edge) & res_atoms_1).pop()
-        res_2_attachment_point = (set(connecting_edge) & res_atoms_2).pop()
-        tup = (res_1_attachment_point, res_2_attachment_point)
-        attachment_point_pairs.append(tup)
-    return attachment_point_pairs
+def get_atom_pairs(atoms_1: set, atoms_2: set, edges: list) -> list:
+    atom_pairs = []
+    for edge in edges:
+        atom1 = (set(edge) & atoms_1).pop()
+        atom2 = (set(edge) & atoms_2).pop()
+        tup = (atom1, atom2)
+        atom_pairs.append(tup)
+    return atom_pairs
 
 
 def process_internal_connections(connections, res_matches, G: nx.classes.graph.Graph) -> list:
@@ -135,7 +141,7 @@ def process_internal_connections(connections, res_matches, G: nx.classes.graph.G
         res_atoms_1 = set(res_matches[res_id_1][2])
         res_atoms_2 = set(res_matches[res_id_2][2])
 
-        attachment_point_pairs = process_res_res_connection(
+        attachment_point_pairs = get_atom_pairs(
             res_atoms_1, res_atoms_2, connecting_edges
         )
 
@@ -164,9 +170,13 @@ def process_internal_connections(connections, res_matches, G: nx.classes.graph.G
 
 
 def sorted_connection(connection):
+    """
+    """
     res_ids = []
 
-    for i in range(len(connection)):
+    length = len(connection)
+
+    for i in range(length):
         res_name = connection[i][0]
         res_id = int(res_name.split("_")[1])
         res_ids.append((res_id, i))
@@ -175,67 +185,97 @@ def sorted_connection(connection):
     return [connection[i] for (res_id, i) in sorted_res_ids]
 
 
-def process_external_connections(connections, res_matches, modification_graphs, G: nx.classes.graph.Graph):
+
+
+
+def add_connection_point_to_molecular_graph(G: nx.classes.graph.Graph, point_id: int, atom_id: int) -> nx.classes.graph.Graph:
+    G.add_node(
+        "%d*" % point_id,
+        **{
+            "atomic_num": 0,
+            "formal_charge": 0,
+            "chiral_tag": rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
+            "hybridization": rdkit.Chem.rdchem.HybridizationType.SP3,
+            "num_explicit_hs": 0,
+            "is_aromatic": False,
+            "isotope": point_id,
+        }
+    )
+    G.add_edge(
+        atom_id,
+        "%d*" % point_id,
+        bond_type=rdkit.Chem.rdchem.BondType.SINGLE,
+    )
+
+    return G
+
+
+def get_residue_id_and_atoms(res_matches, res_name):
+    list_res = res_name.split("_")
+
+    res_id = list_res[1]
+
+    res_atoms = set(res_matches[res_id][2])
+
+    return res_id, res_atoms
+
+
+def process_external_modification(G_mod: nx.classes.graph.Graph, mod_bonds, res_matches, atom_names_dict, point_id):
+    """
+    For each modification (like staple) we need unambigious info to 
+
+    Input:
+        G_mod - molecular Graph representing external_modification (like staple)
+        bonds_to_residue - 
+
+    """
+    points_on_seq = {}
+    mod_atoms = set(G_mod.nodes)
+
+    bonds_by_residue = sorted_connection(mod_bonds)
+
+    for res_name, bonds in bonds_by_residue:
+
+        res_id, res_atoms = get_residue_id_and_atoms(res_matches, res_name)
+
+        atom_pairs = get_atom_pairs(res_atoms, mod_atoms, bonds)
+
+        for res_atom, mod_atom in atom_pairs:
+            point_id += 1
+            AtomName = atom_names_dict.get(res_atom)
+            points_on_seq[point_id] = {
+                "attachment_point_id": point_id,
+                "ResID": res_id,
+                "AtomName": AtomName,
+                "ResidueName": "",
+            }
+            G_mod = add_connection_point_to_molecular_graph(G_mod,
+                            point_id, mod_atom)
+
+    mod_mol = nx_to_mol(G_mod)
+    mod_smiles = rdkit.Chem.MolToSmiles(mod_mol)
+
+    mod_json = {
+        "smiles": mod_smiles,
+        "max_attachment_point_id": point_id,
+        "attachment_points_on_sequence": points_on_seq,
+    }
+
+    return mod_json, point_id
+
+
+def process_external_connections(modifications, res_matches, modification_graphs, G: nx.classes.graph.Graph):
     attachment_point_id = 0
     external_modifications = []
 
-    for mod_id in connections:
-        attachment_points_on_seq = {}
+    atom_names_dict = nx.get_node_attributes(G, 'AtomName')
+
+    for mod_id in modifications:
         mod_graph = modification_graphs[int(mod_id) - 1].copy()
-        mod_atoms = set(mod_graph.nodes)
+        mod_bonds = modifications.get(mod_id)
 
-        connection = connections.get(mod_id)
-        connection = sorted_connection(connection)
-
-        for res_name, connecting_edges in connection:
-            list_res = res_name.split("_")
-
-            g_type_1, res_id = list_res[:2]
-            res_id = list_res[1]
-
-            res_atoms = set(res_matches[res_id][2])
-
-            attachment_point_pairs = process_res_res_connection(
-                res_atoms, mod_atoms, connecting_edges
-            )
-
-            for res_attachment_point, mod_attachment_point in attachment_point_pairs:
-                attachment_point_id += 1
-                AtomName = G.nodes[res_attachment_point].get("AtomName")
-                attachment_points_on_seq[attachment_point_id] = {
-                    "attachment_point_id": attachment_point_id,
-                    "ResID": res_id,
-                    "AtomName": AtomName,
-                    "ResidueName": "",
-                }
-
-                mod_graph.add_node(
-                    "%d*" % attachment_point_id,
-                    **{
-                        "atomic_num": 0,
-                        "formal_charge": 0,
-                        "chiral_tag": rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
-                        "hybridization": rdkit.Chem.rdchem.HybridizationType.SP3,
-                        "num_explicit_hs": 0,
-                        "is_aromatic": False,
-                        "isotope": attachment_point_id,
-                    }
-                )
-
-                mod_graph.add_edge(
-                    mod_attachment_point,
-                    "%d*" % attachment_point_id,
-                    bond_type=rdkit.Chem.rdchem.BondType.SINGLE,
-                )
-
-                mod_mol = nx_to_mol(mod_graph)
-                mod_smiles = rdkit.Chem.MolToSmiles(mod_mol)
-
-        external_modification = {
-            "smiles": mod_smiles,
-            "max_attachment_point_id": attachment_point_id,
-            "attachment_points_on_sequence": attachment_points_on_seq,
-        }
+        external_modification, attachment_point_id = process_external_modification(
+            mod_graph, mod_bonds, res_matches, atom_names_dict, attachment_point_id)
         external_modifications.append(external_modification)
     return external_modifications
 
@@ -266,7 +306,6 @@ def split_connections_by_type(connections):
     return res_res_connections, external_mod_connections
 
 
-
 def get_modification_graphs_from_fragment(G: nx.classes.graph.Graph) -> list:
     native_atom_ids = nx.get_node_attributes(G, "ResID").keys()
     external_modification_atom_ids = G.nodes - native_atom_ids
@@ -293,7 +332,7 @@ def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> tuple:
     return mol, res_matches, modification_graphs
 
 
-def get_subgraph_tuples(res_matches, modification_graphs, G: nx.classes.graph.Graph):
+def get_subgraph_tuples(res_matches, modification_graphs_nodes, G: nx.classes.graph.Graph):
     subgraph_tuples = []
 
     for res_id in sorted(res_matches.keys()):
@@ -303,9 +342,10 @@ def get_subgraph_tuples(res_matches, modification_graphs, G: nx.classes.graph.Gr
         res_tuple = (res_id_name, res_subgraph)
         subgraph_tuples.append(res_tuple)
 
-    n_mod_graphs = len(modification_graphs)
+    n_mod_graphs = len(modification_graphs_nodes)
+
     for i in range(n_mod_graphs):
-        tup = ("Mod_%s" % (i + 1), modification_graphs[i])
+        tup = ("Mod_%s" % (i + 1), modification_graphs_nodes[i])# list(modification_graphs[i].nodes) )
         subgraph_tuples.append(tup)
     return subgraph_tuples
 
@@ -315,20 +355,23 @@ def get_subgraph_pair_tuples(subgraph_tuples):
 
     n_subgraphs = len(subgraph_tuples)
     for i in range(n_subgraphs):
-        name_i, subgraph_i = subgraph_tuples[i]
+        name_i, subgraph_i_nodes = subgraph_tuples[i]
         for j in range(i + 1, n_subgraphs):
-            name_j, subgraph_j = subgraph_tuples[j]
-            subgraph_pair_tuple = (name_i, name_j, subgraph_i, subgraph_j)
+            name_j, subgraph_j_nodes = subgraph_tuples[j]
+            subgraph_pair_tuple = (name_i, name_j, list(subgraph_i_nodes), subgraph_j_nodes)
             subgraph_pair_tuples.append(subgraph_pair_tuple)
 
     return subgraph_pair_tuples
 
 
-def get_connections(subgraph_pair_tuples, G: nx.classes.graph.Graph):
+def get_connections(subgraph_pair_tuples, G_edges: list):
     connections = []
 
-    for res1, res2, subgraph1, subgraph2 in subgraph_pair_tuples:
-        edges = get_connecting_edges(G, subgraph1, subgraph2)
+    for res1, res2, nodes1, nodes2 in subgraph_pair_tuples:
+        #nodes1 = list(subgraph1.nodes)
+        #nodes2 = list(subgraph2.nodes)
+
+        edges = get_connecting(G_edges, nodes1, nodes2)
         if edges:
             connections.append((res1, res2, edges))
 
@@ -344,9 +387,11 @@ def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
     mol, res_matches, modification_graphs = decompose(mol, cx_smarts_db)
     G = mol_to_nx(mol)
 
-    subgraph_tuples = get_subgraph_tuples(res_matches, modification_graphs, G)
+    modification_graphs_nodes = [list(graph.nodes) for graph in modification_graphs]
+
+    subgraph_tuples = get_subgraph_tuples(res_matches, modification_graphs_nodes, G)
     subgraph_pair_tuples = get_subgraph_pair_tuples(subgraph_tuples)
-    connections = get_connections(subgraph_pair_tuples, G)
+    connections = get_connections(subgraph_pair_tuples, list(G.edges))
     res_res_connections, external_mod_connections = split_connections_by_type(
         connections
     )
