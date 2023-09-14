@@ -4,6 +4,23 @@ from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
                                                                   nx_to_mol)
 
 def get_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
+    """
+    Input:
+        FragmentMol: rdkit.Chem.rdchem.Mol
+
+        cx_smarts_db: {'C': Cysteine_SMARTS_code, ...}
+
+    Action:
+        For each of the amino acid SMARTS codes present in database
+        they are matched against FragmentMolecule
+        Each matched Amino Acid specie is returned as dictionary
+        together with matched substructures
+
+    Output:
+        {
+            'C': (C_mol: rdkit.Chem.rdchem.Mol, (1,2,3), (4,5,6))
+        }
+    """
     matches_dict = {}
     for aa in cx_smarts_db:
         aa_smarts = cx_smarts_db[aa]
@@ -14,89 +31,142 @@ def get_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
     return matches_dict
 
 
+def get_match_cover(G: nx.classes.graph.Graph, ResID: str):
+    """
+    match covers only one Residue and it is Residue studied
+
+    Input:
+
+    G - matched subgraph (substructure of molecular graph)
+    """
+
+    match_res_ids = set(
+                nx.get_node_attributes(G, "ResID").values()
+            )
+    if match_res_ids != set([ResID]):
+        return 0
+    else:
+        return len(G)
+
+
 def match_molecular_graph_to_res_id(G: nx.classes.graph.Graph, ResID: str, matches_dict: dict) -> tuple:
+    """
+    Input:
+        FragmentMol: rdkit.Chem.rdchem.Mol
+
+        matches_dict: 
+            {
+                'C': (C_mol: rdkit.Chem.rdchem.Mol, (1,2,3), (4,5,6))
+            }
+    ResID:   for example '1' (one of the many ResIDs determined by fitting Peptide Backbone)
+
+    Output:
+
+    (max_aa: amino_acid specie with greatest cover over fragment portion including ResX (X=ResID)
+    and only ResX,
+    max_aa_mol: molecule substructure covered by amino acid specie: rdkit.Chem.rdchem.Mol
+    max_match: e.g. (1,2,3) atom_ids covered by match
+    )
+
+    Action:
+
+    for each of the substructure matches grouped by amino acid specie
+    we filter the ones covering only one residue and return the match covering
+    the biggest posrtion of that residue (i.e. Cysteine is preferred over Alaine)
+    if Alanine and Cysteine are matched; Cysteine match will be returned
+
+    """
     max_cover = 0
     max_aa = None
     max_match = None
     max_aa_mol = None
+    
     for aa in matches_dict:
         aa_mol, matches = matches_dict[aa]
 
         for match in matches:
             match_subgraph = G.subgraph(match)
-            match_res_ids = set(
-                nx.get_node_attributes(match_subgraph, "ResID").values()
-            )
-            if (len(match_res_ids) == 1) and list(match_res_ids)[0] == ResID:
-                cover = len(match)
-                if cover > max_cover:
-                    max_cover = cover
-                    max_aa = aa
-                    max_match = match
-                    max_aa_mol = aa_mol
-    return (max_aa, max_aa_mol, max_match)
-
-
-def match_to_res_id(mol: rdkit.Chem.rdchem.Mol, ResID: str, cx_smarts_db: dict) -> tuple:
-    """
-    We use nx.classes.graph.Graph representation of molecule fragment resulting from
-    cutting peptide bonds.
-
-    We use database dictionary containing SMARTS codes for all 20 standard amino acid species
-    (L and D)
-    ( and some of the modified amino acids (e.g. aMeAla) )
-
-    From all matches we pick the one matching most atoms in the molecule fragment.
-
-    Input:
-
-    rdkit.Chem.rdchem.Mol representing one of the molecule fragments resulting from
-    cutting peptide bonds.
-
-    Output:
-
-    max_aa - symbol of amino acid matched with greatest cover
-
-    max_aa_mol -  rdkit.Chem.rdchem.Mol 
-    """
-    matches_dict = get_matches(mol, cx_smarts_db)
-
-    G = mol_to_nx(mol)
-    max_aa, max_aa_mol, max_match = match_molecular_graph_to_res_id(G, ResID, matches_dict)
+            match_cover = get_match_cover(match_subgraph, ResID)
+            if match_cover > max_cover:
+                max_cover = match_cover
+                max_aa = aa
+                max_match = match
+                max_aa_mol = aa_mol
     return (max_aa, max_aa_mol, max_match)
 
 
 
 def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
     """
+
     We use nx.classes.graph.Graph representation of modified peptide molecules
+
+    Input:
+
+    mol - Fragment Molecule: rdkit.Chem.rdchem.Mol
+    cx_smarts_db - dictionary containing SMARTS codes for each of the Amino Acid
+    species
+
+
+    Output:
+
+    {
+        'ResID1':  (max_aa, max_aa_mol, max_match),
+        'ResID2':  (max_aa, max_aa_mol, max_match),
+        ...
+        }
+    
+    Action:
+
+    for each ResidueID found in fragment we find the best match by
+    Amino Acid specie
 
     """
 
+    matches_dict = get_matches(mol, cx_smarts_db)
+
     G = mol_to_nx(mol)
     res_matches = {}
-    ResIDs_by_atom = nx.get_node_attributes(G, "ResID")
-    fragment_ResIDs = sorted(list(set(ResIDs_by_atom.values())))
+
+    fragment_ResIDs = sorted(list(set(nx.get_node_attributes(G, "ResID").values())))
+
 
     for ResID in fragment_ResIDs:
-        (max_aa, max_aa_mol, max_match) = match_to_res_id(mol, ResID, cx_smarts_db)
-        res_matches[ResID] = (max_aa, max_aa_mol, max_match)
+        (max_aa, max_aa_mol, max_match) = match_molecular_graph_to_res_id(G, ResID, matches_dict)
+        atom_names_dict = {}
+        for i in range(len(max_match)):
+            atom_match = max_aa_mol.GetAtomWithIdx(i)
+            atom_id = max_match[i]
+            if "AtomName" in atom_match.GetPropNames():
+                atom_names_dict[atom_id] = atom_match.GetProp("AtomName")
+
+        res_matches[ResID] = (max_aa, atom_names_dict, max_match)
     return res_matches
 
 
 def propagate_matches_on_molecular_graph(G: nx.classes.graph.Graph, res_matches: dict) -> nx.classes.graph.Graph:
+    """
+
+    We use nx.classes.graph.Graph representation of modified peptide molecules
+
+    Input:
+
+    G - Fragment Molecular Graph: nx.classes.graph.Graph
+    res_matches - dictionary containing for each sequence amino acid residue the AminoAcid specie name(symbol),
+    atom_names for fitted molecule substructure; atom_ids matched by residue
+
+    Output:
+
+    G - Fragment Molecular Graph: nx.classes.graph.Graph with atom nodes labeled with ResID(s); ResName(s)
+    and AtomNames (where present)
+
+    """
+
     for ResID in res_matches:
-        aa, aa_mol, match = res_matches[ResID]
-
-        for i in range(len(match)):
-            atom_match = aa_mol.GetAtomWithIdx(i)
-            atom_id = match[i]
-            G.nodes[atom_id]["ResID"] = ResID
-            G.nodes[atom_id]["ResName"] = aa
-
-            if "AtomName" in atom_match.GetPropNames():
-                AtomName = atom_match.GetProp("AtomName")
-                G.nodes[atom_id]["AtomName"] = AtomName
+        ResName, atom_names_dict, match = res_matches[ResID]
+        nx.set_node_attributes(G, {atom_id: ResID for atom_id in match}, "ResID")
+        nx.set_node_attributes(G, {atom_id: ResName for atom_id in match}, "ResName")
+        nx.set_node_attributes(G, atom_names_dict, "AtomName")
     return G
 
 
@@ -307,6 +377,27 @@ def split_connections_by_type(connections):
 
 
 def get_modification_graphs_from_fragment(G: nx.classes.graph.Graph) -> list:
+    """
+
+    Input:
+
+    G - molecular graph labeled with Sequence Amino Acid Residue ID and Residue Name
+
+    Output:
+
+    modification_graphs - Molecular Graphs for external modifications
+
+    Action:
+
+    we get atom_ids labeled with ResID (parts of amino acid sequence)
+
+    we select nonlabeled atom_ids (they are external modification(s) e.g. staple)
+
+    There can be more than one external modifications (they are not connected
+      with each other)
+
+
+    """
     native_atom_ids = nx.get_node_attributes(G, "ResID").keys()
     external_modification_atom_ids = G.nodes - native_atom_ids
     G_external_modifications = G.subgraph(external_modification_atom_ids)
@@ -316,6 +407,7 @@ def get_modification_graphs_from_fragment(G: nx.classes.graph.Graph) -> list:
     )
     modification_graphs = list(g)
     return modification_graphs
+
 
 def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> tuple:
     """
@@ -331,12 +423,18 @@ def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> tuple:
     mol = nx_to_mol(G)
     return mol, res_matches, modification_graphs
 
+def get_internal_connections_subgraph_tuples():
+    """
+    WIP
+    """
+    return
+
 
 def get_subgraph_tuples(res_matches, modification_graphs_nodes, G: nx.classes.graph.Graph):
     subgraph_tuples = []
 
     for res_id in sorted(res_matches.keys()):
-        res_name, res_mol, res_match_atoms = res_matches[res_id]
+        res_name, res_atoms_dict, res_match_atoms = res_matches[res_id]
         res_subgraph = G.subgraph(res_match_atoms)
         res_id_name = "Res_%s_%s" % (res_id, res_name)
         res_tuple = (res_id_name, res_subgraph)
@@ -368,8 +466,6 @@ def get_connections(subgraph_pair_tuples, G_edges: list):
     connections = []
 
     for res1, res2, nodes1, nodes2 in subgraph_pair_tuples:
-        #nodes1 = list(subgraph1.nodes)
-        #nodes2 = list(subgraph2.nodes)
 
         edges = get_connecting(G_edges, nodes1, nodes2)
         if edges:
@@ -382,6 +478,25 @@ def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
     """
     We use rdkit.Chem.rdchem.Mol representation of residue candidate
 
+    Input:
+
+    mol - rdkit.Chem.rdchem.Mol
+
+    Output:
+
+    res_return - {
+        'ResID1': 'ResName',
+        ...
+    }
+
+    internal connections:
+
+    external connections:
+
+
+    Action:
+
+    
     """
 
     mol, res_matches, modification_graphs = decompose(mol, cx_smarts_db)
@@ -390,8 +505,11 @@ def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
     modification_graphs_nodes = [list(graph.nodes) for graph in modification_graphs]
 
     subgraph_tuples = get_subgraph_tuples(res_matches, modification_graphs_nodes, G)
+
     subgraph_pair_tuples = get_subgraph_pair_tuples(subgraph_tuples)
     connections = get_connections(subgraph_pair_tuples, list(G.edges))
+
+
     res_res_connections, external_mod_connections = split_connections_by_type(
         connections
     )

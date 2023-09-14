@@ -388,11 +388,11 @@ mol_q_dict = {
 def test_get_res_matches():
     mol_q = rdkit.Chem.MolFromSmiles(mol_q_dict.get('smiles'))
 
-    res_name, mol, nums = get_res_matches(mol_q, cx_smarts_db)['14']
+    res_name, atom_names_dict, nums = get_res_matches(mol_q, cx_smarts_db)['14']
 
     assert res_name == 'R'
     assert nums == (8, 7, 6, 5, 4, 3, 1, 0, 2, 9, 11)
-    assert rdkit.Chem.MolToCXSmiles(mol) == '*[C@H](C=O)[CH2][CH2][CH2][NH]C(=*)[NH2]'
+    #assert rdkit.Chem.MolToCXSmiles(mol) == '*[C@H](C=O)[CH2][CH2][CH2][NH]C(=*)[NH2]'
     return
 
 

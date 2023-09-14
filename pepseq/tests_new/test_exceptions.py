@@ -19,7 +19,21 @@ correct_pepseqs = ['ACDEF', 'H~ACDEF', 'H~ACDEF~OH', 'ACDEF~OH',
 correct_pairs = [('CCC{Cys(R1)}S{Cys(R2)}', ['CCC[1*]', 'CCC[2*]'])]
 
 
+"""
 
+Validation error: SMILES code no 1 has no attachment point to Peptide  
+ten komunikat chyba do końca nie działa bo zawsze jest "no 1"
+
+1) czyli jak w pierwszym SMILES jest punkt a w drugim nie to 
+to jest ten sam komunikat
+
+pierwsze co zrobie to dodam taki test do kodu do repo
+
+
+2) OK i jak brakuje attachment pointów w więcej niż jednym to też powinno być info
+
+bo podejrzewam że jak on sprawdza to jakoś po kolei
+"""
 
 
 class TestExceptions(unittest.TestCase):
@@ -47,9 +61,20 @@ class TestExceptions(unittest.TestCase):
         return
 
     def test_smiles_wo_attachment_points_error(self):
+
         with self.assertRaises(UnattachedSmilesError) as cm:
             validate_attachment_points_on_smiles(['CCC'])
         self.assertEqual(str(cm.exception), 'SMILES code no 1 has no attachment point to Peptide')
+
+        
+        with self.assertRaises(UnattachedSmilesError) as cm:
+            validate_attachment_points_on_smiles(['CCC[1*]', 'CCC'])
+        self.assertEqual(str(cm.exception), 'SMILES code no 2 has no attachment point to Peptide')
+
+        with self.assertRaises(UnattachedSmilesError) as cm:
+            validate_attachment_points_on_smiles(['CCCC', 'CCC'])
+        self.assertEqual(str(cm.exception), 'SMILES code no 1 has no attachment point to Peptide\nSMILES code no 2 has no attachment point to Peptide')
+
 
         with self.assertNotRaises(UnattachedSmilesError):
             validate_attachment_points_on_smiles(['CCC[1*]'])

@@ -17,12 +17,15 @@ def has_attachment_point(smiles: str) -> bool:
 
 
 def validate_attachment_points_on_smiles(smiles_codes: list[str]):
+    invalid_ids = []
     if smiles_codes is not None:
         for i in range(len(smiles_codes)):
             smiles_code = smiles_codes[i]
-            for smiles_code in smiles_codes:
-                if not has_attachment_point(smiles_code):
-                    raise UnattachedSmilesError('SMILES code no %d has no attachment point to Peptide' % (i+1))
+            if not has_attachment_point(smiles_code):
+                invalid_ids.append(i+1)
+    if invalid_ids:
+        ErrorMessage = '\n'.join(['SMILES code no %d has no attachment point to Peptide' %invalid_id for invalid_id in invalid_ids])
+        raise UnattachedSmilesError(ErrorMessage)
 
 
 def validate_smiles_codes(smiles_codes: list[str] | None = None):
