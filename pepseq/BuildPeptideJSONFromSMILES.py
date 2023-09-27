@@ -3,11 +3,13 @@ import rdkit
 from pepseq.Backbone import (BreakingIntoResidueCandidateSubgraphs,
                              MarkingPeptideBackbone)
 from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import \
-    decompose_residues_internal
+    decompose_residues_internal, translate_external_modification
 from pepseq.Peptide.utils.Parser import parse_canonical2
 
 
 def get_cx_smarts_db(db_json: dict) -> dict:
+    """
+    """
     cx_smarts_db = {}
     smiles_dict = db_json["smiles"].get("aa")
 
@@ -20,6 +22,8 @@ def get_cx_smarts_db(db_json: dict) -> dict:
 
 
 def decompose_peptide_smiles(smiles: str, db_json: dict) -> dict:
+    """
+    """
     peptide_molecule = rdkit.Chem.MolFromSmiles(smiles)
     peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
 
@@ -192,7 +196,19 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict) -> dict:
 
     peptide_json["external_modifications"] = new_ext_mods
 
+    offset = 0
+    ext_mods_translated = []
+
+    for ext_mod in peptide_json.get("external_modifications"):
+        ext_mod_translated = translate_external_modification(
+            ext_mod, offset=offset)
+        offset += ext_mod_translated.get('max_attachment_point_id')
+        ext_mods_translated.append(ext_mod_translated)
+
+    peptide_json["external_modifications"] = ext_mods_translated
+
     new_seq = append_pepseq_R_info(peptide_json)
+
     pepseq_format = "%s~%s~%s" % (
         peptide_json["N_terminus"],
         new_seq,
@@ -273,7 +289,10 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict)
     pepseq_format, mod_smiles_list = from_smiles_to_pepseq_and_mod_smiles_strings(
         smiles, db_json
     )
-    return pepseq_format, mod_smiles_list[0]
+    if len(mod_smiles_list) == 1:
+        return pepseq_format, mod_smiles_list[0]
+    else:
+        return pepseq_format, mod_smiles_list
 
 
 def mark_external_modifications_on_seq(seq_list: list, peptide_json: dict, mod_as_X: bool = False) -> list:

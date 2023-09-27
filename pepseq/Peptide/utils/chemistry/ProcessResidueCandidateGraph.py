@@ -1,7 +1,11 @@
 import networkx as nx
 import rdkit
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
-                                                                  nx_to_mol)
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx, nx_to_mol)
+
+
+"""
+
+"""
 
 def get_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
     """
@@ -111,8 +115,8 @@ def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
     Output:
 
     {
-        'ResID1':  (max_aa, max_aa_mol, max_match),
-        'ResID2':  (max_aa, max_aa_mol, max_match),
+        'ResID1':  (max_aa, atom_names_dict, max_match),
+        'ResID2':  (max_aa, atom_names_dict, max_match),
         ...
         }
     
@@ -171,6 +175,8 @@ def propagate_matches_on_molecular_graph(G: nx.classes.graph.Graph, res_matches:
 
 
 def get_connecting(edges: list, nodes1: list, nodes2: list):
+    """
+    """
     return [
         edge
         for edge in edges
@@ -198,45 +204,40 @@ def get_atom_pairs(atoms_1: set, atoms_2: set, edges: list) -> list:
 
 
 def process_internal_connections(connections, res_matches, G: nx.classes.graph.Graph) -> list:
-    internal_connections = []
-    connection_id = 0
+    """
+    Input:
+        connections - 
+        res_matches - 
+        G - 
+    """
+    bond_jsons = []
+    bond_id = 0
 
     for name1, name2, connecting_edges in connections:
-        list_1 = name1.split("_")
-        list_2 = name2.split("_")
+        res_ids = [ name.split("_")[:2][1]  for name in (name1, name2) ]
 
-        g_type_1, res_id_1 = list_1[:2]
-        g_type_2, res_id_2 = list_2[:2]
+        res_atoms_1, res_atoms_2 = [set(res_matches[res_id][2]) for res_id in res_ids]
 
-        res_atoms_1 = set(res_matches[res_id_1][2])
-        res_atoms_2 = set(res_matches[res_id_2][2])
+        bonds = get_atom_pairs( res_atoms_1, res_atoms_2, connecting_edges)
 
-        attachment_point_pairs = get_atom_pairs(
-            res_atoms_1, res_atoms_2, connecting_edges
-        )
+        for bond in bonds:
+            
+            bond_id += 1
 
-        for attachment_point_1, attachment_point_2 in attachment_point_pairs:
-            connection_id += 1
+            atom_names = [G.nodes[atom].get("AtomName") for atom in bond]
 
-            AtomName_1 = G.nodes[attachment_point_1].get("AtomName")
-            AtomName_2 = G.nodes[attachment_point_2].get("AtomName")
-            internal_connection = {
-                connection_id: [
+            bond_json = {
+                bond_id: [
                     {
-                        "ResID": res_id_1,
-                        "AtomName": AtomName_1,
+                        "ResID": res_ids[ind],
+                        "AtomName": atom_names[ind],
                         "ResidueName": "",
-                    },
-                    {
-                        "ResID": res_id_2,
-                        "AtomName": AtomName_2,
-                        "ResidueName": "",
-                    },
+                    } for ind in range(2)
                 ]
             }
 
-            internal_connections.append(internal_connection)
-    return internal_connections
+            bond_jsons.append(bond_json)
+    return bond_jsons
 
 
 def sorted_connection(connection):
@@ -298,6 +299,8 @@ def process_external_modification(G_mod: nx.classes.graph.Graph, mod_bonds, res_
         G_mod - molecular Graph representing external_modification (like staple)
         bonds_to_residue - 
 
+    Output:
+
     """
     points_on_seq = {}
     mod_atoms = set(G_mod.nodes)
@@ -351,29 +354,23 @@ def process_external_connections(modifications, res_matches, modification_graphs
 
 
 def split_connections_by_type(connections):
-    res_res_connections = []
-    external_mod_connections = {}
+    """
 
-    for name1, name2, connecting_edges in connections:
-        if name1.split("_")[0] == name2.split("_")[0] == "Res":
-            res_res_connections.append(
-                (
-                    name1,
-                    name2,
-                    connecting_edges,
-                )
-            )
+    """
+    internal_bonds = []
+    external_bonds_dict = {}
+
+    for name1, name2, bonds in connections:
+        types = [name.split('_')[0] for name in (name1, name2)]
+        if set(types) == set(['Res',]):
+            internal_bonds.append( ( name1, name2, bonds,) )
         else:
             mod_id = name2.split("_")[1]
-            if external_mod_connections.get(mod_id) is None:
-                external_mod_connections[mod_id] = []
-            external_mod_connections[mod_id].append(
-                (
-                    name1,
-                    connecting_edges,
-                )
+            if external_bonds_dict.get(mod_id) is None:
+                external_bonds_dict[mod_id] = []
+            external_bonds_dict[mod_id].append( ( name1, bonds, )
             )
-    return res_res_connections, external_mod_connections
+    return internal_bonds, external_bonds_dict
 
 
 def get_modification_graphs_from_fragment(G: nx.classes.graph.Graph) -> list:
@@ -396,7 +393,7 @@ def get_modification_graphs_from_fragment(G: nx.classes.graph.Graph) -> list:
     There can be more than one external modifications (they are not connected
       with each other)
 
-
+    
     """
     native_atom_ids = nx.get_node_attributes(G, "ResID").keys()
     external_modification_atom_ids = G.nodes - native_atom_ids
@@ -420,58 +417,98 @@ def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> tuple:
     
     G = propagate_matches_on_molecular_graph(G, res_matches)
     modification_graphs = get_modification_graphs_from_fragment(G)
-    mol = nx_to_mol(G)
-    return mol, res_matches, modification_graphs
+    return G, res_matches, modification_graphs
 
-def get_internal_connections_subgraph_tuples():
+
+def get_internal_connections_subgraph_tuples(G: nx.classes.graph.Graph, res_matches: dict) -> list:
     """
-    WIP
+    Input:
+
+    G - molecular graph representing fragment molecule
+    Output:
+
+    subgraph_tuples - [
+        ( 'Res_1_C', G_residue1_molecular_subgraph ),
+        ( 'Res_2_X', G_residue2_molecular_subgraph ),
+    ]
+
     """
-    return
-
-
-def get_subgraph_tuples(res_matches, modification_graphs_nodes, G: nx.classes.graph.Graph):
     subgraph_tuples = []
 
     for res_id in sorted(res_matches.keys()):
-        res_name, res_atoms_dict, res_match_atoms = res_matches[res_id]
-        res_subgraph = G.subgraph(res_match_atoms)
-        res_id_name = "Res_%s_%s" % (res_id, res_name)
-        res_tuple = (res_id_name, res_subgraph)
+        res_name, res_atoms_dict, res_atoms = res_matches[res_id]
+        res_tuple = ("Res_%s_%s" % (res_id, res_name),  G.subgraph(res_atoms) )
         subgraph_tuples.append(res_tuple)
 
-    n_mod_graphs = len(modification_graphs_nodes)
-
-    for i in range(n_mod_graphs):
-        tup = ("Mod_%s" % (i + 1), modification_graphs_nodes[i])# list(modification_graphs[i].nodes) )
-        subgraph_tuples.append(tup)
     return subgraph_tuples
 
 
-def get_subgraph_pair_tuples(subgraph_tuples):
-    subgraph_pair_tuples = []
+
+
+def get_subgraph_tuples(res_matches: dict, modification_graphs_nodes, G: nx.classes.graph.Graph):
+    """
+    Input:
+
+    G - molecular graph representing fragment molecule
+
+    Output:
+
+    subgraph_tuples - [
+        ( 'Res_1_C', G_residue1_molecular_subgraph ),
+        ( 'Res_2_X', G_residue2_molecular_subgraph ),
+        ( 'Mod_1_X', G_modification1_molecular_subgraph ),
+            ]
+
+    """
+
+    internal_subgraph_tuples = get_internal_connections_subgraph_tuples(G, res_matches)
+
+    external_subgraph_tuples = [("Mod_%s" % (i + 1), modification_graphs_nodes[i]
+                                 ) for i in range( len(modification_graphs_nodes) )]
+    return internal_subgraph_tuples + external_subgraph_tuples
+
+
+def get_connections(G_edges:list, subgraph_tuples: list):
+    """
+    Input:
+
+        subgraph_tuples - [
+            (ResName_1, SubGraphRes_1),
+            (ResName_2, SubGraphRes_2),
+            ...
+        ]
+
+        G_edges - [
+            (Res1_Node1, Res1_Node2),
+            (Res1_Node1, Res2_Node2),
+            ... 
+        ]
+
+    Output:
+
+    connections - [
+        (res1, res2, [(node1_1, node2_1), (node1_2, node2_34)])
+    ]
+
+    Action:
+        For each pair of Residue Subgraphs
+        We find whether in Fragment MolecularGraph edges there is a connecting
+        edge between Residue1 and Residue2
+    
+    """
+
+    bonds = []
 
     n_subgraphs = len(subgraph_tuples)
     for i in range(n_subgraphs):
-        name_i, subgraph_i_nodes = subgraph_tuples[i]
+        name_i, nodes_i = subgraph_tuples[i]
         for j in range(i + 1, n_subgraphs):
-            name_j, subgraph_j_nodes = subgraph_tuples[j]
-            subgraph_pair_tuple = (name_i, name_j, list(subgraph_i_nodes), subgraph_j_nodes)
-            subgraph_pair_tuples.append(subgraph_pair_tuple)
+            name_j, nodes_j = subgraph_tuples[j]
+            edges = get_connecting(G_edges, nodes_i, nodes_j)
+            if edges:
+                bonds.append((name_i, name_j, edges))
 
-    return subgraph_pair_tuples
-
-
-def get_connections(subgraph_pair_tuples, G_edges: list):
-    connections = []
-
-    for res1, res2, nodes1, nodes2 in subgraph_pair_tuples:
-
-        edges = get_connecting(G_edges, nodes1, nodes2)
-        if edges:
-            connections.append((res1, res2, edges))
-
-    return connections
+    return bonds
 
 
 def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
@@ -499,19 +536,15 @@ def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
     
     """
 
-    mol, res_matches, modification_graphs = decompose(mol, cx_smarts_db)
-    G = mol_to_nx(mol)
+    G, res_matches, modification_graphs = decompose(mol, cx_smarts_db)
 
     modification_graphs_nodes = [list(graph.nodes) for graph in modification_graphs]
 
     subgraph_tuples = get_subgraph_tuples(res_matches, modification_graphs_nodes, G)
-
-    subgraph_pair_tuples = get_subgraph_pair_tuples(subgraph_tuples)
-    connections = get_connections(subgraph_pair_tuples, list(G.edges))
-
+    bonds = get_connections( list(G.edges),  subgraph_tuples)
 
     res_res_connections, external_mod_connections = split_connections_by_type(
-        connections
+        bonds
     )
     internal_connections = process_internal_connections(
         res_res_connections, res_matches, G
@@ -519,8 +552,8 @@ def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
     external_connections = process_external_connections(
         external_mod_connections, res_matches, modification_graphs, G
     )
-    res_return = {res_id: res_matches[res_id][0] for res_id in res_matches}
-    return res_return, {
+    res_names = {res_id: res_matches[res_id][0] for res_id in res_matches}
+    return res_names, {
         "internal_modifications": internal_connections,
         "external_modifications": external_connections,
     }
@@ -547,10 +580,10 @@ def translate_mod_smiles(smiles: str, offset=0):
 
 
 def translate_external_modification(mod: dict, offset=0) -> dict:
-    mod_smiles = mod.get("mod_smiles")
+    mod_smiles = mod.get("smiles")
     mod_smiles = translate_mod_smiles(mod_smiles, offset=offset)
 
-    attachment_points_on_seq = mod.get("attachment_points_on_seq")
+    attachment_points_on_seq = mod.get("attachment_points_on_sequence")
     attachment_points_on_seq = translate_attachment_points_on_seq(
         attachment_points_on_seq, offset=offset
     )
@@ -559,9 +592,9 @@ def translate_external_modification(mod: dict, offset=0) -> dict:
     max_attachment_point_id += offset
 
     mod = {
-        "mod_smiles": mod_smiles,
+        "smiles": mod_smiles,
         "max_attachment_point_id": max_attachment_point_id,
-        "attachment_points_on_seq": attachment_points_on_seq,
+        "attachment_points_on_sequence": attachment_points_on_seq,
     }
     return mod
 
@@ -576,27 +609,21 @@ def sequence_dict_to_string(sequence_dict: dict) -> str:
     return sequence_string
 
 
-def decompose_residues_internal(residues_internal: list, cx_smarts_db: dict) -> tuple:
+def decompose_residues_internal(fragments: list, cx_smarts_db: dict) -> tuple:
     """
-
-
     """
     sequence_dict = {}
 
     internal_modifications = []
     external_modifications = []
 
-    for residue_candidate in residues_internal:
-        mol = nx_to_mol(residue_candidate)
-        res_matches, modifications = full_decomposition(mol, cx_smarts_db)
-        internal_modifications += modifications["internal_modifications"]
 
-        if modifications.get("external_modifications"):
-            for modification in modifications.get("external_modifications"):
-                external_modifications.append(modification)
+    for mol in [nx_to_mol(fragment) for fragment in fragments]:
+        fragment_res_names, fragment_modifications = full_decomposition(mol, cx_smarts_db)
+        internal_modifications += fragment_modifications["internal_modifications"]
 
-        for res_id in res_matches:
-            sequence_dict[int(res_id)] = res_matches[res_id]
-
+        if fragment_modifications.get("external_modifications"):
+            external_modifications += fragment_modifications.get("external_modifications")
+        sequence_dict.update({int(k): fragment_res_names[k] for k in fragment_res_names} )
     sequence_string = sequence_dict_to_string(sequence_dict)
     return sequence_string, internal_modifications, external_modifications

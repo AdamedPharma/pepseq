@@ -13,7 +13,7 @@ from pepseq.BuildPeptideJSONFromSMILES import \
 from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import \
     decompose_residues_internal, get_res_matches, full_decomposition, get_matches, \
     match_molecular_graph_to_res_id, decompose, get_subgraph_tuples, get_connections, \
-    get_subgraph_pair_tuples, split_connections_by_type, process_internal_connections, \
+    split_connections_by_type, process_internal_connections, \
     process_external_connections, sequence_dict_to_string
 
 
@@ -580,8 +580,8 @@ def test_decompose():
     (2, None, 19, 20)),
     'edges_columns': ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']}
 
-    assert get_mol_json(mol_propagated) == mol_propagated_json
-    G = mol_to_nx(mol_propagated)
+    assert nx_to_json(mol_propagated) == mol_propagated_json
+    G = mol_propagated
 
     modification_graphs_nodes = [list(graph.nodes) for graph in modification_graphs]
 
@@ -594,17 +594,21 @@ def test_decompose():
     assert name_i == 'Mod_2'
     assert subgraph_i_nodes == [7,8,9,10,11,12]
 
-    subgraph_pair_tuples = get_subgraph_pair_tuples(subgraph_tuples)
-    connections = [('Res_1_C', 'Mod_1', [(1, 3)]),
-    ('Res_1_C', 'Mod_2', [(6, 7)]),
-    ('Res_3_C', 'Mod_2', [(11, 13)])]
+    connections = [
+        ('Res_1_C', 'Mod_1', [(1, 3)]),
+        ('Res_1_C', 'Mod_2', [(6, 7)]),
+        ('Res_3_C', 'Mod_2', [(11, 13)])]
 
-    assert get_connections(subgraph_pair_tuples, list(G.edges)) == connections
+    assert get_connections(list(G.edges), subgraph_tuples, ) == connections
 
 
 
     res_res_connections = []
-    external_mod_connections = {'1': [('Res_1_C', [(1, 3)])], '2': [('Res_1_C', [(6, 7)]), ('Res_3_C', [(11, 13)])]}
+    external_mod_connections = {
+        '1': [('Res_1_C', [(1, 3)])],
+        '2': [
+            ('Res_1_C', [(6, 7)]),
+            ('Res_3_C', [(11, 13)])]}
     
     assert split_connections_by_type(connections) == (res_res_connections, external_mod_connections)
 

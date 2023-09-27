@@ -4,6 +4,9 @@ import copy
 
 import pytest
 import rdkit
+import rdkit.Chem.PandasTools
+
+
 from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
     get_smiles_from_peptide_json
 from pepseq.BuildPeptideJSONFromSMILES import \
@@ -12,6 +15,7 @@ from pepseq.functions import calculate
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.read import from_json, from_pepseq
 import pepseq.Peptide.utils.Parser
+from augmenting_db_json import augment_db_json
 
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
@@ -91,6 +95,7 @@ correct_smiles = (
     + ")C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)N"
     + "C1=O)[C@@H](C)O"
 )
+
 
 
 
@@ -187,6 +192,18 @@ def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
 
     assert pepseq_format == fixture_pepseq
     assert mod_smiles == one_mod_smiles
+
+
+    fixture_pepseq_2 = 'H~{Cys(R1)}ACDAPEPSEQ{Cys(R2)}G{Cys(R3)}DEF~OH'
+    fixture_complete_smiles_2 = '[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O'
+    fixture_mod_smiles_2 = ['[1*]CNCC[2*]', '[3*]CNCCSP']
+
+    pepseq_2, mod_smiles_2 = from_smiles_to_pepseq_and_one_mod_smiles_strings(
+        fixture_complete_smiles_2, db_json
+    )
+
+    assert pepseq_2 == fixture_pepseq_2
+    assert mod_smiles_2 == fixture_mod_smiles_2
     return
 
 
@@ -245,4 +262,15 @@ def test_get_single_modification_json():
 def test_get_attachment_point_json():
     decomposition = ('Cys', '1')
     res_id = 0
-    assert pepseq.get_peptide_json_from_pepseq_format.get_attachment_point_json(res_id, decomposition) == attachment_points_on_sequence.get(1)
+    assert pepseq.get_peptide_json_from_pepseq_format.get_attachment_point_json(res_id, decomposition
+                                                            ) == attachment_points_on_sequence.get(1)
+
+
+def test_augmenting_db_json():
+    df_sdf = rdkit.Chem.PandasTools.LoadSDF('sdf_file.sdf')
+    db_json_augmented = augment_db_json(
+        db_json, df_sdf=df_sdf, name_column = 'm_abbr', mol_colname='ROMol')
+
+    assert bool(db_json_augmented) == True
+    return
+

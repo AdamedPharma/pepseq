@@ -18,3 +18,11 @@ SMILES codes to describe unspecified modifications:
 KYLDCRAAQDFVQW<[5*]CCCC(N)=O>
 
 
+## Roadmap
+Add handling of more external modifications, e.g. staples (like ornithine), linkers (like PEG2), anchors (like C‐18 fatty di‐acid chain).
+Add decomposing of peptide modification where it is compounded, e.g. peptide stapled with ornithine which is linked through PEG2 to
+C-18 fatty di-acid chain.
+
+Naming more atoms in residues SMARTS.
+
+Add more fixtures.
