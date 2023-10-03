@@ -39,7 +39,7 @@ def from_smiles(smiles: str, db_json: Dict = db_json) -> Peptide:
     return peptide
 
 
-def from_json(peptide_json: Dict[str, Any], db_json: Dict = db_json) -> Peptide:
+def from_json(peptide_json: Dict[str, Any], db: Dict = db_json) -> Peptide:
     """Read (modified) peptide from json
 
     pepseq json should looks as below:
@@ -67,6 +67,6 @@ def from_json(peptide_json: Dict[str, Any], db_json: Dict = db_json) -> Peptide:
     Returns:
         Peptide: peptide object
     """
-    smiles = get_smiles_from_peptide_json(peptide_json, db_json)
+    smiles = get_smiles_from_peptide_json(peptide_json, db)
     peptide = Peptide(smiles, peptide_json)
     return peptide

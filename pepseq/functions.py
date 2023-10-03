@@ -28,15 +28,18 @@ def calculate_pepseq_and_mods(smiles: str) -> dict:
     return from_smiles_to_pepseq_and_mod_smiles_strings(smiles, db_json)
 
 
-def calculate(pepseq: str, smiles: list[str] = []) -> dict:
+def calculate(pepseq: str, smiles: list[str] = [], db: dict = None) -> dict:
     if smiles == []:
         smiles = None
+    if db is None:
+        db = db_json
+
     validate_pepseq(pepseq)
     validate_smiles_codes(smiles)
     validate_attachment_points_on_smiles(smiles)
     validate_matching_attachment_points(pepseq, smiles)
-    peptide_json = get_pep_json(pepseq, db_json, smiles)
-    peptide = from_json(peptide_json)
+    peptide_json = get_pep_json(pepseq, db, smiles)
+    peptide = from_json(peptide_json, db)
     complete_smiles = peptide.complete_smiles
     sequence = peptide.sequence
     length = peptide.length

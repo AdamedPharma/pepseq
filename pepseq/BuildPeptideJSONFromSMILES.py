@@ -24,6 +24,7 @@ def get_cx_smarts_db(db_json: dict) -> dict:
 def decompose_peptide_smiles(smiles: str, db_json: dict) -> dict:
     """
     """
+
     peptide_molecule = rdkit.Chem.MolFromSmiles(smiles)
     peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
 
@@ -285,7 +286,7 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict)
                 { Cys(R2) } <- is attached in [2*] attachment point on staple
 
     """
-
+    
     pepseq_format, mod_smiles_list = from_smiles_to_pepseq_and_mod_smiles_strings(
         smiles, db_json
     )

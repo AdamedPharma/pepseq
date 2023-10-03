@@ -47,6 +47,26 @@ single_modification_json = {
         }
     }
 
+"""
+single_modification_json = {
+        'smiles': '[1*]CNCC[2*]',
+        'max_attachment_point_id': 2,
+        'attachment_points_on_sequence': {
+            1: {
+                'attachment_point_id': '1',
+                'ResID': '1',
+                'AtomName': 'SG',
+                'ResidueName': 'Cys'
+            },
+            2: {
+                'attachment_point_id': '2',
+                'ResID': '12',
+                'AtomName': 'SG',
+                'ResidueName': 'Cys'
+            }
+        }
+    }
+"""
 
 correct_peptide_json = {
     "sequence": "H{aMeAla}QGTYCDAQCYS",
@@ -267,7 +287,7 @@ def test_get_attachment_point_json():
 
 
 def test_augmenting_db_json():
-    df_sdf = rdkit.Chem.PandasTools.LoadSDF('sdf_file.sdf')
+    df_sdf = rdkit.Chem.PandasTools.LoadSDF('monomers.sdf')
     db_json_augmented = augment_db_json(
         db_json, df_sdf=df_sdf, name_column = 'm_abbr', mol_colname='ROMol')
 

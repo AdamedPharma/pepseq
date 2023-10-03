@@ -1,6 +1,7 @@
 import networkx as nx
 import rdkit
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx, nx_to_mol)
+from augmenting_db_json import get_Nter_versions_cxsmarts_db
 
 
 """
@@ -126,10 +127,19 @@ def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
     Amino Acid specie
 
     """
-
-    matches_dict = get_matches(mol, cx_smarts_db)
-
     G = mol_to_nx(mol)
+    res_ids = nx.get_node_attributes(G, "ResID")
+
+    cx_smarts_db_copy = cx_smarts_db.copy()
+    nter_versions = get_Nter_versions_cxsmarts_db(cx_smarts_db_copy)
+    cx_smarts_db_copy.update(nter_versions)
+
+    if '1' in res_ids.values():
+        
+        matches_dict = get_matches(mol, cx_smarts_db_copy)
+    else:
+        matches_dict = get_matches(mol, cx_smarts_db)
+
     res_matches = {}
 
     fragment_ResIDs = sorted(list(set(nx.get_node_attributes(G, "ResID").values())))
@@ -411,7 +421,6 @@ def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> tuple:
     We use rdkit.Chem.rdchem.Mol representation of fragment
 
     """
-
     res_matches = get_res_matches(mol, cx_smarts_db)
     G = mol_to_nx(mol)
     

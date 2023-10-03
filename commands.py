@@ -26,15 +26,24 @@ app = typer.Typer()
 @app.command()
 def pepseq_to_smiles(
     pepseq: str,
-    out: str = None
+    out: str = None,
+    db_path: str = None
 ) -> str:
     """
     Input Sequence in Pepseq format and generate molecule SMILES code.
     Example Pepseq Format Sequence:
 
     "[CSPS[1*]]~Y{aMeAla}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[1*]]"
+
+     "[CSPS[1*]]~Y{aMeAla}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[1*]]"
+
+    python3.10 commands.py pepseq-to-smiles  "[CSPS[1*]]~Y{aMeAla}QGT{Orn}FTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[1*]]"  --db-path augmented_db.json --out out.smi
     """
-    peptide = from_pepseq(pepseq)
+    if db_path is not None:
+        with open(db_path) as fp:
+            db_json = json.load(fp)
+
+    peptide = from_pepseq(pepseq, db_json=db_json)
     if out is not None:
         with open(out,'w') as fp:
             fp.write(peptide.smiles)
@@ -47,7 +56,8 @@ def pepseq_to_smiles(
 def calculate_json_from(
     sequence: str,
     mod_smiles: Annotated[Optional[List[str]], typer.Option(default=None)] = None,
-    out: str = None
+    out: str = None,
+    db_path: str = None
     ):
     """
 
@@ -60,10 +70,15 @@ def calculate_json_from(
          --mod-smiles '[1*]CNCC[2*]' --mod-smiles '[3*]CNCCSP'
 
     """
-    
+    kwargs = {}
+
+    if db_path is not None:
+        with open(db_path) as fp:
+            db_json = json.load(fp)
+            kwargs['db_json'] = db_json
+
     args = (sequence, mod_smiles)
-    result = calculate(*args)
-    #print(result)
+    result = calculate(*args, **kwargs)
     print('complete_smiles: ', result.get('complete_smiles'))
     print('sequence: ', result.get('sequence'))
     if out is not None:
@@ -72,24 +87,38 @@ def calculate_json_from(
     return result
 
 
+
 @app.command()
 def read_smiles(
         smiles_filename: str,
-        fname: str = 'out'
+        out: str = 'out',
+        db_path: str = None
         ):
+    """
+    python3.10 commands.py read-smiles --smiles-filename  augmented.smi  --db-path augmented_db.json --out stuff
+
+    """
     with open(smiles_filename) as fp:
         smiles = fp.readline().strip()
 
+    kwargs = {}
+
+    if db_path is not None:
+        with open(db_path) as fp:
+            db_json = json.load(fp)
+            kwargs['db_json'] = db_json
+
+
     pepseq_format, mod_smiles = from_smiles_to_pepseq_and_one_mod_smiles_strings(
-        smiles, db_json
+        smiles, **kwargs
     )    
 
     print('Sequence in pepseq format: ', pepseq_format)
     print('List of modification by SMILES codes with points of attachment: ', mod_smiles)
     
 
-    out_pepseq = '%s.pepseq' %(fname)
-    out_mod_smiles = '%s.smi' %(fname)
+    out_pepseq = '%s.pepseq' %(out)
+    out_mod_smiles = '%s.smi' %(out)
 
     with open(out_pepseq, 'w') as fp:
         fp.write(pepseq_format)
