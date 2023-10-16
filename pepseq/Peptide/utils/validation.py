@@ -1,3 +1,5 @@
+from typing import Union
+
 import rdkit
 from pepseq.get_peptide_json_from_pepseq_format import (
     get_attachment_points_on_sequence_json, get_pep_json)
@@ -28,7 +30,7 @@ def validate_attachment_points_on_smiles(smiles_codes: list[str]):
         raise UnattachedSmilesError(ErrorMessage)
 
 
-def validate_smiles_codes(smiles_codes: list[str] | None = None):
+def validate_smiles_codes(smiles_codes: Union[list[str], None] = None):
     if smiles_codes is not None:
         for i in range(len(smiles_codes)):
             smiles_code = smiles_codes[i]
@@ -49,7 +51,7 @@ def get_attachment_points_on_smiles(smiles_code: str) -> list:
     return attachment_points_ids
 
 
-def get_attachment_points_on_smiles_codes(smiles_codes: list| None = None) -> set:
+def get_attachment_points_on_smiles_codes(smiles_codes: Union[list, None] = None) -> set:
     attachment_points_ids = []
     if smiles_codes is not None:
         for smiles_code in smiles_codes:
