@@ -1,0 +1,1 @@
+pepseq = {git = "https://github.com/AdamedPharma/pepseq.git#egg=pepseq", editable = true, version = "*"}
