@@ -214,7 +214,7 @@ def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
     assert mod_smiles == one_mod_smiles
 
 
-    fixture_pepseq_2 = 'H~{Cys(R1)}ACDAPEPSEQ{Cys(R2)}G{Cys(R3)}DEF~OH'
+    fixture_pepseq_2 = 'H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH'
     fixture_complete_smiles_2 = '[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O'
     fixture_mod_smiles_2 = ['[1*]CNCC[2*]', '[3*]CNCCSP']
 

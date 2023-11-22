@@ -136,7 +136,7 @@ def get_chiral_tag_int(chiral_tag):
     elif chiral_tag == rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CW:
         chiral_tag_int = 1
     else:
-        chiral_tag_int = 0
+        chiral_tag_int = -1
     return chiral_tag_int
 
 
@@ -321,6 +321,8 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
             chiral_tag = rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED
         elif chiral_tag == 1:
             chiral_tag = rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CW
+        elif chiral_tag == -1:
+            chiral_tag = rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CCW
 
         if hybridization == 4:
             hybridization = rdkit.Chem.rdchem.HybridizationType.SP3

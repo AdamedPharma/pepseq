@@ -1,5 +1,6 @@
 import json
 import pkgutil
+from tqdm import tqdm
 
 import typer
 from pepseq.read import from_pepseq
@@ -92,42 +93,60 @@ def calculate_json_from(
 def read_smiles(
         smiles_filename: str,
         out: str = 'out',
-        db_path: str = None
+        db_path: str = db_path,
+        v: bool = False
         ):
     """
-    python3.10 commands.py read-smiles --smiles-filename  augmented.smi  --db-path augmented_db.json --out stuff
+    Input SMILES filepath 
 
+
+    python3.10 commands.py read-smiles 'stuff_in.smi'   --db-path augmented_db.json --out stuff
+
+    python3.10 commands.py read-smiles 'smilesy.smi' --out smilesy_out
+    
+    ls 
     """
     with open(smiles_filename) as fp:
-        smiles = fp.readline().strip()
+        s = fp.read()
+    smiles_list = [smiles for smiles in s.split('\n') if smiles]
 
-    kwargs = {}
+    pepseq_list = []
 
-    if db_path is not None:
-        with open(db_path) as fp:
-            db_json = json.load(fp)
-            kwargs['db_json'] = db_json
+    for smiles in tqdm(smiles_list):
+        kwargs = {}
+
+        if db_path is not None:
+            with open(db_path) as fp:
+                db_json = json.load(fp)
+                kwargs['db_json'] = db_json
 
 
-    pepseq_format, mod_smiles = from_smiles_to_pepseq_and_one_mod_smiles_strings(
-        smiles, **kwargs
-    )    
-
-    print('Sequence in pepseq format: ', pepseq_format)
-    print('List of modification by SMILES codes with points of attachment: ', mod_smiles)
+        pepseq_format, mod_smiles = from_smiles_to_pepseq_and_one_mod_smiles_strings(
+            smiles, **kwargs
+        )
+        if v:
+            print('Sequence in pepseq format: ', pepseq_format)
+            print('List of modification by SMILES codes with points of attachment: ', mod_smiles)
+        pepseq_list.append( pepseq_format )
+        if type(mod_smiles) == list:
+            if mod_smiles:
+                mod_smiles_list.append( '\t'.join(mod_smiles) )
+            else:
+                mod_smiles_list.append('NO (NON TERMINAL) SEQUENCE MODIIFICATIONS PRESENT')
+        else:
+            mod_smiles_list.append( mod_smiles )
     
-
     out_pepseq = '%s.pepseq' %(out)
     out_mod_smiles = '%s.smi' %(out)
 
     with open(out_pepseq, 'w') as fp:
-        fp.write(pepseq_format)
+        fp.write( '\n'.join( pepseq_list) )
         fp.flush()
     
     if type(mod_smiles) == str:
         mod_smiles = [mod_smiles]
 
-    mod_smiles_list_str = '\n'.join(mod_smiles)
+    mod_smiles_list_str = '\n'.join(mod_smiles_list)
 
     with open(out_mod_smiles, 'w') as fp:
         fp.write(mod_smiles_list_str)

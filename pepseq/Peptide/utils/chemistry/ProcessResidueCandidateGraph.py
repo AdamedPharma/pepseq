@@ -1,14 +1,42 @@
+from tqdm import tqdm
+
 import networkx as nx
 import rdkit
+
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx, nx_to_mol)
 from augmenting_db_json import get_Nter_versions_cxsmarts_db
 
-
 """
 
 """
 
-def get_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
+
+def get_match(mol=None, aa_smarts=None, useChirality=True):
+    """
+
+    """
+    aa_mol = rdkit.Chem.MolFromSmarts(aa_smarts)
+    matches = mol.GetSubstructMatches(aa_mol, useChirality=useChirality)
+    return (aa_mol, matches)
+
+
+def get_match_with_external_modifications():
+    """
+    Rationale:
+        Simplest case:
+        1. One Amino Acid
+        One Residue
+        For each fragment we need to decompose it into residue(s) and external modifications 
+        That is necessary because we want to limit number of external modification per Residue
+        (or fragment) into one. That is why we need two subgraphs
+        one matched by residue .e.g. methylserine (or X)
+        and another subgraph (the rest)
+
+    """
+    return
+
+
+def get_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, useChirality=True) -> dict:
     """
     Input:
         FragmentMol: rdkit.Chem.rdchem.Mol
@@ -29,8 +57,8 @@ def get_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
     matches_dict = {}
     for aa in cx_smarts_db:
         aa_smarts = cx_smarts_db[aa]
-        aa_mol = rdkit.Chem.MolFromSmarts(aa_smarts)
-        matches = mol.GetSubstructMatches(aa_mol)
+        aa_mol, matches = get_match(mol=mol, aa_smarts=aa_smarts, useChirality=useChirality)
+
         if matches:
             matches_dict[aa] = (aa_mol, matches)
     return matches_dict
@@ -100,8 +128,46 @@ def match_molecular_graph_to_res_id(G: nx.classes.graph.Graph, ResID: str, match
     return (max_aa, max_aa_mol, max_match)
 
 
+def get_mod_graphs(G, native_atom_ids, ResID):
+    nx.set_node_attributes( G,
+        {atom_id: ResID for atom_id in native_atom_ids}, "ResID")
+    native_atom_ids = nx.get_node_attributes(G, "ResID").keys()
+    external_modification_atom_ids = G.nodes - native_atom_ids
+    G_external_modifications = G.subgraph(external_modification_atom_ids)
+    g = (
+        G_external_modifications.subgraph(c)
+        for c in nx.connected_components(G_external_modifications)
+    )
+    modification_graphs = list(g)
+    return modification_graphs
 
-def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
+
+def get_n_subst_dict(G, matches_dict):
+    n_subst = {}
+    ResID = 'ResIDVal'
+
+    for aa_name in tqdm(matches_dict):
+        aa_mol, matches = matches_dict.get(aa_name)
+        native_atom_ids = set([])
+        for match in matches:
+            native_atom_ids |= set(match)
+        G_copy = G.copy()
+        mod_graphs = get_mod_graphs(G_copy, native_atom_ids, ResID)
+        n_subst[aa_name] = len(mod_graphs)
+    return n_subst
+
+
+def filter_n_subst(G, matches_dict, n_subst_limit):
+    n_subst_dict = get_n_subst_dict(G, matches_dict)
+    aa_names_n_subst_elt = [
+        aa_name for aa_name in n_subst_dict if n_subst_dict.get(
+        aa_name)  <= n_subst_limit]
+    return {
+        k: matches_dict.get(
+            k) for k in matches_dict if k in aa_names_n_subst_elt} 
+
+
+def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, useChirality=True, n_subst_limit=None) -> dict:
     """
 
     We use nx.classes.graph.Graph representation of modified peptide molecules
@@ -136,9 +202,14 @@ def get_res_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> dict:
 
     if '1' in res_ids.values():
         
-        matches_dict = get_matches(mol, cx_smarts_db_copy)
+        matches_dict = get_matches(mol, cx_smarts_db_copy, useChirality=useChirality)
     else:
-        matches_dict = get_matches(mol, cx_smarts_db)
+        matches_dict = get_matches(mol, cx_smarts_db, useChirality=useChirality)
+
+    if n_subst_limit is not None:
+        fltrd = filter_n_subst(G, matches_dict, n_subst_limit)
+        if fltrd:
+            matches_dict = fltrd
 
     res_matches = {}
 
@@ -416,12 +487,12 @@ def get_modification_graphs_from_fragment(G: nx.classes.graph.Graph) -> list:
     return modification_graphs
 
 
-def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict) -> tuple:
+def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, n_subst_limit=None) -> tuple:
     """
     We use rdkit.Chem.rdchem.Mol representation of fragment
 
     """
-    res_matches = get_res_matches(mol, cx_smarts_db)
+    res_matches = get_res_matches(mol, cx_smarts_db, n_subst_limit=n_subst_limit)
     G = mol_to_nx(mol)
     
     G = propagate_matches_on_molecular_graph(G, res_matches)
@@ -520,7 +591,7 @@ def get_connections(G_edges:list, subgraph_tuples: list):
     return bonds
 
 
-def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
+def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, n_subst_limit=None):
     """
     We use rdkit.Chem.rdchem.Mol representation of residue candidate
 
@@ -545,7 +616,7 @@ def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict):
     
     """
 
-    G, res_matches, modification_graphs = decompose(mol, cx_smarts_db)
+    G, res_matches, modification_graphs = decompose(mol, cx_smarts_db, n_subst_limit=n_subst_limit)
 
     modification_graphs_nodes = [list(graph.nodes) for graph in modification_graphs]
 
@@ -618,7 +689,7 @@ def sequence_dict_to_string(sequence_dict: dict) -> str:
     return sequence_string
 
 
-def decompose_residues_internal(fragments: list, cx_smarts_db: dict) -> tuple:
+def decompose_residues_internal(fragments: list, cx_smarts_db: dict, n_subst_limit=None) -> tuple:
     """
     """
     sequence_dict = {}
@@ -628,7 +699,8 @@ def decompose_residues_internal(fragments: list, cx_smarts_db: dict) -> tuple:
 
 
     for mol in [nx_to_mol(fragment) for fragment in fragments]:
-        fragment_res_names, fragment_modifications = full_decomposition(mol, cx_smarts_db)
+        fragment_res_names, fragment_modifications = full_decomposition(mol, cx_smarts_db,
+                                                            n_subst_limit=n_subst_limit)
         internal_modifications += fragment_modifications["internal_modifications"]
 
         if fragment_modifications.get("external_modifications"):

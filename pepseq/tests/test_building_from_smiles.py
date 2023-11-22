@@ -357,7 +357,7 @@ def test_decompose_residues_internal():
     {
         'nodes_tuple': [
             [6, 0, 0, 3, 0, False, 0, 'CO', '2', 50],[8, 0, 0, 3, 0, False, 0, 'O', '2', 51],
-            [6, 0, 0, 4, 1, False, 0, 'CA', '2', 52],[6, 0, 0, 4, 0, False, 0, None, None, 53],
+            [6, 0, -1, 4, 1, False, 0, 'CA', '2', 52],[6, 0, 0, 4, 0, False, 0, None, None, 53],
             [8, 0, 0, 4, 0, False, 0, None, None, 54],[7, 0, 0, 3, 0, False, 0, 'N', '2', 55]],
         'nodes_columns': [
             'atomic_num','formal_charge','chiral_tag','hybridization','num_explicit_hs',

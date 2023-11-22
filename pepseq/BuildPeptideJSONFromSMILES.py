@@ -21,7 +21,7 @@ def get_cx_smarts_db(db_json: dict) -> dict:
     return cx_smarts_db
 
 
-def decompose_peptide_smiles(smiles: str, db_json: dict) -> dict:
+def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None) -> dict:
     """
     """
 
@@ -33,7 +33,7 @@ def decompose_peptide_smiles(smiles: str, db_json: dict) -> dict:
     cx_smarts_db = get_cx_smarts_db(db_json)
 
     seq, internal_modifications, external_modifications = decompose_residues_internal(
-        residues, cx_smarts_db
+        residues, cx_smarts_db, n_subst_limit=n_subst_limit
     )
     return {
         "sequence": seq,
@@ -135,7 +135,7 @@ def append_pepseq_R_info(j: dict) -> str:
     return new_seq
 
 
-def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict) -> dict:
+def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_limit=None) -> dict:
     """
     Input:
 
@@ -165,7 +165,7 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict) -> dict:
 
     """
 
-    peptide_json = decompose_peptide_smiles(smiles, db_json)
+    peptide_json = decompose_peptide_smiles(smiles, db_json, n_subst_limit=n_subst_limit)
     c_terminus__c_ind = get_c_term_from_peptide_json(peptide_json, db_json)
 
     n_terminus__n_ind = get_n_term_from_peptide_json(peptide_json, db_json)
@@ -221,7 +221,7 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict) -> dict:
     return peptide_json
 
 
-def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict) -> tuple:
+def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None) -> tuple:
     """
     Input:
 
@@ -250,15 +250,19 @@ def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict) -> 
 
     """
 
-    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json)
+    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json, n_subst_limit=n_subst_limit)
     pepseq_format = peptide_json["pepseq_format"]
     mod_smiles_list = [
         ext_mod["smiles"] for ext_mod in peptide_json["external_modifications"]
     ]
-    return pepseq_format, mod_smiles_list
+    if len(mod_smiles_list) == 1:
+        return pepseq_format, mod_smiles_list[0]
+    else:
+        return pepseq_format, mod_smiles_list
+    #return pepseq_format, mod_smiles_list
 
 
-def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict):
+def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None):
     """
     Input:
 
@@ -288,7 +292,7 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict)
     """
     
     pepseq_format, mod_smiles_list = from_smiles_to_pepseq_and_mod_smiles_strings(
-        smiles, db_json
+        smiles, db_json, n_subst_limit=n_subst_limit
     )
     if len(mod_smiles_list) == 1:
         return pepseq_format, mod_smiles_list[0]

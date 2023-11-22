@@ -17,6 +17,9 @@ Thr(tBu), Ser(tBu), Phe(4-Cl)
 SMILES codes to describe unspecified modifications: 
 KYLDCRAAQDFVQW<[5*]CCCC(N)=O>
 
+# d
+out.smi <- modification SMILES
+
 
 ## Roadmap
 Add handling of more external modifications, e.g. staples (like ornithine), linkers (like PEG2), anchors (like C‐18 fatty di‐acid chain).
