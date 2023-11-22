@@ -1,5 +1,6 @@
 import rdkit
 
+from typing import Union
 from pepseq.Backbone import (BreakingIntoResidueCandidateSubgraphs,
                              MarkingPeptideBackbone)
 from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import \
@@ -76,7 +77,7 @@ def smiles_are_identical(smiles1: str, smiles2: str) -> True:
     return (mol1.HasSubstructMatch(mol2)) and (mol2.HasSubstructMatch(mol1))
 
 
-def get_term_symbol(smiles: str, db_json: dict, group: str) -> str|None:
+def get_term_symbol(smiles: str, db_json: dict, group: str) -> Union[str, None]:
     terms = db_json.get("smiles").get(group)
 
     for term_symbol in terms:

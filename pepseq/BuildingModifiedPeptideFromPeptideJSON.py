@@ -1,6 +1,7 @@
 import networkx as nx
 import rdkit
 
+from typing import Union
 from pepseq.Peptide.exceptions import InvalidSequenceError, InvalidSymbolError
 from pepseq.Peptide.utils.chemistry.cap_termini import (cap_C_terminus,
                                                         cap_N_terminus)
@@ -10,7 +11,6 @@ from pepseq.Peptide.utils.chemistry.MonomerConnector import \
     get_molecule_from_list_of_residue_symbols
 from pepseq.Peptide.utils.Parser import (find_termini, get_canonical,
                                          parse_canonical)
-
 
 def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
                     res2_id: int, atom_name_2: str) -> nx.classes.graph.Graph:
@@ -98,7 +98,7 @@ def get_peptide_json_from_sequence(sequence: str, db_json: dict) -> dict:
 
 
 def get_residue_symbols_from_sequence(
-    sequence: str, db_json: dict, N_terminus: str | None = None, C_terminus: str | None = None
+    sequence: str, db_json: dict, N_terminus: Union[str, None] = None, C_terminus: Union[str, None] = None
 ) -> list:
     canonical_sequence = get_canonical(sequence, db_json)
     symbols_list_w_termini = parse_canonical(canonical_sequence)
