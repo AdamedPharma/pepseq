@@ -1,3 +1,34 @@
+"""
+#**pepseq.commands**
+
+Provide several sample math calculations.
+
+This module allows the user to make mathematical calculations.
+
+
+Examples:
+    >>> from pepseq.commands import pepseq_to_smiles, calculate_json_from,
+        read_smiles, augment_db_json_command
+    >>> pepseq_to_smiles('CH3~SCAFC~NH2')
+    
+    >>> calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC') calculations.multiply(2.0, 4.0)
+    
+    >>> read_smiles('mypeptide.smi', 'myppeptide_out')
+
+    >>> augment_db_json_command('my_monomers.sdf', 'augmented_db.json')
+
+The module contains the following functions:
+
+- `pepseq_to_smiles(pepseq, out, db_path)` - Returns the SMILES code for pepseq.
+- `calculate_json_from(sequence, mod_smiles, out, db_path)` - Returns JSON dict 
+   containing info about amino acid sequence and sequence modifications
+- `read_smiles(smiles_filename, out, db_path, v) - Reads SMILES from file  and
+   Writes parsed Pepseq and its modifications into separate txt files.
+- `augment_db_json_command(sdf_path, out)` - Reads additional (Modified) Peptide
+   building blocks from SDF file. Adds them to database and outputs it to file.
+
+"""
+
 import json
 import pkgutil
 from tqdm import tqdm
@@ -144,7 +175,7 @@ def read_smiles(
         fp.flush()
     
     if type(mod_smiles) == str:
-        mod_smiles = [mod_smiles]
+        mod_smiles_list = [mod_smiles]
 
     mod_smiles_list_str = '\n'.join(mod_smiles_list)
 
@@ -158,6 +189,27 @@ def read_smiles(
 @app.command()
 def augment_db_json_command(sdf_path='sdf_file.sdf',
                             out='db_json_augmented.json'):
+    """
+
+    Input:
+        sdf_path: path for SDF file containing info on (Modified) Peptide 
+        building blocks
+    
+    Output:
+        out: path for db.json dictionary containing databse unriched with
+          (Modified) Peptide building blocks declared in SDF file
+    
+    Action:
+        SDF file is read by rdkit. Molecules contained in SDF file are processed
+        default exit atom (atom to attach modifications unless
+        specified otherwise) is computed by set_default_exit_atom_function
+        from this CXSMILES and CXSMARTS are created together with SMILES code
+        depicting basic molecule (without radicals attached).
+
+        Modified Database JSON is written to output file
+
+    """
+
     df_sdf = rdkit.Chem.PandasTools.LoadSDF(sdf_path)
 
     db_json_augmented = augment_db_json(db_json, df_sdf=df_sdf, name_column = 'm_abbr', mol_colname='ROMol')

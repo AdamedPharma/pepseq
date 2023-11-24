@@ -1,43 +1,127 @@
+"""
+#**pepseq.augmenting_db_json**
+
+
+Provide several sample math calculations.
+
+This module allows the user to make mathematical calculations.
+
+
+Examples:
+    >>> from calculator import calculations
+    >>> calculations.add(2, 4)
+    6.0
+    >>> calculations.multiply(2.0, 4.0)
+    8.0
+    >>> from calculator.calculations import divide
+    >>> divide(4.0, 2)
+    2.0
+
+The module contains the following functions:
+
+- `add(a, b)` - Returns the sum of two numbers.
+- `subtract(a, b)` - Returns the difference of two numbers.
+- `multiply(a, b)` - Returns the product of two numbers.
+- `divide(a, b)` - Returns the quotient of two numbers.
+"""
+
 import copy
 from tqdm import tqdm
 import rdkit
 import networkx as nx
+import pandas as pd
+import rdkit
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, \
     nx_to_mol
 
 
 
-def get_R3(G_orn):
-    G_orn_nodes = list( G_orn.nodes(data=True) )
-    for i, node_data in G_orn_nodes:
-        if node_data.get('dummyLabel') == 'R3':
+def get_R3(G: nx.Graph, label: str = 'R3') -> int:
+    """
+    Input:
+        G: networkx Graph representing (Amino Acid) Molecule
+        label: 'dummyLabel' to look for 'R3'
+
+    Returns:
+        i: Index of dummyAtom (radical) marked as R3
+    
+    Action:
+        checks 'dummyLabel' parameter for each G graph nodes and return node
+        index with given label
+
+    """
+    G_nodes = list( G.nodes(data=True) )
+    for i, node_data in G_nodes:
+        if node_data.get('dummyLabel') == label:
             return i
 
 
-def set_default_exit_atom(ro_mol):
-    G_orn = mol_to_nx(ro_mol)
-    R3_id = get_R3(G_orn)
-    nx.set_node_attributes(G_orn, {R3_id: True}, name='DefaultExitAtom')
-    return nx_to_mol(G_orn)
+def set_default_exit_atom(mol: rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
+    """
+
+    Input:
+        mol: (Amino Acid) molecule as rdkit object
+
+    Output:
+        mol: (Amino Acid) molecule with R3 radical set as DefaultExitAtom for
+        attaching modifications to AminoAcid (e.g. palmitoylation; stapling etc.)
+    
+    Action:
+        R3 is identified in molecule and assigned extra parameter DefaultExitAtom = True
+
+    """
+    G = mol_to_nx(mol)
+    R3_id = get_R3(G)
+    nx.set_node_attributes(G, {R3_id: True}, name='DefaultExitAtom')
+    return nx_to_mol(G)
 
 
-def get_basic_smiles(mol):
-    G_set = mol_to_nx(mol)
+def get_basic_smiles(mol: rdkit.Chem.rdchem.Mol) -> str:
+    """
+
+    Input:
+        mol: (Amino Acid) molecule as rdkit object
+    
+    Output:
+        smi_basic: basic SMILES for molecule without radicals (*)
+    
+    Actions:
+        nodes with 'molFileValue' = '*' are removed from mol
+
+    """
+    G = mol_to_nx(mol)
     nodes_to_remove = [
         i for i, node_data in list(
-            G_set.nodes(data=True)) if node_data.get('molFileValue') == '*'
+            G.nodes(data=True)) if node_data.get('molFileValue') == '*'
     ]
     for node_id in nodes_to_remove:
-        G_set.remove_node(node_id)
-    smi_basic = rdkit.Chem.MolToSmiles(nx_to_mol(G_set))
+        G.remove_node(node_id)
+    smi_basic = rdkit.Chem.MolToSmiles(nx_to_mol(G))
     return smi_basic
 
 
-def get_ro_json(ro_mol, name = 'Orn'):
-    ro_mol_set = set_default_exit_atom(ro_mol)
-    basic_smiles = get_basic_smiles(ro_mol_set)
-    cxsmiles = rdkit.Chem.MolToCXSmiles(ro_mol_set)
-    cxsmarts = rdkit.Chem.MolToCXSmarts(ro_mol_set)
+def get_ro_json(mol: rdkit.Chem.rdchem.Mol, name: str = 'Orn') -> dict:
+    """
+
+    Input:
+        mol: (Amino Acid) molecule as rdkit object
+    
+    Output:
+        ro_json: dictionary containing basic AminoAcid/Fragment/Group info
+        necessary to include it into db.json database of Peptide building blocks
+    
+    Action:
+        molecule with default exit atom (atom to attach modifications unless
+          specified otherwise) is computed by set_default_exit_atom_function
+        
+        from this CXSMILES and CXSMARTS are created together with SMILES code
+        depicting basic molecule (without radicals attached).
+
+    """
+    mol_set = set_default_exit_atom(mol)
+    basic_smiles = get_basic_smiles(mol_set)
+    cxsmiles = rdkit.Chem.MolToCXSmiles(mol_set)
+    cxsmarts = rdkit.Chem.MolToCXSmarts(mol_set)
 
     ro_json = {
         'smiles': basic_smiles,
@@ -49,7 +133,10 @@ def get_ro_json(ro_mol, name = 'Orn'):
     return ro_json
 
 
-def get_ro_json_from_row(row, colname='m_abbr', mol_colname='ROMol'):
+def get_ro_json_from_row(row: pd.core.series.Series, colname='m_abbr', mol_colname='ROMol') -> dict:
+    """
+
+    """
     mol_name = getattr(row, colname)
     mol = getattr(row, mol_colname)
     ro_json = get_ro_json(
@@ -80,7 +167,10 @@ def get_row_jsons(df_new, colname='m_abbr', mol_colname='ROMol', smiles_set=None
     return row_i_jsons_dict
 
 
-def augment_db_json(db_json, df_sdf=None, name_column = 'm_abbr', mol_colname='ROMol'):
+def augment_db_json(db_json: dict, df_sdf: pd.DataFrame = None, name_column = 'm_abbr', mol_colname='ROMol'):
+    """
+
+    """
     aa_keys = set( db_json['smiles']['aa'].keys() )
     df_new = df_sdf[~df_sdf[name_column].isin(aa_keys)]
     smiles_set = get_smiles_set(db_json)
@@ -94,12 +184,14 @@ def augment_db_json(db_json, df_sdf=None, name_column = 'm_abbr', mol_colname='R
 
 def N_term_mod_smarts(smarts: str) -> str:
     """
+
     takes in SMARTS for amino acid
     and returns SMARTS for said amino acid but 
     
     fitting also N-terminal molecule with a N-terminus modification
     
     return SMARTS
+
     """
     sm_start =   '[$([N&X3&H2,N&X4&H3&+]),$([N&X3&H1](C)C)]'
     sm_changed = '[$([NX3H2,NX4H3+]),$([NX3H](C)(C)),$([NX3H])]'
@@ -124,6 +216,7 @@ def N_term_mod_smarts(smarts: str) -> str:
 
 def get_Nter_versions_cxsmarts_db(d: dict) -> dict:
     """
+
     takes in SMARTS dictionary for amino acid
     and returns SMARTS dictionary for said amino acids but 
     
@@ -143,6 +236,7 @@ def get_Nter_versions_cxsmarts_db(d: dict) -> dict:
 
 def get_Nter_versions(d: dict) -> dict:
     """
+
     takes in SMARTS dictionary for amino acid
     and returns SMARTS dictionary for said amino acids but 
     
@@ -163,9 +257,11 @@ def get_Nter_versions(d: dict) -> dict:
 
 def change_exit_atom(smiles: str) -> str:
     """
+
     SDF file has explicit radical (R3) connected to Exit Atom
     We change this marking by labelling a neighbouring Atom
     as DefaultExitAtom and removing the radical R3 from SMILES
+
     """
     mol = rdkit.Chem.MolFromSmiles(smiles)
     G = mol_to_nx(mol)
@@ -182,6 +278,7 @@ def change_exit_atom(smiles: str) -> str:
 
 def change_exit_atoms(db_json: dict) -> dict:
     """
+
     SDF file has explicit radical (R3) connected to Exit Atom
     We change this marking by labelling a neighbouring Atom
     as DefaultExitAtom and removing the radical R3 from SMILES
@@ -253,8 +350,7 @@ def order_aas(db_json: dict) -> list:
 def remove_radicals(smarts: str) -> str:
     """
 
-    SDF file SMARTS has radicals that might interfere with matching
-    them as SMARTS substructure pattern
+    remove radical(s) from (CX)SMARTS code
     
     """
     m = rdkit.Chem.MolFromSmarts(smarts)
