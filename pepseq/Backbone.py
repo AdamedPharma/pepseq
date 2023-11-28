@@ -11,9 +11,18 @@ class Functionality(object):
 
 def generate_bb_smiles(num_res: int, OH: bool = False) -> str:
     """
-    generates SMILES for polyGlycine peptide
-    length (number of Gly residues) is given by num_res
-        parameter
+
+    Generate SMILES code for peptide backbone (SMILES for polyGlycine peptide)
+
+    :param num_res: number of amino_acid residues
+    :type num_res: int
+
+    :param OH: whether to generate hydroxyl group at the end
+    :type OH: bool
+    
+    :return: bb_smiles - SMILES code for backbone
+    :rtype: str
+
     """
     if OH:
         bb_smiles = "O" + "C(=O)CN" * num_res  # generate backbone SMILES
@@ -25,14 +34,22 @@ def generate_bb_smiles(num_res: int, OH: bool = False) -> str:
 
 def generate_bb_mol(num_res: int, OH: bool = False) -> rdkit.Chem.rdchem.Mol:
     """
-    generates rdkit.Chem.rdchem.Mol molecule for polyGlycine peptide
-    length (number of Gly residues) is given by num_res
-        parameter
+
+    Generate rdkit.Chem.rdchem.Mol molecule for peptide backbone (polyGlycine peptide)
+
+    :param num_res: number of amino_acid residues
+    :type num_res: int
+
+    :param OH: whether to generate hydroxyl group at the end
+    :type OH: bool
+    
+    :return: bb_smiles - rdkit.Chem.rdchem.Mol molecule object for backbone
+    :rtype: rdkit.Chem.rdchem.Mol
 
     """
-    bbsmiles = generate_bb_smiles(num_res, OH=OH)
-    bbmol = rdkit.Chem.MolFromSmiles(bbsmiles)
-    return bbmol
+    bb_smiles = generate_bb_smiles(num_res, OH=OH)
+    bb_mol = rdkit.Chem.MolFromSmiles(bb_smiles)
+    return bb_mol
 
 
 class GetLongestPolymerWithin(Functionality):
@@ -46,6 +63,22 @@ class GetLongestPolymerWithin(Functionality):
         return
 
     def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> tuple:
+        """
+
+        Find longest peptide backbone that fits into Peptide Molecule
+
+        :param peptide_molecule: Modified Peptide molecule created from SMILES
+            and to be decomposed into amino acid chain with known sequence and its
+            covalent modifications
+
+        :type peptide_molecule: rdkit.Chem.rdchem.Mol
+
+        :return: bb - tuple of atom indices that has been matched with backbone
+            substructure (e.g.  (1,3,4, ...))
+        :rtype: tuple
+        
+        """
+
         matches = [None]
         num_res = 0
         while matches:
@@ -87,6 +120,27 @@ class MarkingPeptideBackbone(Functionality):
         return
 
     def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
+        """
+
+        Label peptide bonds within Peptide Molecule.
+        Label backbone atoms ["N", "CA", "CO", "O"] with their respective names.
+        Label backbone atoms ["N", "CA", "CO", "O"] with their respective ResidueIDs
+        consecutively.
+
+        :param peptide_molecule: Modified Peptide molecule created from SMILES
+            and to be decomposed into amino acid chain with known sequence and its
+            covalent modifications
+
+        :type peptide_molecule: rdkit.Chem.rdchem.Mol
+
+        :return: peptide_molecule - rdkit.Chem.rdchem.Mol molecule object with
+            peptide bonds labeled as such (added new property: "is_peptide_bond" set to "True")
+          tuple of atom indices that has been matched with backbone
+            substructure (e.g.  (1,3,4, ...))
+        :rtype: rdkit.Chem.rdchem.Mol
+        
+        """
+
         bb_ats = ["N", "CA", "CO", "O"]
 
         match = GetLongestPolymerWithin().execute(peptide_molecule)
@@ -134,7 +188,31 @@ class BreakingIntoResidueCandidateSubgraphs(Functionality):
     def __init__(self):
         return
 
-    def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> list:
+    def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> list[nx.classes.graph.Graph]:
+        """
+
+        Label peptide bonds within Peptide Molecule
+
+        :param peptide_molecule: Modified Peptide molecule created from SMILES
+        with peptide bonds and backbone atoms labeled with [N, CA, C or  O ] atom name
+        and residue index in peptide amino acid chain.
+
+        :type peptide_molecule: rdkit.Chem.rdchem.Mol
+
+        :return: residue_graphs - list of fragments generated through cleavage of peptide bonds
+        fragments are molecular graphs generated through translation of rdkit.Chem.rdchem.Mol
+        to nx.classes.graph.Graph. Fragment can be:
+        a) single residue
+        b) single residue with external modification (such as palmitoylation)
+        c) two or more residues bound by internal modification (such as disulfide bond, or cyclization)
+        d) two or more residues bound by external modification (such as molecular staple)
+
+
+          peptide_molecule - rdkit.Chem.rdchem.Mol molecule object 
+        :rtype: list[nx.classes.graph.Graph]
+        
+        """
+
         peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
         G = mol_to_nx(peptide_molecule)
         peptide_bonds = [

@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from Peptide.models.Peptide import Peptide
+from pepseq.Peptide.models.Peptide import Peptide
 
 
 def to_pepseq(peptide: Peptide, include_modifications: bool = False) -> str:

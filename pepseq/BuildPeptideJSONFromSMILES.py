@@ -52,7 +52,6 @@ def get_terminal_smiles_building_block(peptide_json: dict, ResID: int, AtomName:
     for i in range(len(external_modifications)):
         mod = external_modifications[i]
         attachment_points_on_sequence = mod.get("attachment_points_on_sequence")
-
         for key in attachment_points_on_sequence:
             attachment_point = attachment_points_on_sequence.get(key)
             modResID = int(attachment_point.get("ResID"))

@@ -337,9 +337,6 @@ def sorted_connection(connection):
     return [connection[i] for (res_id, i) in sorted_res_ids]
 
 
-
-
-
 def add_connection_point_to_molecular_graph(G: nx.classes.graph.Graph, point_id: int, atom_id: int) -> nx.classes.graph.Graph:
     G.add_node(
         "%d*" % point_id,
@@ -521,8 +518,6 @@ def get_internal_connections_subgraph_tuples(G: nx.classes.graph.Graph, res_matc
         subgraph_tuples.append(res_tuple)
 
     return subgraph_tuples
-
-
 
 
 def get_subgraph_tuples(res_matches: dict, modification_graphs_nodes, G: nx.classes.graph.Graph):

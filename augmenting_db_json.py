@@ -76,6 +76,7 @@ def set_default_exit_atom(mol: rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
     return nx_to_mol(G)
 
 
+
 def get_basic_smiles(mol: rdkit.Chem.rdchem.Mol) -> str:
     """
 
@@ -150,6 +151,7 @@ def get_smiles_set(db_json):
     for aa in db_json['smiles']['aa']:
         smiles_set.add( db_json['smiles']['aa'][aa]['smiles'] )
     return smiles_set
+
 
 
 def get_row_jsons(df_new, colname='m_abbr', mol_colname='ROMol', smiles_set=None):

@@ -150,7 +150,7 @@ def get_hybridization_int(hybridization):
     elif  hybridization == rdkit.Chem.rdchem.HybridizationType.S:
         return 1
 
-    
+
 def get_node_tuple(node_data):
     idx, node_dict = node_data
     keys = ['atomic_num', 'formal_charge', 'chiral_tag',
@@ -167,8 +167,6 @@ def get_node_tuple(node_data):
         row.append(val)
     row.append(idx)
     return row
-
-
 
 
 def nx_to_json(G: nx.classes.graph.Graph) -> dict:

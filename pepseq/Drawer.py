@@ -357,7 +357,6 @@ def get_N_terminus_params(params: dict) -> dict:
 
     return out_params
 
-
 def get_C_terminus_params(params: dict, previous_params:dict) -> dict:
     """
     gets C terminus params
@@ -382,6 +381,7 @@ def get_C_terminus_params(params: dict, previous_params:dict) -> dict:
     out_params.update(mod_params)
 
     return out_params
+
 
 def get_kwargs_from_symbols(symbols: list, termini_present: list = ["N", "C"]) -> tuple:
     """

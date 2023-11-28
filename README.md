@@ -29,3 +29,13 @@ C-18 fatty di-acid chain.
 Naming more atoms in residues SMARTS.
 
 Add more fixtures.
+## Documentation
+
+to generate documentation
+
+cd docs
+
+make html
+
+documentation in HTML format will be available in docs/build/html/index.html
+

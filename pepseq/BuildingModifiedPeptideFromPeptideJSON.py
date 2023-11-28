@@ -14,6 +14,30 @@ from pepseq.Peptide.utils.Parser import (find_termini, get_canonical,
 
 def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
                     res2_id: int, atom_name_2: str) -> nx.classes.graph.Graph:
+    """
+
+    Add internal bonds within peptide molecule from values defined in peptide JSON.
+
+    :param G: Modified Peptide molecule as networkx nx.classes.graph.Graph
+    :type G: nx.classes.graph.Graph
+
+    :param res1_id: Index of first amino acid residue involved in bonding
+    :type int
+
+    :param atom_name_1: Name of atom in first amino acid residue involved in bonding
+    :type str
+
+    :param res2_id: Index of second amino acid residue involved in bonding
+    :type int
+
+    :param atom_name_2: Name of atom in second amino acid residue involved in bonding
+    :type str
+    
+    :return: peptide molecule - Modified Peptide molecule as networkx nx.classes.graph.Graph
+    :rtype: nx.classes.graph.Graph
+    
+    """
+    
     Cys1_SG = [
         n
         for n, v in G.nodes(data=True)
@@ -29,10 +53,41 @@ def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
 
 
 def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) -> nx.classes.graph.Graph:
+    """
+
+    Add disulfide bond within peptide molecule from values defined in peptide JSON.
+    Atom Name values are set to 'SG'
+
+    :param G: Modified Peptide molecule as networkx nx.classes.graph.Graph
+    :type G: nx.classes.graph.Graph
+
+    :param res1_id: Index of first amino acid residue involved in bonding
+    :type int
+
+    :param res2_id: Index of second amino acid residue involved in bonding
+    :type int
+
+    :return: peptide molecule - Modified Peptide molecule as networkx nx.classes.graph.Graph
+    :rtype: nx.classes.graph.Graph
+    
+    """
+
     return add_internal_bond(G, res1_id, "SG", res2_id, "SG")
 
 
 def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
+    """
+
+    :param staple_graph: molecular graph representing molecular staple
+    :type nx.classes.graph.Graph
+
+    :return: tuple composed of staple_graph (molecular graph nx.classes.graph.Graph representing
+     molecular staple with dummy Atoms removed) and dictionary representing atoms on staple that connect 
+    to amino acid chain
+
+    :rtype: nx.classes.graph.Graph
+
+    """
     dummyAtoms = [
         n for n, v in staple_graph.nodes(data=True) if v.get("atomic_num") == 0
     ]
@@ -49,6 +104,8 @@ def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
 
 
 def find_atom(G: nx.classes.graph.Graph, ResID, AtomName: str) -> str:
+    """
+    """
     ResIDs = nx.get_node_attributes(G, "ResID")
     AtomNames = nx.get_node_attributes(G, "AtomName")
     SGs = [i for i in AtomNames if AtomNames[i] == AtomName]

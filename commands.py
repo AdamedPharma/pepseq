@@ -46,8 +46,12 @@ from pepseq.BuildPeptideJSONFromSMILES import \
     from_smiles_to_pepseq_and_one_mod_smiles_strings
 from augmenting_db_json import augment_db_json
 
+import os
 
-db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
+#db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
+
+dir_path = os.path.dirname(__file__)
+db_path = os.path.join(dir_path, "pepseq/Peptide/database/db.json")
 with open(db_path) as fp:
     db_json = json.load(fp)
 
@@ -62,7 +66,18 @@ def pepseq_to_smiles(
     db_path: str = None
 ) -> str:
     """
-    Input Sequence in Pepseq format and generate molecule SMILES code.
+    Return SMILES code for Modified Peptide given by text in Pepseq Format.
+
+    :param pepseq: string in pepseq format.
+    :type pepseq: str or None
+    :param out: output path.
+    :type out: str or None
+    :param db_path: Optional db path.
+    :type db_path: str or None
+
+    :return: SMILES code.
+    :rtype: str
+
     Example Pepseq Format Sequence:
 
     "[CSPS[1*]]~Y{aMeAla}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[1*]]"
@@ -71,9 +86,10 @@ def pepseq_to_smiles(
 
     python3.10 commands.py pepseq-to-smiles  "[CSPS[1*]]~Y{aMeAla}QGT{Orn}FTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[1*]]"  --db-path augmented_db.json --out out.smi
     """
-    if db_path is not None:
-        with open(db_path) as fp:
-            db_json = json.load(fp)
+    if db_path is None:
+        db_path = os.path.join(dir_path, "pepseq/Peptide/database/db.json")
+    with open(db_path) as fp:
+        db_json = json.load(fp)
 
     peptide = from_pepseq(pepseq, db_json=db_json)
     if out is not None:
@@ -90,16 +106,30 @@ def calculate_json_from(
     mod_smiles: Annotated[Optional[List[str]], typer.Option(default=None)] = None,
     out: str = None,
     db_path: str = None
-    ):
+    ) -> dict:
     """
 
     Calculate peptide json from sequence and list of modification SMILES
 
-    Example:
+    :param sequence: string in pepseq format.
+    :type sequence: str or None
+    :param mod_smiles: string list of SMILES codes.
+    :type mod_smiles: list[str] or None
 
-    python3.10 commands.py calculate-json-from
-       '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF'
-         --mod-smiles '[1*]CNCC[2*]' --mod-smiles '[3*]CNCCSP'
+    :param out: output path.
+    :type out: str or None
+    :param db_path: Optional db path.
+    :type db_path: str or None
+
+    :return: SMILES code.
+    :rtype: dict
+
+
+    Example:
+    import pepseq
+    pepseq.commands.calculate_json_from
+    '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF'
+    --mod-smiles '[1*]CNCC[2*]' --mod-smiles '[3*]CNCCSP'
 
     """
     kwargs = {}
@@ -125,17 +155,36 @@ def read_smiles(
         smiles_filename: str,
         out: str = 'out',
         db_path: str = db_path,
-        v: bool = False
-        ):
+        v: bool = False,
+    ) -> list:
     """
-    Input SMILES filepath 
 
+    Calculate sequence(s) in Pepseq Format and  list of modification SMILES from
+      Modified Peptide structure given in SMILES.
+    Output results into files
+
+    :param smiles_filename: string in pepseq format.
+    :type smiles_filename: str or None
+    :param mod_smiles: string list of SMILES codes.
+    :type mod_smiles: list[str] or None
+
+    :param out: output path.
+    :type out: str or None
+    :param db_path: Optional db path.
+    :type db_path: str or None
+    :param v: bool switch regulating verbosity.
+    :type v: bool or None
+    
+    :return: result_list list of results given as list of sequences in Pepseq Format.
+    and list of modification SMILES
+    :rtype: list
+    
+    Input SMILES filepath 
 
     python3.10 commands.py read-smiles 'stuff_in.smi'   --db-path augmented_db.json --out stuff
 
     python3.10 commands.py read-smiles 'smilesy.smi' --out smilesy_out
     
-    ls 
     """
     with open(smiles_filename) as fp:
         s = fp.read()
@@ -183,31 +232,31 @@ def read_smiles(
         fp.write(mod_smiles_list_str)
         fp.flush()
 
-    return
+    return [out_mod_smiles, mod_smiles_list]
 
 
 @app.command()
 def augment_db_json_command(sdf_path='sdf_file.sdf',
-                            out='db_json_augmented.json'):
+                            out='db_json_augmented.json'
+                            ) -> dict:
     """
-
-    Input:
-        sdf_path: path for SDF file containing info on (Modified) Peptide 
-        building blocks
-    
-    Output:
-        out: path for db.json dictionary containing databse unriched with
-          (Modified) Peptide building blocks declared in SDF file
-    
-    Action:
-        SDF file is read by rdkit. Molecules contained in SDF file are processed
+    SDF file is read by rdkit. Molecules contained in SDF file are processed
         default exit atom (atom to attach modifications unless
         specified otherwise) is computed by set_default_exit_atom_function
         from this CXSMILES and CXSMARTS are created together with SMILES code
         depicting basic molecule (without radicals attached).
 
-        Modified Database JSON is written to output file
+    :param sdf_path: path for SDF format file containing new monomers to be
+        inserted into database.
+    :type sdf_path: str or None
 
+    :param out: output path for db_json copy with monomers and modifications
+        added from SFD file.
+    :type out: str or None
+    
+    :return: db_json database copy with augmented by monomers from SDF file.
+    :rtype: dict
+    
     """
 
     df_sdf = rdkit.Chem.PandasTools.LoadSDF(sdf_path)
@@ -217,7 +266,7 @@ def augment_db_json_command(sdf_path='sdf_file.sdf',
     with open(out, 'w') as fp:
         json.dump(db_json_augmented, fp)
 
-    return
+    return db_json
 
 
 if __name__ == "__main__":
