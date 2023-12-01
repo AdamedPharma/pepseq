@@ -3,7 +3,7 @@ This module aims to contains only pure parsing functions
 This means it shall have no dependencies on other modules of the library
 
 """
-from typing import Dict
+from typing import Union, List, Dict
 from pepseq.Peptide.exceptions import AttachmentPointsNonUniqueError
 
 
@@ -40,7 +40,7 @@ def get_attachment_point_json(res_id: int, decomposition: tuple, default_exit_at
     return att_point_json
 
 
-def decompose_symbol(symbol: str) -> tuple | str:
+def decompose_symbol(symbol: str) -> Union[tuple, str]:
     """
     If symbol is composed e.g. Cys(R1), decompose it into (Cys, '1')
 
