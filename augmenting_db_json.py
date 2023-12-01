@@ -26,6 +26,9 @@ The module contains the following functions:
 """
 
 import copy
+
+from typing import Union
+
 from tqdm import tqdm
 import rdkit
 import networkx as nx
@@ -203,7 +206,7 @@ def get_row_jsons(new_monomers_dataframe: pd.DataFrame, colname='m_abbr', mol_co
     return new_monomers_db_json
 
 
-def augment_db_json(db_json: dict, df_sdf: pd.DataFrame = None, name_column = 'm_abbr', mol_colname='ROMol'):
+def augment_db_json(db_json: dict, df_sdf: pd.DataFrame = None, name_column = 'm_abbr', mol_colname='ROMol') -> dict:
     """
     Insert new monomers to monomers database through pandas DataFrame
 
@@ -269,7 +272,7 @@ def replace_atom(mol: rdkit.Chem.rdchem.Mol, atom_id: int, atom_smarts: str) -> 
     return mol_new_smarts
 
 
-def N_term_mod_smarts(smarts: str) -> str| None:
+def N_term_mod_smarts(smarts: str) -> Union[str, None]:
     """
     Process amino acid SMARTS pattern code to match amino acid also after
     N terminal modification. We utilize the fact that N terminal N atom
