@@ -4,8 +4,9 @@ from typing import Dict
 
 import rdkit
 
-from pepseq.Peptide.exceptions import AttachmentPointsNonUniqueError
+from pepseq.Peptide.utils.pure_parsing_functions import get_attachment_points_on_sequence_json, get_base_seq
 from pepseq.Peptide.utils.Parser import find_termini, parse_canonical2
+
 
 absolute_path = os.path.dirname(__file__)
 relative_db_path = "Peptide/database/db.json"
@@ -15,87 +16,30 @@ with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 
-def get_attachment_point_json(res_id: int, decomposition: tuple) -> Dict:
-    ResName, attachment_point_id = decomposition
-    d_atom_name = {"Cys": "SG", "Lys": "NZ", "Ala": "CB", "Gly": "CA", "ala": "CB"}
-
-    if ResName in d_atom_name:
-        AtomName = d_atom_name[ResName]
-    else:
-        AtomName = ""
-
-    att_point_json = {
-        "attachment_point_id": attachment_point_id,
-        "ResID": str(res_id + 1),
-        "AtomName": AtomName,
-        "ResidueName": ResName,
-    }
-    return att_point_json
-
-
-def decompose_symbol(s: str) -> str:
-    if ("(" in s) and (")" in s):
-        inside_bracket = s.split("(")[1].split(")")[0]
-        before_bracket = s.split("(")[0]
-        if "R" in inside_bracket:
-            R_id = inside_bracket[1:]
-            return before_bracket, R_id
-    return s
-
-
-def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
-    """ """
-    att_points = {}
-
-    for res_id in range(len(symbols)):
-        symbol = symbols[res_id]
-        decomposition = decompose_symbol(symbol)
-        if type(decomposition) == tuple:
-            res_name, attachment_point_id = decomposition
-            attachment_point_json = get_attachment_point_json(res_id, decomposition)
-            att_point_id = int(attachment_point_id)
-            if att_points.get(att_point_id) is not None:
-                raise AttachmentPointsNonUniqueError(
-                    "Attachment Points labels on sequence are not unique."
-                )
-
-            att_points[att_point_id] = attachment_point_json
-    return att_points
-
-
-def get_base_seq(symbols: list) -> str:
-    three_to_one = {"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"}
-
-    base_seq = ""
-
-    for res_id in range(len(symbols)):
-        symbol = symbols[res_id]
-        decomposition = decompose_symbol(symbol)
-        if type(decomposition) == tuple:
-            res_name, attachment_point_id = decomposition
-            if res_name in three_to_one:
-                res_name = three_to_one[res_name]
-            symbol = res_name
-
-        if len(symbol) > 1:
-            symbol = "{%s}" % (symbol)
-        base_seq = base_seq + symbol
-    return base_seq
-
-
 def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles: str) -> Dict:
+    """
+    :param attachment_points_on_sequence - 
+    :type  attachment_points_on_sequence: Dict
+
+    :param mod_smiles: SMILES code for External Modification
+
+    """
     mod_mol = rdkit.Chem.MolFromSmiles(mod_smiles)
     mod_atoms = mod_mol.GetAtoms()
 
-    radical_ids = set(
-        [atom.GetIsotope() for atom in mod_atoms if (atom.GetAtomicNum() == 0)]
-    )
+    radical_dummy_atoms = [atom for atom in mod_mol.GetAtoms() if (atom.GetAtomicNum() == 0)]
+    #in rdkit dummy Atoms are identified by AtomicNum = 0
+
+    radical_ids_str = set([atom.GetIsotope() for atom in radical_dummy_atoms])
+    
+
     min_att_points = {
         radical_id: attachment_points_on_sequence[radical_id]
-        for radical_id in radical_ids
+        for radical_id in radical_ids_str
     }
 
     max_attachment_point_id = max([int(i) for i in min_att_points.keys()])
+
 
     ext_mod = {
         "smiles": mod_smiles,
@@ -105,17 +49,78 @@ def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles
     return ext_mod
 
 
-def get_ext_mod_json(pepseq: str, smiles: list) -> list:
-    symbols = parse_canonical2(pepseq)
+def get_ext_mod_json(symbols: list[str], smiles: list) -> list:
+    """
+    Get the JSON representation of external modifications based on symbols and SMILES.
+
+    Args:
+        symbols (list[str]): List of symbols representing attachment points on the sequence.
+        smiles (list): List of SMILES strings representing the modifications.
+
+    Returns:
+        list: List of JSON representations of external modifications.
+    """
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
+    ext_mod_jsons = []
+
     if attachment_points_on_sequence.keys():
-        ext_mod_jsons = []
         for mod_smiles in smiles:
             ext_mod_json = get_single_modification_json(
                 attachment_points_on_sequence, mod_smiles
             )
             ext_mod_jsons.append(ext_mod_json)
     return ext_mod_jsons
+
+
+def get_smiles_json(symbols: str, mod_smiles_list: list[str]):
+    """
+    Retrieves the JSON representation of modified peptides based on their SMILES representation.
+
+    Args:
+        mod_smiles_list (list[str]): A list of SMILES representations of modified peptides.
+
+    Returns:
+        list: A list of JSON objects representing the modified peptides. If no modified peptides are found, an empty list is returned.
+    """
+    if mod_smiles_list is not None:
+        ext_mod = get_ext_mod_json(symbols, mod_smiles_list)
+        if ext_mod is not None:
+            return ext_mod
+        else:
+            return []
+    else:
+        return []
+
+
+def get_pepseq_json(pepseq_format: str, db_json: Dict = db_json):
+    """
+    Convert a peptide sequence in pepseq format to a JSON representation.
+
+    Args:
+        pepseq_format (str): The peptide sequence in pepseq format.
+        db_json (Dict, optional): The database JSON containing the mapping of symbols to amino acids. Defaults to db_json.
+
+    Returns:
+        dict: A JSON representation of the peptide sequence.
+
+    """
+    N_terminus, C_terminus, pepseq = find_termini(pepseq_format, db_json)
+    symbols = parse_canonical2(pepseq)
+    base_seq = get_base_seq(symbols)
+
+    all_symbols = [N_terminus] + symbols + [C_terminus]
+
+    pep_json = {
+        "length": len(symbols),
+        "sequence": base_seq,
+        "internal_modifications": [],
+        "C_terminus": C_terminus,
+        "N_terminus": N_terminus,
+        "pepseq_format": pepseq_format,
+        "symbols": all_symbols,
+    }
+
+    return pep_json
 
 
 def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None) -> Dict:
@@ -156,29 +161,8 @@ def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: l
 
     """
 
-    N_terminus, C_terminus, pepseq = find_termini(pepseq_format, db_json)
-    symbols = parse_canonical2(pepseq)
-    base_seq = get_base_seq(symbols)
-
-    all_symbols = [N_terminus] + symbols + [C_terminus]
-
-    pep_json = {
-        "length": len(symbols),
-        "sequence": base_seq,
-        "internal_modifications": [],
-        "C_terminus": C_terminus,
-        "N_terminus": N_terminus,
-        "pepseq_format": pepseq_format,
-        "symbols": all_symbols,
-    }
-
-    if mod_smiles_list is not None:
-        ext_mod = get_ext_mod_json(pepseq, mod_smiles_list)
-        if ext_mod is not None:
-            pep_json["external_modifications"] = ext_mod
-        else:
-            pep_json["external_modifications"] = []
-    else:
-        pep_json["external_modifications"] = []
-
+    pep_json = get_pepseq_json(pepseq_format, db_json)
+    pep_json["external_modifications"] = get_smiles_json(pep_json['symbols'][1:-1], mod_smiles_list)
     return pep_json
+
+

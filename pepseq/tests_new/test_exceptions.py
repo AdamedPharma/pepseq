@@ -1,16 +1,29 @@
 import unittest
 from contextlib import contextmanager
 
-from pepseq.functions import calculate, validate_pepseq
+from pepseq.functions import calculate, validate#_pepseq
 from pepseq.Peptide.exceptions import (AttachmentPointsMismatchError,
                                        AttachmentPointsNonUniqueError,
                                        ExcessTildeError, InvalidSmilesError,
                                        InvalidSymbolError, NestedBracketError,
                                        ParenthesesError, UnattachedSmilesError)
+
+from pepseq.Peptide.utils.pepseq_validation import (
+    check_for_nested_brackets, check_parentheses, validate_termini,
+    validate_pepseq,
+)
+
+
+from pepseq.Peptide.utils.smiles_validation import (
+    validate_attachment_points_on_smiles,
+    validate_smiles_codes,    
+)
+
 from pepseq.Peptide.utils.validation import (
-    check_for_nested_brackets, check_parentheses,
-    validate_attachment_points_on_smiles, validate_matching_attachment_points,
-    validate_smiles_codes, validate_termini)
+     validate_matching_attachment_points,)
+
+
+
 
 correct_pepseqs = ['ACDEF', 'H~ACDEF', 'H~ACDEF~OH', 'ACDEF~OH',
                            'ACDEFG', 'ACGDEF', ]
@@ -48,7 +61,7 @@ class TestExceptions(unittest.TestCase):
     def test_invalid_symbol(self):
         with self.assertRaises(InvalidSymbolError) as cm:
             calculate('CSCU')
-        self.assertEqual(str(cm.exception), 'Residue Symbol: U not found in database.')
+        self.assertEqual(str(cm.exception), 'Residue Symbols: U not found in database.')
 
         return
 
@@ -97,7 +110,7 @@ class TestExceptions(unittest.TestCase):
                              'Attachment Points on Sequence: {1} do not Match Attachment Points on Smiles: {2}')
 
             with self.assertRaises(AttachmentPointsMismatchError):
-                calculate(pepseq, smiles)
+                validate(pepseq, smiles)
 
     def test_validate_unique_attachment_points(self):
 
@@ -114,7 +127,7 @@ class TestExceptions(unittest.TestCase):
             with self.assertRaises(AttachmentPointsNonUniqueError):
                 validate_matching_attachment_points(pepseq, smiles)
             with self.assertRaises(AttachmentPointsNonUniqueError):
-                calculate(pepseq, smiles)
+                validate(pepseq, smiles)
         return
 
     def test_excess_tilde_error(self):
@@ -155,6 +168,7 @@ class TestExceptions(unittest.TestCase):
         for incorrect_pepseq in incorrect_pepseqs:
             with self.assertRaises(ParenthesesError):
                 validate_pepseq(incorrect_pepseq)
+        
 
         for correct_pepseq in correct_pepseqs:
             with self.assertNotRaises(ExcessTildeError):
@@ -167,15 +181,15 @@ class TestExceptions(unittest.TestCase):
 
     def test_calculate(self):
         with self.assertRaises(ExcessTildeError):
-            calculate('H~CS~OH~OH')
+            validate('H~CS~OH~OH')
 
         with self.assertRaises(NestedBracketError):
-            calculate('AC{{Cys(R1)}}DEF')
+            validate('AC{{Cys(R1)}}DEF')
 
         incorrect_pepseqs = ['AC{DEF', 'ACD}EF']
         for incorrect_pepseq in incorrect_pepseqs:
             with self.assertRaises(ParenthesesError):
-                calculate(incorrect_pepseq)
+                validate(incorrect_pepseq)
 
         for correct_pepseq in correct_pepseqs:
             with self.assertNotRaises(ExcessTildeError):
@@ -195,12 +209,12 @@ class TestExceptions(unittest.TestCase):
         incorrect_pairs = [('ACDE{Cys(R1)}F', ['C[1*]CCCC@%F']), ('AC{Cys(R1)}DEF', ['[1*]CSCC@%FC'])]
         for pepseq, smiles in incorrect_pairs:
             with self.assertRaises(InvalidSmilesError):
-                calculate(pepseq, smiles)
+                validate(pepseq, smiles)
 
         unattached_pairs = [('ACDE{Cys(R1)}F', ['CCC']), ('ACDE{Cys(R1)}FI', ['CSC']),]
 
         for pepseq, smiles in unattached_pairs:
             with self.assertRaises(UnattachedSmilesError):
-                calculate(pepseq, smiles)
+                validate(pepseq, smiles)
 
         return

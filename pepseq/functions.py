@@ -1,14 +1,15 @@
 import json
 import os
 
+from typing import Union, List
+
+import pepseq.Peptide.utils.validation as validation
+
 from pepseq.BuildPeptideJSONFromSMILES import \
     from_smiles_to_pepseq_and_mod_smiles_strings
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
-from pepseq.Peptide.utils.validation import (
-    check_for_nested_brackets, check_parentheses,
-    validate_attachment_points_on_smiles, validate_matching_attachment_points,
-    validate_smiles_codes, validate_termini)
 from pepseq.read import from_json
+
 
 absolute_path = os.path.dirname(__file__)
 relative_db_path = "Peptide/database/db.json"
@@ -18,14 +19,13 @@ with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 
-def validate_pepseq(pepseq: str):
-    validate_termini(pepseq)
-    check_parentheses(pepseq)
-    check_for_nested_brackets(pepseq)
-
-
 def calculate_pepseq_and_mods(smiles: str) -> dict:
     return from_smiles_to_pepseq_and_mod_smiles_strings(smiles, db_json)
+
+
+def validate (pepseq: str, smiles: List[str] = [], db: dict = db_json):
+    validation.validate(pepseq=pepseq, smiles=smiles)
+
 
 
 def calculate(pepseq: str, smiles: list[str] = [], db: dict = None) -> dict:
@@ -34,10 +34,6 @@ def calculate(pepseq: str, smiles: list[str] = [], db: dict = None) -> dict:
     if db is None:
         db = db_json
 
-    validate_pepseq(pepseq)
-    validate_smiles_codes(smiles)
-    validate_attachment_points_on_smiles(smiles)
-    validate_matching_attachment_points(pepseq, smiles)
     peptide_json = get_pep_json(pepseq, db, smiles)
     peptide = from_json(peptide_json, db)
     complete_smiles = peptide.complete_smiles

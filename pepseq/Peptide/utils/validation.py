@@ -1,46 +1,45 @@
-from typing import Union
+from typing import Union, List
 
+import os, json
 import rdkit
+
+from pathlib import Path
+
+
 from pepseq.get_peptide_json_from_pepseq_format import (
     get_attachment_points_on_sequence_json, get_pep_json)
+from pepseq.Peptide.utils.pepseq_validation import validate_pepseq
+from pepseq.Peptide.utils.smiles_validation import validate_smiles_codes
+
 from pepseq.Peptide.exceptions import (AttachmentPointsMismatchError,
                                        AttachmentPointsNonUniqueError,
                                        ExcessTildeError, InvalidSmilesError,
                                        NestedBracketError, ParenthesesError,
-                                       UnattachedSmilesError, ValidationError)
+                                       UnattachedSmilesError, ValidationError,
+                                       InvalidSymbolError)
 
 
-def has_attachment_point(smiles: str) -> bool:
-    mol = rdkit.Chem.MolFromSmiles(smiles)
-    for atom in mol.GetAtoms():
-        if (atom.GetAtomicNum() == 0):
-            return True
-    return False
+
+absolute_path = Path(__file__).parent.parent.parent
+relative_db_path = "Peptide/database/db.json"
+full_db_path = os.path.join(absolute_path, relative_db_path)
+
+with open(full_db_path) as fp:
+    db_json = json.load(fp)
 
 
-def validate_attachment_points_on_smiles(smiles_codes: list[str]):
-    invalid_ids = []
-    if smiles_codes is not None:
-        for i in range(len(smiles_codes)):
-            smiles_code = smiles_codes[i]
-            if not has_attachment_point(smiles_code):
-                invalid_ids.append(i+1)
-    if invalid_ids:
-        ErrorMessage = '\n'.join(['SMILES code no %d has no attachment point to Peptide' %invalid_id for invalid_id in invalid_ids])
-        raise UnattachedSmilesError(ErrorMessage)
-
-
-def validate_smiles_codes(smiles_codes: Union[list[str], None] = None):
-    if smiles_codes is not None:
-        for i in range(len(smiles_codes)):
-            smiles_code = smiles_codes[i]
-            result = rdkit.Chem.MolFromSmiles(smiles_code)
-            if result is None:
-                raise InvalidSmilesError(
-                    'SMILES code no %d was invalid. Could not construct molecule from SMILES code' % (i+1))
 
 
 def get_attachment_points_on_smiles(smiles_code: str) -> list:
+    """
+    Retrieves the attachment points on a SMILES code.
+
+    Args:
+        smiles_code (str): The SMILES code.
+
+    Returns:
+        list: A list of attachment point IDs.
+    """
     attachment_points_ids = []
     mol = rdkit.Chem.MolFromSmiles(smiles_code)
     for atom in mol.GetAtoms():
@@ -52,6 +51,18 @@ def get_attachment_points_on_smiles(smiles_code: str) -> list:
 
 
 def get_attachment_points_on_smiles_codes(smiles_codes: Union[list, None] = None) -> set:
+    """
+    Retrieves the attachment points on SMILES codes.
+
+    Args:
+        smiles_codes (Union[list, None], optional): List of SMILES codes. Defaults to None.
+
+    Returns:
+        set: Set of attachment point IDs.
+
+    Raises:
+        AttachmentPointsNonUniqueError: If attachment point labels on SMILES are not unique.
+    """
     attachment_points_ids = []
     if smiles_codes is not None:
         for smiles_code in smiles_codes:
@@ -65,49 +76,49 @@ def get_attachment_points_on_smiles_codes(smiles_codes: Union[list, None] = None
 
 
 def validate_matching_attachment_points(pepseq: str, smiles_codes: list):
+    """
+    Validates if the attachment points on a peptide sequence match the attachment points on SMILES codes.
+
+    Args:
+        pepseq (str): The peptide sequence.
+        smiles_codes (list): List of SMILES codes.
+
+    Raises:
+        AttachmentPointsMismatchError: If the attachment points on the sequence do not match the attachment points on the SMILES codes.
+    
+    TO BE IMPROVED: the sequence needs to be parsed into residue symbols in order to validate the symbols agreement with SMILES codes;
+    this forces us to make multiple calls to get_pep_json function just in order to validate;
+    In general some features can be validated only after extracting them
+
+    """
     symbols = get_pep_json(pepseq)['symbols']
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
     attachment_point_ids_on_sequence = set(attachment_points_on_sequence.keys())
     attachment_point_ids_on_smiles = get_attachment_points_on_smiles_codes(smiles_codes)
+    print(
+        attachment_point_ids_on_smiles, attachment_point_ids_on_sequence,
+        attachment_point_ids_on_smiles == attachment_point_ids_on_sequence )
     if (attachment_point_ids_on_sequence != attachment_point_ids_on_smiles):
         raise AttachmentPointsMismatchError(
             'Attachment Points on Sequence: %s do not Match Attachment Points on Smiles: %s' % (
                 str(attachment_point_ids_on_sequence), str(attachment_point_ids_on_smiles)))
 
 
-def validate_termini(s: str) -> bool:
-    tilde_num = s.count("~")
-    if tilde_num in [0, 1, 2]:
-        return True
-    elif tilde_num > 2:
-        raise ExcessTildeError
+def validate (pepseq: str, smiles: List[str] = [], db: dict = db_json):
+    """
+    Validate the system of smiles and pepseq (however it might be problematic I guess because we wanted to separate validating sequence in pepseq format from validating SMILES and then validate them together
 
+    :param pepseq – obligatory parameter pepseq in form like 
+        CSCACGCK or {CH3}-CSCACGCK-{NH2} or CS{Cys(R1)}GACG~NH2
 
-def check_parentheses(s):
-    """Return True if the parentheses in string s match, otherwise False."""
-    j = 0
-    for c in s:
-        if c == "}":
-            j -= 1
-            if j < 0:
-                raise ParenthesesError("Brackets do not match")
-        elif c == "{":
-            j += 1
-    if j != 0:
-        raise ParenthesesError("Brackets do not match")
+    :type pepseq: str
 
+    :param smiles – list of smiles codes that can be empty or full; can 
 
-def check_for_nested_brackets(s):
-    open_bracket = False
-
-    for c in s:
-        if c == "{":
-            if open_bracket:
-                raise NestedBracketError("Found Nested '{','}' brackets.")
-            else:
-                open_bracket = True
-        elif c == "}":
-            if open_bracket:
-                open_bracket = False
-            else:
-                raise ValidationError("Misplaced '}' Brackets")
+    :type    smiles: List[str]
+     
+    """
+    validate_pepseq(pepseq, db) # we need to parse pepseq first
+    validate_smiles_codes(smiles)
+    validate_matching_attachment_points(pepseq, smiles)
+    return

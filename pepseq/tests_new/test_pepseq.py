@@ -16,6 +16,8 @@ from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.read import from_json, from_pepseq
 import pepseq.Peptide.utils.Parser
 from augmenting_db_json import augment_db_json
+from pepseq.Peptide.utils.pure_parsing_functions import decompose_symbol, get_attachment_point_json, \
+     get_attachment_points_on_sequence_json
 
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
@@ -181,6 +183,7 @@ def test_calculate(data_calculate):
 def test_from_pepseq_and_one_mod_smiles_strings_to_peptide_json():
 
     peptide_json = get_pep_json(fixture_pepseq, db_json, [one_mod_smiles])
+    print(peptide_json)
 
     assert peptide_json == correct_peptide_json
     return
@@ -250,8 +253,8 @@ def test_get_base_seq():
 
 
 def test_decompose_symbol():
-    assert pepseq.get_peptide_json_from_pepseq_format.decompose_symbol('Cys(R1)') == ('Cys', '1')
-    assert pepseq.get_peptide_json_from_pepseq_format.decompose_symbol('A') == 'A'
+    assert decompose_symbol('Cys(R1)') == ('Cys', '1')
+    assert decompose_symbol('A') == 'A'
 
 
 
@@ -263,13 +266,17 @@ ext_mod_json = [ single_modification_json ]
 
 
 def test_get_ext_mod_json():
+    ext_mod_json_created = pepseq.get_peptide_json_from_pepseq_format.get_ext_mod_json(
+    base_seq_fixture, mod_smiles_list)
+    print(ext_mod_json_created)
+    assert ext_mod_json_created == ext_mod_json
 
-    assert pepseq.get_peptide_json_from_pepseq_format.get_ext_mod_json(
-    pepseq_value, mod_smiles_list) == ext_mod_json
 
 
 def test_get_attachment_points_on_sequence_json():
-    assert pepseq.get_peptide_json_from_pepseq_format.get_attachment_points_on_sequence_json(base_seq_fixture) == attachment_points_on_sequence
+    att_points = get_attachment_points_on_sequence_json(base_seq_fixture)
+    print(att_points)
+    assert att_points == attachment_points_on_sequence
 
 
 def test_get_single_modification_json():
@@ -281,9 +288,9 @@ def test_get_single_modification_json():
 
 def test_get_attachment_point_json():
     decomposition = ('Cys', '1')
-    res_id = 0
-    assert pepseq.get_peptide_json_from_pepseq_format.get_attachment_point_json(res_id, decomposition
-                                                            ) == attachment_points_on_sequence.get(1)
+    res_id = 1
+    assert get_attachment_point_json(res_id, decomposition
+        ) == attachment_points_on_sequence.get(1)
 
 
 def test_augmenting_db_json():

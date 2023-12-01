@@ -105,11 +105,22 @@ def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
 
 def find_atom(G: nx.classes.graph.Graph, ResID, AtomName: str) -> str:
     """
+    :param G: molecular graph
+    :type  G: nx.classes.graph.Graph
+
+    :param ResID: id of residue
+    :type  ResID: int
+
+    :param AtomName: name of atom
+    :type  AtomName: str
+
+    :return 
+
     """
     ResIDs = nx.get_node_attributes(G, "ResID")
     AtomNames = nx.get_node_attributes(G, "AtomName")
-    SGs = [i for i in AtomNames if AtomNames[i] == AtomName]
-    point_list = [SG for SG in SGs if ResIDs[SG] == ResID]
+    atoms_with_right_name = [i for i in AtomNames if AtomNames[i] == AtomName]
+    point_list = [atom_id for atom_id in atoms_with_right_name if ResIDs[atom_id] == ResID]
     return point_list.pop()
 
 
@@ -154,71 +165,92 @@ def get_peptide_json_from_sequence(sequence: str, db_json: dict) -> dict:
     return peptide_json
 
 
-def get_residue_symbols_from_sequence(
-    sequence: str, db_json: dict, N_terminus: Union[str, None] = None, C_terminus: Union[str, None] = None
-) -> list:
-    canonical_sequence = get_canonical(sequence, db_json)
-    symbols_list_w_termini = parse_canonical(canonical_sequence)
-    if N_terminus is None:
-        N_terminus = symbols_list_w_termini[0]
-    if C_terminus is None:
-        C_terminus = symbols_list_w_termini[-1]
-    residue_symbols = symbols_list_w_termini[1:-1]
-    return residue_symbols
+class Sequence(object):
 
-
-def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
-                            C_terminus=None) -> rdkit.Chem.rdchem.Mol:
-    try:
-        canonical_sequence = get_canonical(sequence, db_json)
+    def __init__(self, sequence: str, N_terminus: Union[str, None] = None, C_terminus: Union[str, None] = None):
+        self.sequence = sequence
+        self.N_terminus = N_terminus
+        self.C_terminus = C_terminus
+        return
+    
+    def extract_residue_symbols(self, db_json: dict):
+        canonical_sequence = get_canonical(self.sequence, db_json)
         symbols_list_w_termini = parse_canonical(canonical_sequence)
-        if N_terminus is None:
-            N_terminus = symbols_list_w_termini[0]
-        if C_terminus is None:
-            C_terminus = symbols_list_w_termini[-1]
+        if self.N_terminus is None:
+            self.N_terminus = symbols_list_w_termini[0]
+        if self.C_terminus is None:
+            self.C_terminus = symbols_list_w_termini[-1]
         residue_symbols = symbols_list_w_termini[1:-1]
-
-        if ('[' in N_terminus) and (']' in N_terminus):
-            N_terminus_smiles = N_terminus[1:-1]
+        if ('[' in self.N_terminus) and (']' in self.N_terminus):
+            N_terminus_smiles = self.N_terminus[1:-1]
         else:
             N_terminus_smiles = None
 
-        if ('[' in C_terminus) and (']' in C_terminus):
-            C_terminus_smiles = C_terminus[1:-1]
+        if ('[' in self.C_terminus) and (']' in self.C_terminus):
+            C_terminus_smiles = self.C_terminus[1:-1]
         else:
             C_terminus_smiles = None
+        if self.N_terminus == "H":
+            self.N_terminus = "proton"
 
-        keys = [
-            "l_proteogenic_3letter",
-            "d_proteogenic_3letter",
-            "d_proteogenic_2letter",
-            "d_proteogenic_4letter",
-            "modified_aa_codes",
-        ]
+        return residue_symbols, N_terminus_smiles, C_terminus_smiles
 
-        coding = db_json.get("coding").get("l_proteogenic_3letter")
-        for key in keys:
-            coding.update(db_json.get("coding").get(key))
+
+def get_coding(db_json: dict) -> dict:
+    keys = [
+        "l_proteogenic_3letter",
+        "d_proteogenic_3letter",
+        "d_proteogenic_2letter",
+        "d_proteogenic_4letter",
+        "modified_aa_codes",
+    ]
+
+    coding = db_json.get("coding").get("l_proteogenic_3letter")
+    for key in keys:
+        coding.update(db_json.get("coding").get(key))
+    return coding
+    
+
+def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
+                            C_terminus=None) -> rdkit.Chem.rdchem.Mol:
+    """
+
+    :param sequence
+
+    """
+    try:
+        sequence_object = Sequence(sequence, N_terminus, C_terminus)
+        residue_symbols, N_terminus_smiles, C_terminus_smiles = sequence_object.extract_residue_symbols(db_json)
+
+        coding = get_coding(db_json)
+        aa_smiles_dict = db_json["smiles"].get("aa")
+
+        unique_residue_symbols = set(residue_symbols)
+        unique_encoded_symbols = set(coding.keys())
+        unique_aa = set(aa_smiles_dict.keys())
+
+        db_symbols_404 = unique_residue_symbols - (unique_encoded_symbols|unique_aa)
+
+        if db_symbols_404:
+            raise InvalidSymbolError("Residue Symbols: %s not found in database." %', '.join(list(db_symbols_404)))
 
         for i in range(len(residue_symbols)):
             symbol = residue_symbols[i]
-            if db_json["smiles"]["aa"].get(symbol) is None:
+            if aa_smiles_dict.get(symbol) is None:
                 residue_symbols[i] = coding.get(symbol)
-                if residue_symbols[i] is None:
-                    raise InvalidSymbolError("Residue Symbol: %s not found in database." % symbol)
 
         smiles_building_blocks_db = {}
 
         for residue_symbol in residue_symbols:
-            residue_db_entry = db_json["smiles"]["aa"].get(residue_symbol)
+            residue_db_entry = aa_smiles_dict.get(residue_symbol)
             if residue_db_entry is None:
                 error_msg = "Residue Symbol: %s not found in database." % residue_symbol
                 raise InvalidSymbolError(error_msg)
 
             smiles_building_blocks_db[residue_symbol] = residue_db_entry["smiles_radical"]
 
-        if N_terminus == "H":
-            N_terminus = "proton"
+        N_terminus = sequence_object.N_terminus
+        C_terminus = sequence_object.C_terminus
 
         if N_terminus in db_json["smiles"]["n_terms"]:
             smiles_building_blocks_db[N_terminus] = db_json["smiles"]["n_terms"].get(
@@ -249,10 +281,11 @@ def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
     except InvalidSymbolError as exc:
         raise InvalidSymbolError(exc.msg)
 
+    """
     except Exception:
 
-        raise InvalidSequenceError("Invalid Sequence ")
-
+        raise InvalidSequenceError("Invalid Sequence %s" %(str(residue_symbols)))
+    """
     return mol_w_nc_terminus
 
 

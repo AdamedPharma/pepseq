@@ -428,6 +428,29 @@ def get_substructure_relations(mols: list[rdkit.Chem.rdchem.Mol]) -> list:
     return substructure_relations
 
 
+def order_graph_nodes_from_root_to_leaves(G: nx.DiGraph, aa_codes: list[str]):
+    """
+    :param G: directed graph of substructure relations
+    :type G:  nx.DiGraph
+
+    :param aa_codes: list of amino acid nodes names
+    :type  aa_codes: list: str
+
+    :return new_aa_order: list of ordered amino acids from smallest to biggest
+    :rtype: list
+
+    """
+    leaves = [x for x in G.nodes() if G.out_degree(x)==0]
+    leaves_to_root = []
+    while leaves:
+        leaves_to_root += leaves
+        for leaf in leaves: 
+            G.remove_node(leaf)
+        leaves = [x for x in G.nodes() if G.out_degree(x)==0]
+    leaves_to_root += leaves
+    root_to_leaves = reversed(leaves_to_root)
+    new_aa_order =  [aa_codes[i] for i in root_to_leaves]
+    return new_aa_order
 
 
 def order_aas(db_json: dict) -> list:
@@ -449,7 +472,6 @@ def order_aas(db_json: dict) -> list:
 
     :param db_json: database containing info on Modified Peptide monomers/building blocks
     :type  db_json: dict
-
         
     """
     aa_smiles = db_json.get('smiles').get('aa')
@@ -464,42 +486,23 @@ def order_aas(db_json: dict) -> list:
     G = nx.DiGraph()
     for substructure_relation in substructure_relations:
         G.add_edge(*substructure_relation)
-    leaves = [x for x in G.nodes() if G.out_degree(x)==0]
-    biggest = []
-    while leaves:
-        biggest += leaves
-        for leaf in leaves: 
-            G.remove_node(leaf)
-        leaves = [x for x in G.nodes() if G.out_degree(x)==0]
-    biggest += leaves
-    new_aa_order = list(reversed([aa_codes[i] for i in biggest]))
-    return new_aa_order
 
+    new_aa_order = order_graph_nodes_from_root_to_leaves(G, aa_codes)
 
-def order_graph_nodes_from_root_to_leaves(G: nx.DiGraph, aa_codes: list[str]):
-    """
-    :param G: directed graph of substructure relations
-    
-
-    """
-    leaves = [x for x in G.nodes() if G.out_degree(x)==0]
-    leaves_to_root = []
-    while leaves:
-        leaves_to_root += leaves
-        for leaf in leaves: 
-            G.remove_node(leaf)
-        leaves = [x for x in G.nodes() if G.out_degree(x)==0]
-    leaves_to_root += leaves
-    root_to_leaves = reversed(leaves_to_root)
-    new_aa_order =  [aa_codes[i] for i in root_to_leaves]
     return new_aa_order
 
 
 def remove_radicals(smarts: str) -> str:
     """
 
-    remove radical(s) from (CX)SMARTS code
-    
+    Remove radical(s) from (CX)SMARTS code
+
+    :param smarts: SMARTS code for amino acid
+    :type  smarts: str
+
+    :return: cx_smarts - CXSMARTS code for amino acid with removed radicals / dummyAtoms
+    :rtype: str
+        
     """
     m = rdkit.Chem.MolFromSmarts(smarts)
     atoms = list(m.GetAtoms())
@@ -509,7 +512,8 @@ def remove_radicals(smarts: str) -> str:
     mw = rdkit.Chem.RWMol(m)
     for atom_id in sorted(radicals)[::-1]:
         mw.RemoveAtom(atom_id)
-    return rdkit.Chem.MolToCXSmarts(mw)
+    cx_smarts = rdkit.Chem.MolToCXSmarts(mw)
+    return cx_smarts
 
 
 def remove_radicals_from_db_smarts(db_json: dict) -> dict:
@@ -517,11 +521,16 @@ def remove_radicals_from_db_smarts(db_json: dict) -> dict:
 
     SDF file SMARTS has radicals that might interfere with matching
     them as SMARTS substructure pattern. We need to remove them.
-        
+
+    :param db_json: database containing info on amino acids structures
+    :type  db_json: dict
+
+    :return db_json_updated: database where radicals have been removed from SMARTS codes
+    :rtype: dict
     """
-    db_json_copy = db_json.copy()
-    aa_smiles = db_json_copy['smiles']['aa']
+    db_json_updated = db_json.copy()
+    aa_smiles = db_json_updated['smiles']['aa']
     for aa_code in aa_smiles:
         new_smarts = remove_radicals( aa_smiles.get(aa_code).get('smarts') )
-        db_json_copy['smiles']['aa'][aa_code]['smarts'] = new_smarts
-    return db_json_copy
+        db_json_updated['smiles']['aa'][aa_code]['smarts'] = new_smarts
+    return db_json_updated
