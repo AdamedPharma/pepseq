@@ -17,7 +17,16 @@ with open(full_db_path) as fp:
 
 
 def from_pepseq(pepseq: str, db_json: Dict = db_json) -> Peptide:
-    """Read peptide from PepSeq string"""
+    """
+    Convert a pepseq string to a Peptide object. Read peptide from PepSeq string.
+
+    Args:
+        pepseq (str): The pepseq string to convert.
+        db_json (Dict, optional): The database JSON. Defaults to db_json.
+
+    Returns:
+        Peptide: The converted Peptide object.
+    """
     mod_smiles = None
     peptide_json = get_pep_json(pepseq, db_json, mod_smiles)
     smiles = get_smiles_from_peptide_json(peptide_json, db_json)
@@ -28,12 +37,33 @@ def from_pepseq(pepseq: str, db_json: Dict = db_json) -> Peptide:
 def from_pepseq_and_mod_smiles(
     pepseq: str, mod_smiles: str, db_json: Dict = db_json
 ) -> Peptide:
+    """
+    Create a Peptide object from a peptide sequence and modified smiles.
+
+    Args:
+        pepseq (str): The peptide sequence.
+        mod_smiles (str): The modified smiles.
+        db_json (Dict, optional): The database JSON. Defaults to db_json.
+
+    Returns:
+        Peptide: The created Peptide object.
+    """
     peptide_json = get_pep_json(pepseq, db_json, mod_smiles)
     peptide = from_json(peptide_json)
     return peptide
 
 
 def from_smiles(smiles: str, db_json: Dict = db_json) -> Peptide:
+    """
+    Convert a SMILES string into a Peptide object.
+
+    Args:
+        smiles (str): The SMILES string representing the peptide.
+        db_json (Dict, optional): The database JSON containing information about the peptide. Defaults to db_json.
+
+    Returns:
+        Peptide: The Peptide object representing the converted SMILES string.
+    """
     peptide_json = decompose_peptide_smiles(smiles, db_json)
     peptide = Peptide(smiles, peptide_json)
     return peptide

@@ -31,11 +31,7 @@ Naming more atoms in residues SMARTS.
 Add more fixtures.
 ## Documentation
 
-to generate documentation
+To generate documentation cd to main project folder and type: sphinx-build -M html docs/source/ docs/build/
 
-cd docs
-
-make html
-
-documentation in HTML format will be available in docs/build/html/index.html
+Documentation in HTML format will be available in docs/build/html/index.html
 

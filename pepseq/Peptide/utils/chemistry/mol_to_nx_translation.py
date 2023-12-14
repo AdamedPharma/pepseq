@@ -6,25 +6,39 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
+
 def get_edge_tuple(edge: tuple) -> tuple:
     """
-    returns info on graph edge (representing 
-    molecule bond) in particular on type
-    and whether the bond is a peptide
+    Returns a tuple containing information about an edge in a molecular graph.
+    (representing  molecule bond) in particular on type and whether the bond is a peptide
     backbone bond 
+
+
+    Args:
+        edge (tuple): A tuple representing an edge in the molecular graph.
+
+    Returns:
+        tuple: A tuple containing the bond type, whether it is a peptide bond,
+               the starting node of the bond, and the ending node of the bond.
     """
     bond_start, bond_end, data = edge
     bond_type = data.get('bond_type')
     if bond_type is not None:
         bond_type = int(bond_type)
     is_peptide_bond = data.get('is_peptide_bond')
-    return  bond_type, is_peptide_bond, bond_start, bond_end
+    return bond_type, is_peptide_bond, bond_start, bond_end
 
 
 def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
     """
-    transforms rdkit.Chem.rdchem.Mol molecule
-    into nx.classes.graph.Graph graph
+    Convert an RDKit molecule to a NetworkX graph.
+    transforms rdkit.Chem.rdchem.Mol molecule into nx.classes.graph.Graph graph
+
+    Args:
+        mol (rdkit.Chem.rdchem.Mol): The RDKit molecule to be converted.
+
+    Returns:
+        nx.classes.graph.Graph: The converted NetworkX graph.
     """
 
     G = nx.Graph()
@@ -73,10 +87,15 @@ def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
 
 def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
     """
-    transforms nx.classes.graph.Graph graph
-    into  rdkit.Chem.rdchem.Mol molecule
-    """
+    Convert a NetworkX graph representation of a molecule to an RDKit molecule.
 
+    Parameters:
+        G (nx.classes.graph.Graph): The NetworkX graph representing the molecule.
+
+    Returns:
+        rdkit.Chem.rdchem.Mol: The RDKit molecule.
+
+    """
     mol = rdkit.Chem.RWMol()
     atomic_nums = nx.get_node_attributes(G, "atomic_num")
     chiral_tags = nx.get_node_attributes(G, "chiral_tag")
@@ -131,6 +150,16 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
 
 
 def get_chiral_tag_int(chiral_tag):
+    """
+    Converts the chiral tag from RDKit's ChiralType enumeration to an integer representation.
+
+    Parameters:
+    chiral_tag (rdkit.Chem.rdchem.ChiralType): The chiral tag to be converted.
+
+    Returns:
+    int: The integer representation of the chiral tag. Returns 0 for CHI_UNSPECIFIED,
+         1 for CHI_TETRAHEDRAL_CW, and -1 for any other chiral tag.
+    """
     if chiral_tag == rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED:
         chiral_tag_int = 0
     elif chiral_tag == rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CW:
@@ -141,21 +170,47 @@ def get_chiral_tag_int(chiral_tag):
 
 
 def get_hybridization_int(hybridization):
+    """
+    Converts the hybridization type of an atom to an integer representation.
+
+    Args:
+        hybridization (rdkit.Chem.rdchem.HybridizationType): The hybridization type of the atom.
+
+    Returns:
+        int: The integer representation of the hybridization type.
+    """
     if hybridization == rdkit.Chem.rdchem.HybridizationType.SP3:
         return 4
     elif hybridization == rdkit.Chem.rdchem.HybridizationType.SP2:
         return 3
     elif hybridization == rdkit.Chem.rdchem.HybridizationType.SP:
         return 2
-    elif  hybridization == rdkit.Chem.rdchem.HybridizationType.S:
+    elif hybridization == rdkit.Chem.rdchem.HybridizationType.S:
         return 1
 
 
 def get_node_tuple(node_data):
+    """
+    Converts the node data into a tuple format.
+
+    Args:
+        node_data (tuple): A tuple containing the index and node dictionary.
+
+    Returns:
+        list: A list containing the values of the node dictionary in the specified order,
+              followed by the index.
+
+    Example:
+        >>> node_data = (0, {'atomic_num': 6, 'formal_charge': 0, 'chiral_tag': 'CHI_UNSPECIFIED',
+                            'hybridization': 'SP3', 'num_explicit_hs': 0, 'is_aromatic': False,
+                            'isotope': 0, 'AtomName': 'C1', 'ResID': 'MOL1'})
+        >>> get_node_tuple(node_data)
+        [6, 0, 0, 3, 0, False, 0, 'C1', 'MOL1', 0]
+    """
     idx, node_dict = node_data
     keys = ['atomic_num', 'formal_charge', 'chiral_tag',
-        'hybridization', 'num_explicit_hs', 'is_aromatic',
-        'isotope', 'AtomName', 'ResID']
+            'hybridization', 'num_explicit_hs', 'is_aromatic',
+            'isotope', 'AtomName', 'ResID']
     row = []
     for key in keys:
         if key == 'chiral_tag':
@@ -168,48 +223,44 @@ def get_node_tuple(node_data):
     row.append(idx)
     return row
 
-
 def nx_to_json(G: nx.classes.graph.Graph) -> dict:
     """
-    transforms a networkx  Graph
-    into JSON dict in the form
-
-
-
+    Convert a NetworkX graph to a JSON representation. of the form
     {
     'nodes_tuple: [ #parameters for nodes representing Atoms
-        (
-            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
-            is_aromatic, isotope, AtomName, ResID, node_id
-            ),
-        (
-            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
-            is_aromatic, isotope, AtomName, ResID, node_id
-            )
-        )
-    
+    (
+    atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+    is_aromatic, isotope, AtomName, ResID, node_id
+    ),
+    (
+    atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+    is_aromatic, isotope, AtomName, ResID, node_id
+    )
+    )
     'nodes_columns': [
-        'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
-        'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
-        ],
+    'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
+    'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
+    ],
     'edges_tuple' = (
-        (
-            bond_type, is_peptide_bond, bond_start, bond_end
-            ),
-        (
-            bond_type, is_peptide_bond, bond_start, bond_end
-            ),
-        ),
+    (bond_type, is_peptide_bond, bond_start, bond_end),
+    (bond_type, is_peptide_bond, bond_start, bond_end),
+    ),
     'edges_columns' = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
-    }
+    }    
+
+    Args:
+        G (nx.classes.graph.Graph): The NetworkX graph to be converted.
+
+    Returns:
+        dict: A dictionary representing the JSON structure of the graph.
+
     """
-    nodes_list = list( G.nodes(data=True) )
-    node_dicts = [ node_tuple[1] for node_tuple in nodes_list ]
-    node_ids = [node_tuple[0] for node_tuple in nodes_list ]
+    nodes_list = list(G.nodes(data=True))
+    node_dicts = [node_tuple[1] for node_tuple in nodes_list]
+    node_ids = [node_tuple[0] for node_tuple in nodes_list]
 
     df = pd.DataFrame(node_dicts)
     df['node_id'] = node_ids
-
 
     node_rows = []
     for node_data in nodes_list:
@@ -217,14 +268,13 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
         node_rows.append(node_tuple)
 
     nodes_columns = ['atomic_num', 'formal_charge', 'chiral_tag',
-        'hybridization', 'num_explicit_hs', 'is_aromatic',
-        'isotope', 'AtomName', 'ResID', 'node_id']
+                     'hybridization', 'num_explicit_hs', 'is_aromatic',
+                     'isotope', 'AtomName', 'ResID', 'node_id']
 
     edges_list = list(G.edges(data=True))
     edges_tuple = tuple([get_edge_tuple(edge) for edge in edges_list])
 
     edges_columns = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
-
 
     mol_j = {
         'nodes_tuple': node_rows,
@@ -237,37 +287,38 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
 
 def get_mol_json(mol: rdkit.Chem.rdchem.Mol) -> dict:
     """
-    transforms rdkit.Chem.rdchem.Mol molecule object into 
-
-    into JSON dict in the form
-
-    {
-    'nodes_tuple: [ #parameters for nodes representing Atoms
-        (
-            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
-            is_aromatic, isotope, AtomName, ResID, node_id
-            ),
-        (
-            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
-            is_aromatic, isotope, AtomName, ResID, node_id
-            )
-        )
-    
+    Converts an RDKit molecule to a JSON representation of the form
+    {'nodes_tuple: [ #parameters for nodes representing Atoms
+    (
+    atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+    is_aromatic, isotope, AtomName, ResID, node_id
+    ),
+    (
+    atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+    is_aromatic, isotope, AtomName, ResID, node_id
+    )
+    )
     'nodes_columns': [
-        'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
-        'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
-        ],
+    'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
+    'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
+    ],
     'edges_tuple' = (
-        (
-            bond_type, is_peptide_bond, bond_start, bond_end
-            ),
-        (
-            bond_type, is_peptide_bond, bond_start, bond_end
-            ),
-        ),
+    (
+    bond_type, is_peptide_bond, bond_start, bond_end
+    ),
+    (
+    bond_type, is_peptide_bond, bond_start, bond_end
+    ),
+    ),
     'edges_columns' = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
     }
 
+
+    Args:
+        mol (rdkit.Chem.rdchem.Mol): The RDKit molecule to convert.
+
+    Returns:
+        dict: The JSON representation of the molecule.
     """
     G = mol_to_nx(mol)
     mol_j = nx_to_json(G)
@@ -276,35 +327,35 @@ def get_mol_json(mol: rdkit.Chem.rdchem.Mol) -> dict:
 
 def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
     """
-    transforms JSON dict in the form into a networkx  Graph
-
-    {
-    'nodes_tuple: [ #parameters for nodes representing Atoms
-        (
-            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
-            is_aromatic, isotope, AtomName, ResID, node_id
-            ),
-        (
-            atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
-            is_aromatic, isotope, AtomName, ResID, node_id
-            )
-        )
-    
+    Convert a molecular JSON representation to a NetworkX graph.
+    {'nodes_tuple: [ #parameters for nodes representing Atoms
+    (atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+    is_aromatic, isotope, AtomName, ResID, node_id
+    ),
+    (atomic_num, formal_charge, chiral_tag, hybridization, num_explicit_hs,
+    is_aromatic, isotope, AtomName, ResID, node_id
+    )
+    )    
     'nodes_columns': [
-        'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
-        'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
-        ],
+    'atomic_num', 'formal_charge', 'chiral_tag', 'hybridization', 'num_explicit_hs',
+    'is_aromatic', 'isotope', 'AtomName', 'ResID', 'node_id'
+    ],
     'edges_tuple' = (
-        (
-            bond_type, is_peptide_bond, bond_start, bond_end
-            ),
-        (
-            bond_type, is_peptide_bond, bond_start, bond_end
-            ),
-        ),
+    (
+    bond_type, is_peptide_bond, bond_start, bond_end
+    ),
+    (
+    bond_type, is_peptide_bond, bond_start, bond_end
+    ),
+    ),
     'edges_columns' = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
     }
 
+    Args:
+        mol_json (dict): The molecular JSON representation.
+
+    Returns:
+        nx.classes.graph.Graph: The NetworkX graph representation of the molecule.
     """
     G = nx.Graph()
 
@@ -364,6 +415,15 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
 
 
 def mol_json_to_mol(mol_json: dict) -> rdkit.Chem.rdchem.Mol:
+    """
+    Converts a molecular JSON representation to an RDKit molecule object.
+
+    Args:
+        mol_json (dict): The molecular JSON representation.
+
+    Returns:
+        rdkit.Chem.rdchem.Mol: The RDKit molecule object.
+    """
     G = mol_json_to_nx(mol_json)
     mol = nx_to_mol(G)
     return mol
@@ -371,11 +431,16 @@ def mol_json_to_mol(mol_json: dict) -> rdkit.Chem.rdchem.Mol:
 
 def draw_peptide_json(peptide_json: dict, out: str= "simple_path.png") -> nx.Graph:
     """
-    Draws schema of a modified peptide using  networkx Graph drawing function networkx.draw.
-    Nodes in the Graph represent Amino Acids in the sequence and external modifications.
-    External modifications are labeled as SMILES code.
-    Peptide bonds between the Amino Acids; attachment points for external modifications
-    and disulfide bridges are represented as edges.
+    Draws a graph representation of a peptide JSON. Draws schema of a modified peptide using  networkx Graph drawing function networkx.draw.
+    Nodes in the Graph represent Amino Acids in the sequence and external modifications. External modifications are labeled as SMILES code.
+    Peptide bonds between the Amino Acids; attachment points for external modifications and disulfide bridges are represented as edges.
+
+    Args:
+        peptide_json (dict): The peptide JSON containing the sequence, internal modifications, and external modifications.
+        out (str, optional): The output file path for saving the graph image. Defaults to "simple_path.png".
+
+    Returns:
+        nx.Graph: The graph representation of the peptide JSON.
     """
     G = nx.Graph()
 

@@ -160,8 +160,7 @@ def read_smiles(
     """
 
     Calculate sequence(s) in Pepseq Format and  list of modification SMILES from
-      Modified Peptide structure given in SMILES.
-    Output results into files
+    Modified Peptide structure given in SMILES. Output results into files.
 
     :param smiles_filename: string in pepseq format.
     :type smiles_filename: str or None
@@ -184,7 +183,6 @@ def read_smiles(
     python3.10 commands.py read-smiles 'stuff_in.smi'   --db-path augmented_db.json --out stuff
 
     python3.10 commands.py read-smiles 'smilesy.smi' --out smilesy_out
-    
     """
     with open(smiles_filename) as fp:
         s = fp.read()

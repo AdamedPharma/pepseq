@@ -53,6 +53,10 @@ peptide_json = {
 
 
 def test_building():
+    """
+    Test the building functionality by executing the BuildingModifiedPeptideFromPeptideJSON class
+    and asserting the result against the expected SMILES string.
+    """
     mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     assert (
         rdkit.Chem.MolToSmiles(mol)
@@ -63,6 +67,15 @@ def test_building():
 
 
 def test_MarkingPeptideBackbone():
+    """
+    Test function for MarkingPeptideBackbone.
+
+    This function tests the execution of MarkingPeptideBackbone on a peptide molecule.
+    It verifies that the selected edges in the resulting graph correspond to the peptide bonds.
+
+    Returns:
+        None
+    """
     mol_N_C_smiles_val = (
         "CC(=O)N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@"
         + "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"
@@ -79,6 +92,16 @@ def test_MarkingPeptideBackbone():
 
 
 def test_BreakingIntoResidueCandidateSubgraphs():
+    """
+    Test function for BreakingIntoResidueCandidateSubgraphs.
+
+    This function tests the execution of BreakingIntoResidueCandidateSubgraphs
+    on a peptide molecule. It verifies that the sum of atomic numbers for each
+    subgraph matches the expected values.
+
+    Returns:
+        None
+    """
     mol_N_C_smiles_val = (
             "CC(=O)N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@"
             + "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"

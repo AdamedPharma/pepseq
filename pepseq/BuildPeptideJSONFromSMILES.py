@@ -10,6 +10,13 @@ from pepseq.Peptide.utils.Parser import parse_canonical2
 
 def get_cx_smarts_db(db_json: dict) -> dict:
     """
+    Extracts CX SMARTS database from the given JSON database.
+
+    Args:
+        db_json (dict): The JSON database containing the SMILES information.
+
+    Returns:
+        dict: The CX SMARTS database extracted from the JSON database.
     """
     cx_smarts_db = {}
     smiles_dict = db_json["smiles"].get("aa")
@@ -24,8 +31,16 @@ def get_cx_smarts_db(db_json: dict) -> dict:
 
 def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None) -> dict:
     """
-    """
+    Decomposes a peptide SMILES string into its constituent parts.
 
+    Args:
+        smiles (str): The SMILES string representing the peptide.
+        db_json (dict): The database JSON containing the SMARTS patterns.
+        n_subst_limit (int, optional): The maximum number of substitutions allowed per residue. Defaults to None.
+
+    Returns:
+        dict: A dictionary containing the decomposed peptide information, including the sequence, internal modifications, and external modifications.
+    """
     peptide_molecule = rdkit.Chem.MolFromSmiles(smiles)
     peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
 
@@ -44,6 +59,17 @@ def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None) -> 
 
 
 def get_terminal_smiles_building_block(peptide_json: dict, ResID: int, AtomName: str) -> tuple:
+    """
+    Get the SMILES and index of the terminal building block based on the given ResID and AtomName.
+
+    Args:
+        peptide_json (dict): The peptide JSON object.
+        ResID (int): The ResID of the attachment point.
+        AtomName (str): The AtomName of the attachment point.
+
+    Returns:
+        tuple: A tuple containing the SMILES and index of the terminal building block.
+    """
     external_modifications = peptide_json.get("external_modifications")
     if ResID == -1:
         symbols = parse_canonical2(peptide_json.get("sequence"))
@@ -63,20 +89,59 @@ def get_terminal_smiles_building_block(peptide_json: dict, ResID: int, AtomName:
 
 
 def get_C_terminal_smiles_building_block(peptide_json: dict) -> tuple:
+    """
+    Get the C-terminal SMILES building block from the given peptide JSON.
+
+    Args:
+        peptide_json (dict): The peptide JSON.
+
+    Returns:
+        tuple: A tuple containing the C-terminal SMILES building block information.
+    """
     return get_terminal_smiles_building_block(peptide_json, ResID=-1, AtomName="CO")
 
 
 def get_N_terminal_smiles_building_block(peptide_json: dict) -> tuple:
+    """
+    Retrieves the SMILES building block for the N-terminal residue of a peptide.
+
+    Args:
+        peptide_json (dict): The JSON representation of the peptide.
+
+    Returns:
+        tuple: A tuple containing the SMILES building block, the residue ID, and the atom name.
+    """
     return get_terminal_smiles_building_block(peptide_json, ResID=1, AtomName="N")
 
 
 def smiles_are_identical(smiles1: str, smiles2: str) -> True:
+    """
+    Check if two SMILES strings represent identical molecules.
+
+    Args:
+        smiles1 (str): The first SMILES string.
+        smiles2 (str): The second SMILES string.
+
+    Returns:
+        bool: True if the molecules represented by the SMILES strings are identical, False otherwise.
+    """
     mol1 = rdkit.Chem.MolFromSmiles(smiles1)
     mol2 = rdkit.Chem.MolFromSmiles(smiles2)
     return (mol1.HasSubstructMatch(mol2)) and (mol2.HasSubstructMatch(mol1))
 
 
 def get_term_symbol(smiles: str, db_json: dict, group: str) -> Union[str, None]:
+    """
+    Get the term symbol for a given SMILES string and group from the database JSON.
+
+    Args:
+        smiles (str): The SMILES string to match.
+        db_json (dict): The database JSON containing the terms.
+        group (str): The group to search for the term symbol.
+
+    Returns:
+        Union[str, None]: The term symbol if a match is found, None otherwise.
+    """
     terms = db_json.get("smiles").get(group)
 
     for term_symbol in terms:
@@ -86,6 +151,16 @@ def get_term_symbol(smiles: str, db_json: dict, group: str) -> Union[str, None]:
 
 
 def get_c_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
+    """
+    Retrieves the C-terminal symbol and index from a peptide JSON and a database JSON.
+
+    Args:
+        peptide_json (dict): The peptide JSON.
+        db_json (dict): The database JSON.
+
+    Returns:
+        tuple: A tuple containing the C-terminal symbol and index.
+    """
     tup = get_C_terminal_smiles_building_block(peptide_json)
 
     if tup is not None:
@@ -97,6 +172,17 @@ def get_c_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
 
 
 def get_n_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
+    """
+    Retrieves the N-terminal symbol and index from a peptide JSON and a database JSON.
+
+    Args:
+        peptide_json (dict): The peptide JSON containing the information about the peptide.
+        db_json (dict): The database JSON containing the information about the database.
+
+    Returns:
+        tuple: A tuple containing the N-terminal symbol and index.
+
+    """
     tup = get_N_terminal_smiles_building_block(peptide_json)
     if tup is not None:
         smiles, i = tup
@@ -108,6 +194,16 @@ def get_n_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
 
 
 def output_modified_residue(ResName: str, R_id: str) -> str:
+    """
+    Returns a modified residue name with the corresponding R_id.
+
+    Args:
+        ResName (str): The original residue name.
+        R_id (str): The R_id to be appended to the modified residue name.
+
+    Returns:
+        str: The modified residue name with the appended R_id.
+    """
     d = {"C": "Cys", "K": "Lys"}
     if ResName in d:
         ResName = d[ResName]
@@ -116,6 +212,15 @@ def output_modified_residue(ResName: str, R_id: str) -> str:
 
 
 def append_pepseq_R_info(j: dict) -> str:
+    """
+    Appends R information to the peptide sequence.
+
+    Args:
+        j (dict): The input dictionary containing the peptide sequence and external modifications.
+
+    Returns:
+        str: The modified peptide sequence with R information appended.
+    """
     seq_list = parse_canonical2(j["sequence"])
     ext_mods = j["external_modifications"]
     for ext_mod in ext_mods:
@@ -134,37 +239,40 @@ def append_pepseq_R_info(j: dict) -> str:
             new_seq = new_seq + symbol
     return new_seq
 
+    """
+
+    """
+
 
 def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_limit=None) -> dict:
     """
+    Decomposes a peptide SMILES string with termini into a JSON representation.
     Input:
-
-        SMILES - string of peptide sequence with modified amino acids
-            modification(s)
-
+    SMILES - string of peptide sequence with modified amino acids
+    modification(s)
     Output:
-        peptide_json:
+    peptide_json:
+    JSON containing info about modified peptide with
+    'sequence':
+    'internal_modifications':
+    'external_modifications':
+    mod_smiles:
+    SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    modification with attachment
+    points:
+    { Cys(R1) } <- is attached in [1*] attachment point on staple
+    { Cys(R2) } <- is attached in [2*] attachment point on staple
 
-            JSON containing info about modified peptide with
 
-                'sequence':
+    Args:
+        smiles (str): The peptide SMILES string.
+        db_json (dict): The database JSON containing information about the peptide.
+        n_subst_limit (int, optional): The maximum number of substitutions allowed. Defaults to None.
 
-                'internal_modifications':
-
-                'external_modifications':
-
-
-        mod_smiles:
-
-            SMILES string (e.g. '[1*]C[2*]') - showing the structure of
-              modification with attachment
-            points:
-
-                { Cys(R1) } <- is attached in [1*] attachment point on staple
-                { Cys(R2) } <- is attached in [2*] attachment point on staple
+    Returns:
+        dict: The JSON representation of the decomposed peptide.
 
     """
-
     peptide_json = decompose_peptide_smiles(smiles, db_json, n_subst_limit=n_subst_limit)
     c_terminus__c_ind = get_c_term_from_peptide_json(peptide_json, db_json)
 
@@ -221,35 +329,41 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_li
     return peptide_json
 
 
+    """
+
+    """
+
+
 def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None) -> tuple:
     """
+    Converts a SMILES string to pepseq and mod_smiles strings.
     Input:
-
-        SMILES - string of peptide sequence with modified amino acids
-            modification(s)
-
+    SMILES - string of peptide sequence with modified amino acids
+    modification(s)
     Output:
-        pepseq_string:
+    pepseq_string:
+    str = string in pepseq format
+    H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+    where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
+    amino acid; {Cys(R1)} - is amino acid
+    with staple attached, {Cys(R1)} - amino acid with staple attached
+    modifications - external ones, with attachment points
+    mod_smiles:
+    SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    modification with attachment
+    points:
+    { Cys(R1) } <- is attached in [1*] attachment point on staple
+    { Cys(R2) } <- is attached in [2*] attachment point on staple
 
-            str = string in pepseq format
-              H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
-        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
-          amino acid; {Cys(R1)} - is amino acid
-        with staple attached, {Cys(R1)} - amino acid with staple attached
 
-        modifications - external ones, with attachment points
+    Args:
+        smiles (str): The input SMILES string.
+        db_json (dict): The database JSON containing information about the modifications.
+        n_subst_limit (int, optional): The maximum number of substitutions allowed. Defaults to None.
 
-        mod_smiles:
-
-            SMILES string (e.g. '[1*]C[2*]') - showing the structure of
-              modification with attachment
-            points:
-
-                { Cys(R1) } <- is attached in [1*] attachment point on staple
-                { Cys(R2) } <- is attached in [2*] attachment point on staple
-
+    Returns:
+        tuple: A tuple containing the pepseq format string and the mod_smiles string(s).
     """
-
     peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json, n_subst_limit=n_subst_limit)
     pepseq_format = peptide_json["pepseq_format"]
     mod_smiles_list = [
@@ -261,8 +375,6 @@ def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_s
         return pepseq_format, mod_smiles_list
     #return pepseq_format, mod_smiles_list
 
-
-def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None):
     """
     Input:
 
@@ -290,7 +402,37 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict,
                 { Cys(R2) } <- is attached in [2*] attachment point on staple
 
     """
-    
+
+
+def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None):
+    """
+    Converts a SMILES string to a pepseq format and a list of modified SMILES strings.
+    Input:
+    SMILES - string of peptide sequence with modified amino acids
+    modification(s)
+    Output:
+    pepseq_string:
+    str = string in pepseq format
+    H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+    where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
+    amino acid; {Cys(R1)} - is amino acid
+    with staple attached, {Cys(R1)} - amino acid with staple attached
+    modifications - external ones, with attachment points
+    mod_smiles:
+    SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    modification with attachment
+    points:
+    { Cys(R1) } <- is attached in [1*] attachment point on staple
+    { Cys(R2) } <- is attached in [2*] attachment point on staple
+
+    Args:
+        smiles (str): The input SMILES string.
+        db_json (dict): The database JSON containing the mapping of modifications.
+        n_subst_limit (int, optional): The maximum number of substitutions allowed. Defaults to None.
+
+    Returns:
+        tuple: A tuple containing the pepseq format and either a single modified SMILES string or a list of modified SMILES strings.
+    """
     pepseq_format, mod_smiles_list = from_smiles_to_pepseq_and_mod_smiles_strings(
         smiles, db_json, n_subst_limit=n_subst_limit
     )
@@ -301,6 +443,18 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict,
 
 
 def mark_external_modifications_on_seq(seq_list: list, peptide_json: dict, mod_as_X: bool = False) -> list:
+    """
+    Marks external modifications on a sequence list based on the provided peptide JSON.
+
+    Args:
+        seq_list (list): The list of amino acid sequence.
+        peptide_json (dict): The peptide JSON containing information about external modifications.
+        mod_as_X (bool, optional): Flag indicating whether to represent modifications as 'X'. Defaults to False.
+
+    Returns:
+        list: The updated sequence list with external modifications marked.
+
+    """
     external_modifications = peptide_json.get("external_modifications")
     for external_modification in external_modifications:
         attachment_points = external_modification.get("attachment_points_on_sequence")
@@ -320,6 +474,19 @@ def mark_external_modifications_on_seq(seq_list: list, peptide_json: dict, mod_a
 
 
 def mark_internal_modifications_on_seq(seq_list: list, peptide_json: dict, mod_as_X: bool = False) -> list:
+    """
+    Marks internal modifications on a sequence list based on the given peptide JSON.
+
+    Args:
+        seq_list (list): The list of amino acid residues in the sequence.
+        peptide_json (dict): The peptide JSON containing information about internal modifications.
+        mod_as_X (bool, optional): Flag indicating whether to represent modified residues as 'X'. 
+            Defaults to False.
+
+    Returns:
+        list: The modified sequence list with internal modifications marked.
+
+    """
     internal_modifications = peptide_json.get("internal_modifications")
 
     for key in internal_modifications:
@@ -337,6 +504,16 @@ def mark_internal_modifications_on_seq(seq_list: list, peptide_json: dict, mod_a
 
 
 def print_sequence(peptide_json: dict, mod_as_X: bool=False) -> str:
+    """
+    Prints the sequence of a peptide in a formatted manner.
+
+    Args:
+        peptide_json (dict): A dictionary containing information about the peptide.
+        mod_as_X (bool, optional): Whether to mark modifications as 'X' in the sequence. Defaults to False.
+
+    Returns:
+        str: The formatted sequence of the peptide.
+    """
     basic_sequence = peptide_json.get("sequence")
     aa_list = list(basic_sequence)
 

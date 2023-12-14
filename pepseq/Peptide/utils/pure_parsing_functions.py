@@ -105,7 +105,17 @@ def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
 
 def get_base_symbols(symbols: list[str], three_to_one: dict = {
         "Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"}):
-    
+    """
+    Converts a list of symbols to their corresponding base symbols.
+
+    Args:
+        symbols (list[str]): The list of symbols to be converted.
+        three_to_one (dict, optional): A dictionary mapping three-letter amino acid codes to their corresponding one-letter codes. Defaults to {"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"}.
+
+    Returns:
+        list[str]: The list of base symbols.
+
+    """
     base_symbols = []
 
     for res_id in range(len(symbols)):

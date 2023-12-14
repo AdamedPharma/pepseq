@@ -122,43 +122,36 @@ def get_pepseq_json(pepseq_format: str, db_json: Dict = db_json):
 
     return pep_json
 
-
 def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None) -> Dict:
     """
-
+    Converts a peptide sequence in pepseq format to a JSON object.
     Input:
-
-
-        pepseq_string:
-
-            str = string in pepseq format
-            H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
-        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
-        amino acid; {Cys(R1)} - is amino acid
-        with staple attached, {Cys(R1)} - amino acid with staple attached
-
-
-        mod_smiles:
-
-            SMILES string (e.g. '[1*]C[2*]') - showing the structure of
-                modification with attachment
-            points:
-
-                { Cys(R1) } <- is attached in [1*] attachment point on staple
-                { Cys(R2) } <- is attached in [2*] attachment point on staple
-
+    pepseq_string:
+    str = string in pepseq format
+    H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+    where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
+    amino acid; {Cys(R1)} - is amino acid
+    with staple attached, {Cys(R1)} - amino acid with staple attached
+    mod_smiles:
+    SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    modification with attachment
+    points:
+    { Cys(R1) } <- is attached in [1*] attachment point on staple
+    { Cys(R2) } <- is attached in [2*] attachment point on staple
     Output:
+    peptide_json:
+    JSON containing info about modified peptide with
+    'sequence':
+    'internal_modifications':
+    'external_modifications':
 
-        peptide_json:
+    Args:
+        pepseq_format (str): The peptide sequence in pepseq format.
+        db_json (Dict, optional): The database JSON object. Defaults to db_json.
+        mod_smiles_list (list, optional): The list of modified SMILES strings. Defaults to None.
 
-            JSON containing info about modified peptide with
-
-                'sequence':
-
-                'internal_modifications':
-
-                'external_modifications':
-
+    Returns:
+        Dict: The JSON object representing the peptide sequence.
     """
 
     pep_json = get_pepseq_json(pepseq_format, db_json)

@@ -2,6 +2,7 @@ from pepseq.Drawer import draw_symbols
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 
 
+
 def draw_pepseq(
     pepseq: str,
     width: int = 1124,
@@ -9,8 +10,18 @@ def draw_pepseq(
     omit_standard_termini: bool = False,
 ) -> str:
     """
+    Draw a visual representation of a peptide sequence.
     Draw Peptide Schema Image based on sequence. Save it to (image_file_name)
     if image_file_name is not provided an UUID is generated.
+
+    Args:
+        pepseq (str): The peptide sequence to be drawn.
+        width (int, optional): The width of the drawing in pixels. Defaults to 1124.
+        height (int, optional): The height of the drawing in pixels. Defaults to 640.
+        omit_standard_termini (bool, optional): Whether to omit standard termini (N-terminus and C-terminus) from the drawing. Defaults to False.
+
+    Returns:
+        str: The PNG image of the drawn peptide sequence.
     """
 
     symbols = get_pep_json(pepseq)["symbols"]

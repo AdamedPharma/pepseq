@@ -1,4 +1,13 @@
 def get_coding(db_json: dict) -> dict:
+    """
+    Get the coding dictionary from the given database JSON.
+
+    Args:
+        db_json (dict): The database JSON.
+
+    Returns:
+        dict: The coding dictionary.
+    """
     keys = [
         "l_proteogenic_3letter",
         "d_proteogenic_3letter",

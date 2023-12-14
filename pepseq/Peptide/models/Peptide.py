@@ -14,6 +14,16 @@ PeptideWriter = TypeVar("PeptideWriter")
 
 
 def get_smiles_descriptors(smiles: AnyStr) -> dict:
+    """
+    Calculate various molecular descriptors for a given SMILES string.
+
+    Args:
+        smiles (str): The SMILES string representing the molecule.
+
+    Returns:
+        dict: A dictionary containing the calculated molecular descriptors.
+
+    """
     molecule = MolFromSmiles(smiles)
     descriptors: dict = {
         "mw": round(MolWt(molecule), 2),
@@ -34,6 +44,23 @@ def get_smiles_descriptors(smiles: AnyStr) -> dict:
 
 
 class Peptide(object):
+    """
+    Represents a peptide object.
+
+    Args:
+        smiles (str): The SMILES representation of the peptide.
+        peptide_json (dict): A dictionary containing peptide information in JSON format.
+
+    Attributes:
+        smiles (str): The SMILES representation of the peptide.
+        complete_smiles (str): The complete SMILES representation of the peptide.
+        peptide_json (dict): A dictionary containing peptide information in JSON format.
+        sequence (str): The sequence of the peptide.
+        length (int): The length of the peptide.
+        mw (float): The molecular weight of the peptide.
+
+    """
+
     def __init__(self, smiles: str, peptide_json: dict):
         self.smiles = smiles
         self.complete_smiles = smiles

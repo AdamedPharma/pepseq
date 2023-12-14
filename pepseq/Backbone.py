@@ -6,6 +6,9 @@ from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import \
 
 
 class Functionality(object):
+    """
+    This class represents the functionality of the program.
+    """
     pass
 
 
