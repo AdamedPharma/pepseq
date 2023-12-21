@@ -3,13 +3,15 @@ def get_connecting_bonds(bonds: list, native_atom_ids: list,
     """
     Get the connecting bonds between native atoms and remainder atoms.
 
-    Args:
-        bonds (list): List of bonds between atoms.
-        native_atom_ids (list): List of native atom IDs.
-        remainder (list): List of remainder atom IDs.
+    :param bonds: List of bonds between atoms.
+    :type bonds: list
+    :param native_atom_ids: List of native atom IDs.
+    :type native_atom_ids: list
+    :param remainder: List of remainder atom IDs.
+    :type remainder: list
 
-    Returns:
-        list: List of connecting bonds between native atoms and remainder atoms.
+    :return: List of connecting bonds between native atoms and remainder atoms.
+    :rtype: list
     """
     connecting_bonds = []
     for bond in bonds:

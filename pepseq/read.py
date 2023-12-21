@@ -20,13 +20,15 @@ def from_pepseq(pepseq: str, db_json: Dict = db_json) -> Peptide:
     """
     Convert a pepseq string to a Peptide object. Read peptide from PepSeq string.
 
-    Args:
-        pepseq (str): The pepseq string to convert.
-        db_json (Dict, optional): The database JSON. Defaults to db_json.
+    :param pepseq: The pepseq string to convert.
+    :type pepseq: str
+    :param db_json: The database JSON. Defaults to db_json.
+    :type db_json: Dict
 
-    Returns:
-        Peptide: The converted Peptide object.
+    :return: The converted Peptide object.
+    :rtype: Peptide
     """
+
     mod_smiles = None
     peptide_json = get_pep_json(pepseq, db_json, mod_smiles)
     smiles = get_smiles_from_peptide_json(peptide_json, db_json)
@@ -40,14 +42,17 @@ def from_pepseq_and_mod_smiles(
     """
     Create a Peptide object from a peptide sequence and modified smiles.
 
-    Args:
-        pepseq (str): The peptide sequence.
-        mod_smiles (str): The modified smiles.
-        db_json (Dict, optional): The database JSON. Defaults to db_json.
+    :param pepseq: The peptide sequence.
+    :type pepseq: str
+    :param mod_smiles: The modified smiles.
+    :type mod_smiles: str
+    :param db_json: The database JSON. Defaults to db_json.
+    :type db_json: Dict
 
-    Returns:
-        Peptide: The created Peptide object.
+    :return: The created Peptide object.
+    :rtype: Peptide
     """
+
     peptide_json = get_pep_json(pepseq, db_json, mod_smiles)
     peptide = from_json(peptide_json)
     return peptide
@@ -57,13 +62,15 @@ def from_smiles(smiles: str, db_json: Dict = db_json) -> Peptide:
     """
     Convert a SMILES string into a Peptide object.
 
-    Args:
-        smiles (str): The SMILES string representing the peptide.
-        db_json (Dict, optional): The database JSON containing information about the peptide. Defaults to db_json.
+    :param smiles: The SMILES string representing the peptide.
+    :type smiles: str
+    :param db_json: The database JSON containing information about the peptide. Defaults to db_json.
+    :type db_json: Dict
 
-    Returns:
-        Peptide: The Peptide object representing the converted SMILES string.
+    :return: The Peptide object representing the converted SMILES string.
+    :rtype: Peptide
     """
+
     peptide_json = decompose_peptide_smiles(smiles, db_json)
     peptide = Peptide(smiles, peptide_json)
     return peptide
@@ -86,17 +93,19 @@ def from_json(peptide_json: Dict[str, Any], db: Dict = db_json) -> Peptide:
     }
     where [*1] and [*2] are attachement points
 
-    Args:
-        json (Dict[str, Any]): json in format as above
-        residue_database (FileSystemDbRepo, optional): residue database.
-        Defaults to db.
+    :param peptide_json: json in format as above
+    :type peptide_json: Dict[str, Any]
+    :param residue_database: residue database. Defaults to db_json.
+    :type residue_database: Dict
+
+    :return: peptide object
+    :rtype: Peptide
 
     Raises:
         Exception: _description_
 
-    Returns:
-        Peptide: peptide object
     """
+
     smiles = get_smiles_from_peptide_json(peptide_json, db)
     peptide = Peptide(smiles, peptide_json)
     return peptide

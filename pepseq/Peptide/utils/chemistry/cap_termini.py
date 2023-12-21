@@ -9,12 +9,13 @@ def prepare_ter_G(smiles: str, ResID: int) -> nx.classes.graph.Graph:
     """
     Prepare a graph representation of a molecule with capped termini.
 
-    Args:
-        smiles (str): The SMILES string representation of the molecule.
-        ResID (int): The residue ID.
+    :param smiles: The SMILES string representation of the molecule.
+    :type smiles: str
+    :param ResID: The residue ID.
+    :type ResID: int
 
-    Returns:
-        nx.classes.graph.Graph: The graph representation of the molecule with capped termini.
+    :return: The graph representation of the molecule with capped termini.
+    :rtype: nx.classes.graph.Graph
     """
     mol = rdkit.Chem.MolFromSmiles(smiles)
     G = mol_to_nx(mol)
@@ -26,11 +27,11 @@ def relabel_to_str(G: nx.classes.graph.Graph) -> nx.classes.graph.Graph:
     """
     Relabels the nodes of a graph to their string representation.
 
-    Args:
-        G (nx.classes.graph.Graph): The input graph.
+    :param G: The input graph.
+    :type G: nx.classes.graph.Graph
 
-    Returns:
-        nx.classes.graph.Graph: The graph with relabeled nodes.
+    :return: The graph with relabeled nodes.
+    :rtype: nx.classes.graph.Graph
     """
     mapping = {}
 
@@ -46,11 +47,11 @@ def find_max_ResID(G: nx.classes.graph.Graph) -> int:
     """
     Finds the maximum ResID in the given graph.
 
-    Parameters:
-    - G (nx.classes.graph.Graph): The graph to search for ResIDs.
+    :param G: The graph to search for ResIDs.
+    :type G: nx.classes.graph.Graph
 
-    Returns:
-    - int: The maximum ResID found in the graph.
+    :return: The maximum ResID found in the graph.
+    :rtype: int
     """
     ResIDs = nx.get_node_attributes(G, "ResID").values()
     unique_ResIDs = set(ResIDs) - set(["N_terminus", "C_terminus"])
@@ -64,16 +65,21 @@ def cap_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None, smiles_building
     """
     Caps the terminus of a molecule with a specified building block.
 
-    Args:
-        mol (rdkit.Chem.rdchem.Mol): The input molecule.
-        terminus (str, optional): The type of terminus to cap. Defaults to None.
-        smiles_building_blocks_db (int, optional): The database of building blocks. Defaults to None.
-        TerminusResID (int, optional): The residue ID of the terminus. Defaults to None.
-        ResID (int, optional): The residue ID of the molecule. Defaults to 1.
-        terminus_smiles (str, optional): The SMILES representation of the terminus building block. Defaults to None.
+    :param mol: The input molecule.
+    :type mol: rdkit.Chem.rdchem.Mol
+    :param terminus: The type of terminus to cap. Defaults to None.
+    :type terminus: str, optional
+    :param smiles_building_blocks_db: The database of building blocks. Defaults to None.
+    :type smiles_building_blocks_db: int, optional
+    :param TerminusResID: The residue ID of the terminus. Defaults to None.
+    :type TerminusResID: int, optional
+    :param ResID: The residue ID of the molecule. Defaults to 1.
+    :type ResID: int, optional
+    :param terminus_smiles: The SMILES representation of the terminus building block. Defaults to None.
+    :type terminus_smiles: str, optional
 
-    Returns:
-        rdkit.Chem.rdchem.Mol: The capped molecule.
+    :return: The capped molecule.
+    :rtype: rdkit.Chem.rdchem.Mol
     """
     mol_G = mol_to_nx(mol)
     mol_G = relabel_to_str(mol_G)
@@ -114,14 +120,17 @@ def cap_N_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None,
     """
     Caps the N-terminus of a molecule with a specified terminus.
 
-    Args:
-        mol (rdkit.Chem.rdchem.Mol): The molecule to be modified.
-        terminus (str, optional): The terminus to be added. Defaults to None.
-        smiles_building_blocks_db (dict, optional): A dictionary of building blocks in SMILES format. Defaults to None.
-        terminus_smiles (str, optional): The SMILES representation of the terminus. Defaults to None.
+    :param mol: The molecule to be modified.
+    :type mol: rdkit.Chem.rdchem.Mol
+    :param terminus: The terminus to be added. Defaults to None.
+    :type terminus: str, optional
+    :param smiles_building_blocks_db: A dictionary of building blocks in SMILES format. Defaults to None.
+    :type smiles_building_blocks_db: dict, optional
+    :param terminus_smiles: The SMILES representation of the terminus. Defaults to None.
+    :type terminus_smiles: str, optional
 
-    Returns:
-        rdkit.Chem.rdchem.Mol: The modified molecule with the capped N-terminus.
+    :return: The modified molecule with the capped N-terminus.
+    :rtype: rdkit.Chem.rdchem.Mol
     """
     return cap_terminus(
         mol, terminus, smiles_building_blocks_db, TerminusResID="N_terminus", ResID=1,
@@ -134,14 +143,17 @@ def cap_C_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None,
     """
     Caps the C-terminus of a molecule with a specified terminus.
 
-    Args:
-        mol (rdkit.Chem.rdchem.Mol): The molecule to be modified.
-        terminus (str, optional): The terminus to be added. Defaults to None.
-        smiles_building_blocks_db: The database of building blocks. Defaults to None.
-        terminus_smiles: The SMILES representation of the terminus. Defaults to None.
+    :param mol: The molecule to be modified.
+    :type mol: rdkit.Chem.rdchem.Mol
+    :param terminus: The terminus to be added. Defaults to None.
+    :type terminus: str, optional
+    :param smiles_building_blocks_db: The database of building blocks. Defaults to None.
+    :type smiles_building_blocks_db: dict, optional
+    :param terminus_smiles: The SMILES representation of the terminus. Defaults to None.
+    :type terminus_smiles: str, optional
 
-    Returns:
-        rdkit.Chem.rdchem.Mol: The modified molecule with the capped C-terminus.
+    :return: The modified molecule with the capped C-terminus.
+    :rtype: rdkit.Chem.rdchem.Mol
     """
     return cap_terminus(
         mol, terminus, smiles_building_blocks_db, TerminusResID="C_terminus", ResID=-1,

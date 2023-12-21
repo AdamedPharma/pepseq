@@ -6,16 +6,17 @@ from pepseq.Peptide.models.Peptide import Peptide
 def to_pepseq(peptide: Peptide, include_modifications: bool = False) -> str:
     """Encodes peptide to PepSeq string
 
-    Args:
-        peptide (Peptide): instance
-        include_modifications (bool, optional):
-        includes or exlude non-standard modifications. Defaults to True.
+    :param peptide:  Peptide instance
+    :type  peptide: Peptide
+    :param include_modifications: includes or exlude non-standard modifications. Defaults to True.
+    :type  include_modifications: bool
+
+
+    :return: PepSeq string
+    :rtype: str
 
     Raises:
         Exception: _description_
-
-    Returns:
-        str: PepSeq
     """
 
     pepseq = peptide.peptide_json["pepseq_format"]
@@ -25,33 +26,36 @@ def to_pepseq(peptide: Peptide, include_modifications: bool = False) -> str:
 def to_smiles(peptide: Peptide, include_modifications: bool = True) -> str:
     """Encodes peptide to canonical SMILES
 
-    Args:
-        peptide (Peptide): instance
-        include_modifications (bool, optional):
-        includes or exlude non-standard modifications. Defaults to True.
+    :param peptide: Peptide instance
+    :type  peptide: Peptide
+    :param include_modifications: includes or exlude non-standard modifications. Defaults to True.
+    :type  include_modifications: bool
+
+    :return: SMILES
+    :rtype:  str
 
     Raises:
         Exception: _description_
 
-    Returns:
-        str: SMILES
     """
+
     return peptide.smiles
 
 
 def to_json(peptide: Peptide, include_modifications: bool = True) -> Dict[str, Any]:
     """Encodes peptide to JSON representation
 
-    Args:
-        peptide (Peptide): instance
-        include_modifications (bool, optional):
-        includes or exlude non-standard modifications. Defaults to True.
+    :param peptide: Peptide instance
+    :type  peptide: Peptide
+    :param include_modifications: includes or exlude non-standard modifications. Defaults to True.
+    :type  include_modifications: bool
+
+
+    :return: JSON representation of peptide
+    :rtype: Dict[str, Any]
 
     Raises:
         Exception: _description_
-
-    Returns:
-        Dict[str, Any]: json
 
     Example output:
         {
@@ -95,4 +99,5 @@ def to_json(peptide: Peptide, include_modifications: bool = True) -> Dict[str, A
             }
 
     """
+
     return peptide.peptide_json

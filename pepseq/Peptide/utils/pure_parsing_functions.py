@@ -17,7 +17,8 @@ def get_attachment_point_json(res_id: int, decomposition: tuple, default_exit_at
     (e.g. ('Cys', 1) )
     :type  decomposition: tuple
 
-    :param     
+    :param default_exit_atom_name: dictionary with default exit atom names for each residue
+    :type  default_exit_atom_name: dict
 
     :return: att_point_json - JSON dictionary having info on Atom (Name) and Residue (Name and Index)
     to which modification is connected
@@ -26,8 +27,6 @@ def get_attachment_point_json(res_id: int, decomposition: tuple, default_exit_at
     """
 
     ResName, attachment_point_id = decomposition
-
-    
 
     AtomName = default_exit_atom_name.get(ResName, "")
 
@@ -50,6 +49,7 @@ def decompose_symbol(symbol: str) -> Union[tuple, str]:
 
     :return: decomp - decomposition can be a tuple of residue name and radical id
     or can be an input symbol
+    :rtype: tuple or str
     """
     has_round_bracket = ("(" in symbol) and (")" in symbol)
 
@@ -73,7 +73,8 @@ def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
     :param symbols
     :type symbols: list
 
-
+    :return: att_points - dictionary of attachment points
+    :rtype: dict
     """
     att_points = {}
 
@@ -108,12 +109,14 @@ def get_base_symbols(symbols: list[str], three_to_one: dict = {
     """
     Converts a list of symbols to their corresponding base symbols.
 
-    Args:
-        symbols (list[str]): The list of symbols to be converted.
-        three_to_one (dict, optional): A dictionary mapping three-letter amino acid codes to their corresponding one-letter codes. Defaults to {"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"}.
+    :param symbols: The list of symbols to be converted.
+    :type symbols: list[str]
 
-    Returns:
-        list[str]: The list of base symbols.
+    :param three_to_one: A dictionary mapping three-letter amino acid codes to their corresponding one-letter codes. Defaults to {"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"}.
+    :type three_to_one: dict, optional
+
+    :return: The list of base symbols.
+    :rtype: list[str]
 
     """
     base_symbols = []

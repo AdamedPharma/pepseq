@@ -17,13 +17,13 @@ def get_smiles_descriptors(smiles: AnyStr) -> dict:
     """
     Calculate various molecular descriptors for a given SMILES string.
 
-    Args:
-        smiles (str): The SMILES string representing the molecule.
+    :param smiles: The SMILES string representing the molecule.
+    :type smiles: str
 
-    Returns:
-        dict: A dictionary containing the calculated molecular descriptors.
-
+    :return: A dictionary containing the calculated molecular descriptors.
+    :rtype: dict
     """
+
     molecule = MolFromSmiles(smiles)
     descriptors: dict = {
         "mw": round(MolWt(molecule), 2),
@@ -47,17 +47,24 @@ class Peptide(object):
     """
     Represents a peptide object.
 
-    Args:
-        smiles (str): The SMILES representation of the peptide.
-        peptide_json (dict): A dictionary containing peptide information in JSON format.
+    :param smiles: The SMILES representation of the peptide.
+    :type smiles: str
+    :param peptide_json: A dictionary containing peptide information in JSON format.
+    :type peptide_json: dict
 
     Attributes:
-        smiles (str): The SMILES representation of the peptide.
-        complete_smiles (str): The complete SMILES representation of the peptide.
-        peptide_json (dict): A dictionary containing peptide information in JSON format.
-        sequence (str): The sequence of the peptide.
-        length (int): The length of the peptide.
-        mw (float): The molecular weight of the peptide.
+    :param smiles: The SMILES representation of the peptide.
+    :type smiles: str
+    :param complete_smiles: The complete SMILES representation of the peptide.
+    :type complete_smiles: str
+    :param peptide_json: A dictionary containing peptide information in JSON format.
+    :type peptide_json: dict
+    :param sequence: The sequence of the peptide.
+    :type sequence: str
+    :param length: The length of the peptide.
+    :type length: int
+    :param mw: The molecular weight of the peptide.
+    :type mw: float
 
     """
 

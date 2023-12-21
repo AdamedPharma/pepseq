@@ -24,6 +24,7 @@ def output_modified_residue(ResName: str, R_id: str) -> str:
     :rtype: str
 
     """
+
     d = {"C": "Cys", "K": "Lys"}
     if ResName in d:
         ResName = d[ResName]
@@ -148,21 +149,18 @@ def parse_canonical2(canonical_sequence: str) -> list:
 
 def find_termini(sequence_str: str, db_json: dict) -> tuple:
     """
-    :param sequence_str:
+    :param sequence_str: sequence in form "{%s}%s{%s}" % (n_term, sequence_str_wo_termini, c_term)
     :type  sequence_str: str
 
     :param db_json: database for amino acid monomers/building blocks
     :type  db_json: dict
 
     :return output_tuple: tuple in the form of (n_term, c_term, sequence_str_wo_termini)
+    :rtype:  tuple
     """
     sequence_split = sequence_str.split("~")
-    #print(sequence_split)
-
 
     n_fragments = len(sequence_split)
-
-    #print(n_fragments)
 
     if n_fragments == 1:
         return "H", "OH", sequence_str
@@ -178,7 +176,6 @@ def find_termini(sequence_str: str, db_json: dict) -> tuple:
         return
     
     elif n_fragments == 2:
-        print(sequence_split)
 
         n_terms = db_json["smiles"]["n_terms"].keys()
         c_terms = db_json["smiles"]["c_terms"].keys()
@@ -197,7 +194,6 @@ def find_termini(sequence_str: str, db_json: dict) -> tuple:
             sequence_str_wo_termini = sequence_str[seq_start_index:seq_end_index]
             
             output_tuple = n_term, c_term, sequence_str_wo_termini
-            print(output_tuple)
             return output_tuple
         else:
         
@@ -212,7 +208,7 @@ def find_termini(sequence_str: str, db_json: dict) -> tuple:
 
 def get_canonical(sequence_str: str, db_json: dict) -> str:
     """
-    :param sequence_str: 
+    :param sequence_str: sequence in form "{%s}%s{%s}" % (n_term, sequence_str_wo_termini, c_term)
     :type  sequence_str: str
 
     :param db_json: database with info about monomers/building blocks of modified peptides

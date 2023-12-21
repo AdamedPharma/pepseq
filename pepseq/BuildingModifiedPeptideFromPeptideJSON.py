@@ -19,13 +19,13 @@ def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
     :param G: Modified Peptide molecule as networkx nx.classes.graph.Graph
     :type G: nx.classes.graph.Graph
     :param res1_id: Index of first amino acid residue involved in bonding
-    :type int
+    :type res1_id: int
     :param atom_name_1: Name of atom in first amino acid residue involved in bonding
-    :type str
+    :type atom_name_1: str
     :param res2_id: Index of second amino acid residue involved in bonding
-    :type int
+    :type res2_id: int
     :param atom_name_2: Name of atom in second amino acid residue involved in bonding
-    :type str
+    :type atom_name_2: str
     :return: peptide molecule - Modified Peptide molecule as networkx nx.classes.graph.Graph
     :rtype: nx.classes.graph.Graph
     """
@@ -51,10 +51,10 @@ def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) ->
     :param G: Modified Peptide molecule as networkx nx.classes.graph.Graph
     :type G: nx.classes.graph.Graph
     :param res1_id: Index of first amino acid residue involved in bonding
-    :type int
+    :type res1_id: int
     :param res2_id: Index of second amino acid residue involved in bonding
-    :type int
-    :return: peptide molecule - Modified Peptide molecule as networkx nx.classes.graph.Graph
+    :type res2_id: int
+    :return: Modified Peptide molecule as networkx nx.classes.graph.Graph
     :rtype: nx.classes.graph.Graph
     """
 
@@ -65,7 +65,7 @@ def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
     """
     Get attachment points
     :param staple_graph: molecular graph representing molecular staple
-    :type nx.classes.graph.Graph
+    :type staple_graph: nx.classes.graph.Graph
     :return: tuple composed of staple_graph (molecular graph nx.classes.graph.Graph representing
     molecular staple with dummy Atoms removed) and dictionary representing atoms on staple that connect 
     to amino acid chain
@@ -98,7 +98,7 @@ def find_atom(G: nx.classes.graph.Graph, ResID, AtomName: str) -> str:
     :param AtomName: name of atom
     :type  AtomName: str
 
-    :return 
+    :return: id of atom
 
     """
     ResIDs = nx.get_node_attributes(G, "ResID")
@@ -115,15 +115,18 @@ def add_staple(
     """
     Adds a staple to a peptide graph by connecting attachment points.
 
-    Args:
-        peptide_graph (nx.classes.graph.Graph): The graph representing the peptide.
-        staple_graph (nx.classes.graph.Graph): The graph representing the staple.
-        peptide_attachment_points: The attachment points on the peptide.
+    :param peptide_graph: The graph representing the peptide.
+    :type peptide_graph: nx.classes.graph.Graph
+    :param staple_graph: The graph representing the staple.
+    :type staple_graph: nx.classes.graph.Graph
+    :param peptide_attachment_points: The attachment points on the peptide.
         prefix (str, optional): The prefix to be added to the staple attachment points. Defaults to "staple_1_".
+    :type peptide_attachment_points: dict
 
-    Returns:
-        nx.classes.graph.Graph: The graph representing the peptide with the added staple.
+    :return: The graph representing the peptide with the added staple.
+    :rtype: nx.classes.graph.Graph
     """
+
     staple_graph, attachment_points_on_staple_dict = get_attachment_points(staple_graph)
 
     G_stapled_peptide_union = nx.union(peptide_graph, staple_graph, rename=("", prefix))
@@ -151,12 +154,13 @@ def get_peptide_json_from_sequence(sequence: str, db_json: dict) -> dict:
     """
     Constructs a peptide JSON object from a given peptide sequence and a database JSON.
 
-    Args:
-        sequence (str): The peptide sequence.
-        db_json (dict): The database JSON containing information about the peptide.
+    :param sequence: The peptide sequence.
+    :type sequence: str
+    :param  db_json: The database JSON containing information about the peptide.
+    :type db_json: dict
 
-    Returns:
-        dict: The constructed peptide JSON object.
+    :return: The constructed peptide JSON object.
+    :rtype: dict
     """
 
     N_terminus, C_terminus, sequence_str_wo_termini = find_termini(sequence, db_json)
@@ -177,16 +181,19 @@ def get_residue_symbols_from_sequence(
     """
     Retrieves the residue symbols from a given peptide sequence.
 
-    Args:
-        sequence (str): The peptide sequence.
-        db_json (dict): The database JSON containing the mapping of canonical sequences to residue symbols.
-        N_terminus (str, None): The symbol representing the N-terminus of the peptide. Defaults to None.
+    :param sequence: The peptide sequence.
+    :type sequence: str
+    :param db_json: The database JSON containing the mapping of canonical sequences to residue symbols.
+    :type db_json: dict
+    :param N_terminus: The symbol representing the N-terminus of the peptide. Defaults to None.
+    :type N_terminus: Union[str,None]
         C_terminus (str, None): The symbol representing the C-terminus of the peptide. Defaults to None.
 
-    Returns:
-        list: The list of residue symbols.
+    :return: The list of residue symbols.
+    :rtype: list
 
     """
+
     canonical_sequence = get_canonical(sequence, db_json)
     symbols_list_w_termini = parse_canonical(canonical_sequence)
     if N_terminus is None:
@@ -216,12 +223,13 @@ class Sequence(object):
         """
         Extracts the residue symbols from the peptide sequence.
 
-        Args:
-            db_json (dict): The JSON containing the peptide sequence information.
+        :param db_json: The JSON containing the peptide sequence information.
+        :type db_json: dict
 
-        Returns:
-            tuple: A tuple containing the residue symbols, N-terminus SMILES, and C-terminus SMILES.
+        :return: A tuple containing the residue symbols, N-terminus SMILES, and C-terminus SMILES.
+        :rtype: tuple
         """
+
         canonical_sequence = get_canonical(self.sequence, db_json)
         symbols_list_w_termini = parse_canonical(canonical_sequence)
         if self.N_terminus is None:
@@ -249,12 +257,13 @@ def get_coding(db_json: dict) -> dict:
     Retrieves the coding information from the given database JSON.
 
     Args:
-        db_json (dict): The database JSON containing the coding information.
+    :param db_json: The database JSON containing the coding information.
+    :type db_json: dict
 
-    Returns:
-        dict: The coding information.
-
+    :return: The coding information.
+    :rtype: dict
     """
+
     keys = [
         "l_proteogenic_3letter",
         "d_proteogenic_3letter",
@@ -274,19 +283,23 @@ def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
     """
     Get the molecule representation of a peptide sequence using a database JSON.
 
-    Args:
-        sequence (str): The peptide sequence.
-        db_json (dict): The database JSON containing information about the peptide building blocks.
-        N_terminus (str, optional): The N-terminus of the peptide. Defaults to None.
-        C_terminus (str, optional): The C-terminus of the peptide. Defaults to None.
+    :param sequence: The peptide sequence.
+    :type  sequence: str
+    :param db_json: The database JSON containing information about the peptide building blocks.
+    :type  db_json: dict
+    :param N_terminus: The symbol representing the N-terminus of the peptide. Defaults to None.
+    :type  N_terminus: Union[str,None]
+    :param C_terminus: The symbol representing the C-terminus of the peptide. Defaults to None.
+    :type  C_terminus: Union[str,None]
 
-    Returns:
-        rdkit.Chem.rdchem.Mol: The molecule representation of the peptide sequence.
+    :return: The molecule representation of the peptide sequence.
+    :rtype: rdkit.Chem.rdchem.Mol
 
     Raises:
         InvalidSymbolError: If any residue symbols in the sequence are not found in the database.
         InvalidSymbolError: If a residue symbol is not found in the database.
     """
+
     try:
         sequence_object = Sequence(sequence, N_terminus, C_terminus)
         residue_symbols, N_terminus_smiles, C_terminus_smiles = sequence_object.extract_residue_symbols(db_json)
@@ -362,14 +375,16 @@ def get_smiles_from_sequence(sequence: str, db_json: dict) -> str:
     """
     Get the SMILES representation of a peptide sequence.
 
-    Args:
-        sequence (str): The peptide sequence.
-        db_json (dict): The database JSON containing the molecule information.
+    :param sequence: The peptide sequence.
+    :type  sequence: str
 
-    Returns:
-        str: The SMILES representation of the peptide.
+    :param db_json: The database JSON containing information about the peptide building blocks.
+    :type  db_json: dict
 
+    :return: The SMILES representation of the peptide sequence.
+    :rtype: str
     """
+
     mol = get_molecule_from_sequence(
         sequence, db_json, N_terminus=None, C_terminus=None
     )
@@ -381,13 +396,16 @@ def get_molecule_from_json(j: dict, db_json: dict) -> rdkit.Chem.rdchem.Mol:
     """
     Get a molecule from a peptide JSON representation.
 
-    Args:
-        j (dict): The peptide JSON representation.
-        db_json (dict): The database JSON representation.
+    :param j: The peptide JSON representation.\
+    :type  j: dict
 
-    Returns:
-        rdkit.Chem.rdchem.Mol: The molecule representation of the peptide.
+    :param db_json: The database JSON containing information about the peptide building blocks.
+    :type  db_json: dict
+
+    :return: The molecule representation of the peptide.
+    :rtype: rdkit.Chem.rdchem.Mol
     """
+    
     sequence = j["sequence"]
     N_terminus = j.get("N_terminus")
     C_terminus = j.get("C_terminus")
@@ -415,13 +433,17 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
         """
         Builds a modified peptide molecule from a peptide JSON and a database JSON.
 
-        Args:
-            peptide_json (dict): The peptide JSON containing information about the peptide.
+        :param peptide_json: The peptide JSON containing information about the peptide.
+        :type peptide_json: dict
             db_json (dict): The database JSON containing information about the database.
 
-        Returns:
-            rdkit.Chem.rdchem.Mol: The modified peptide molecule.
+        :param db_json: The database JSON containing information about the peptide building blocks.
+        :type  db_json: dict
+            
+        :return: The modified peptide molecule.
+        :rtype: rdkit.Chem.rdchem.Mol
         """
+
         peptide_mol = get_molecule_from_json(peptide_json, db_json)
 
         peptide_graph = mol_to_nx(peptide_mol)
@@ -465,13 +487,16 @@ def get_smiles_from_peptide_json(peptide_json: dict, db_json: dict) -> str:
     """
     Get the SMILES representation of a peptide from a peptide JSON and a database JSON.
 
-    Args:
-        peptide_json (dict): The JSON representation of the peptide.
-        db_json (dict): The JSON representation of the database.
+    :param peptide_json: The peptide JSON containing information about the peptide.
+    :type peptide_json: dict
 
-    Returns:
-        str: The SMILES representation of the peptide.
+    :param db_json: The database JSON containing information about the peptide building blocks.
+    :type  db_json: dict
+
+    :return: The SMILES representation of the peptide.
+    :rtype: str
     """
+
     mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     smiles = rdkit.Chem.MolToSmiles(mol)
     return smiles

@@ -47,15 +47,20 @@ def get_start_x(
           W
          Y
 
-    Args:
-        left_margin (int): The left margin of the drawing area.
-        is_corner (bool): Indicates if the drawing is at a corner.
-        forward (bool): Indicates the direction of drawing.
-        step_x (float): The step size in the x-direction.
-        is_start (bool): Indicates if it is the start of drawing.
+    
+    :param left_margin: The left margin of the drawing area.
+    :type left_margin: int
+    :param is_corner: Indicates if the drawing is at a corner.
+    :type is_corner: bool
+    :param forward: Indicates the direction of drawing.
+    :type forward: bool
+    :param step_x: The step size in the x-direction.
+    :type step_x: float
+    :param is_start: Indicates if it is the start of drawing.
+    :type is_start: bool
 
-    Returns:
-        float: The starting x-coordinate for drawing.
+    :return: The starting x-coordinate for drawing.
+    :rtype: float
     """
 
     right_margin = left_margin + (8.6 * step_x)
@@ -79,12 +84,13 @@ def get_rev_x_and_font_size(symbol: str, variable_font_size: int = True) -> tupl
     """
     Calculate the reverse x-coordinate and font size based on the length of the symbol.
 
-    Args:
-        symbol (str): The symbol for which to calculate the reverse x-coordinate and font size.
-        variable_font_size (int, optional): Determines whether the font size should vary based on the symbol length. Defaults to True.
+    :param symbol: The symbol for which to calculate the reverse x-coordinate and font size.
+    :type symbol: str
+    :param variable_font_size: Determines whether the font size should vary based on the symbol length. Defaults to True.
+    :type variable_font_size: bool
 
-    Returns:
-        tuple: A tuple containing the reverse x-coordinate and font size.
+    :return: A tuple containing the reverse x-coordinate and font size.
+    :rtype: tuple
     """
     length = len(symbol)
     if not variable_font_size:
@@ -128,18 +134,25 @@ def generate_kwargs_for_text_in_ellipse_balls(
     """
     Generate keyword arguments for placing text in ellipse balls.
 
-    Args:
-        symbols (list): List of symbols to be placed in the ellipse balls.
-        y (float): Y-coordinate for placing the text.
-        forward (bool, optional): Direction of placement. Defaults to True.
-        is_corner (bool, optional): Flag indicating if the placement is in a corner. Defaults to False.
-        is_start (bool, optional): Flag indicating if it is the start of placement. Defaults to False.
-        left_margin (float, optional): Left margin for the placement. Defaults to 100.
-        step_x (float, optional): Step size for the placement. Defaults to 100.
+    :param symbols: List of symbols to be placed in the ellipse balls.
+    :type symbols: list
+    :param y: Y-coordinate for placing the text.
+    :type y: float    
+    :param forward: Direction of placement. Defaults to True.
+    :type forward: bool
+    :param is_corner: Flag indicating if the placement is in a corner. Defaults to False.
+    :type is_corner: bool
+    :param is_start: Flag indicating if it is the start of placement. Defaults to False.
+    :type is_start: bool
+    :param left_margin: Left margin for the placement. Defaults to 100.
+    :type left_margin: float
+    :param step_x: Step size for the placement. Defaults to 100.
+    :type step_x: float
 
-    Returns:
-        list: List of keyword arguments for placing the text in ellipse balls.
+    :return: List of keyword arguments for placing the text in ellipse balls.
+    :rtype: list
     """
+
     
     startx = get_start_x(
         left_margin=left_margin,
@@ -177,17 +190,23 @@ def generate_kwargs_for_ellipse_balls(
     """
     Generate keyword arguments for ellipse balls.
 
-    Args:
-        symbols (list): List of symbols.
-        y (float): Y-coordinate of the ellipse balls.
-        forward (bool, optional): Direction of movement. Defaults to True.
-        is_corner (bool, optional): Flag indicating if it is a corner. Defaults to False.
-        is_start (bool, optional): Flag indicating if it is the start. Defaults to False.
-        left_margin (float, optional): Left margin. Defaults to 100.
+    :param symbols: List of symbols.
+    :type symbols: list
+    :param y: Y-coordinate of the ellipse balls.
+    :type y: float
+    :param forward: Direction of movement. Defaults to True.
+    :type forward: bool
+    :param is_corner: Flag indicating if it is a corner. Defaults to False.
+    :type is_corner: bool
+    :param is_start: Flag indicating if it is the start. Defaults to False.
+    :type is_start: bool
+    :param left_margin: Left margin. Defaults to 100.
+    :type left_margin: float
 
-    Returns:
-        list: List of keyword arguments for ellipse balls.
+    :return: List of keyword arguments for ellipse balls.
+    :rtype: list
     """
+
     step_x = 100
     startx = get_start_x(
         left_margin=left_margin,
@@ -255,12 +274,13 @@ def get_is_corner(num_iteration: int = None) -> bool:
     W               num_iteration = 3 => True
      Y              num_iteration = 4 => False
 
-    Args:
-        num_iteration (int): The number of iterations.
+    :param num_iteration: The number of iterations.
+    :type num_iteration: int
 
-    Returns:
-        bool: True if the number of iterations is a corner, False otherwise.
+    :return: True if the number of iterations is a corner, False otherwise.
+    :rtype: bool 
     """
+
     odd = bool(num_iteration % 2)
     return odd
 
@@ -274,12 +294,13 @@ def get_direction(num_iteration: int = None) -> str:
     W               num_iteration = 3 => forward
      Y              num_iteration = 4 => forward
 
-    Args:
-        num_iteration (int): The number of iterations.
+    :param num_iteration: The number of iterations.
+    :type num_iteration: int
 
-    Returns:
-        str: The direction, either "forward" or "reverse".
+    :return: The direction, either "forward" or "reverse".
+    :rtype: str
     """
+
     remainder = num_iteration % 4
     if remainder in [0, 3]:
         return "forward"
@@ -301,15 +322,17 @@ def get_fragment_length(remaining_length: int=None, num_iteration: int=None,
     W               num_iteration = 3; remaining_length = 2 => length = 1
      Y              num_iteration = 4; remaining_length = 1 => length = 1
 
-    Args:
-        remaining_length (int): The remaining length of the sequence.
-        num_iteration (int): The current iteration number.
-        lengths (dict): A dictionary containing the lengths for different types of fragments.
+    :param remaining_length: The remaining length of the sequence.
+    :type remaining_length: int
+    :param num_iteration: The current iteration number.
+    :type num_iteration: int
+    :param lengths: A dictionary containing the lengths for different types of fragments.
+    :type lengths: dict
 
-    Returns:
-        int: The length of the fragment.
-
+    :return: The length of the fragment.
+    :rtype: int
     """
+
     is_first = (num_iteration == 0)
     if is_first:
         fragment_length = lengths['first']
@@ -341,13 +364,13 @@ def schema_layout_generator_from_symbols(symbols: list):
         (['Y'], 1, 'forward', False)
         ]
 
-    Args:
-        symbols (list): A list of symbols.
+    :param symbols: A list of symbols.
+    :type symbols: list
 
     Yields:
         tuple: A tuple containing the generated sequence fragment, fragment length, fragment direction, and whether it is a corner.
-
     """
+
     remaining_symbols = symbols
     remaining_symbols.reverse()
 
@@ -386,16 +409,21 @@ def get_fragment_kwargs(
     Generate keyword arguments for drawing a fragment in the sequence diagram.
     seq_fragment, fragment_length, fragment_direction, is_corner = fragment
 
-    Args:
-        symbols (list): List of symbols representing the fragment.
-        y (float, optional): Y-coordinate of the fragment. Defaults to 70.
-        is_start (bool, optional): Indicates if the fragment is the starting fragment. Defaults to True.
-        fragment_direction (str, optional): Direction of the fragment. Can be "forward" or "reverse". Defaults to "forward".
-        is_corner (bool, optional): Indicates if the fragment is a corner fragment. Defaults to False.
+    :param symbols: List of symbols representing the fragment.
+    :type symbols: list
+    :param y: Y-coordinate of the fragment. Defaults to 70.
+    :type y: float
+    :param is_start: Indicates if the fragment is the starting fragment. Defaults to True.
+    :type is_start: bool
+    :param fragment_direction: Direction of the fragment. Can be "forward" or "reverse". Defaults to "forward".
+    :type fragment_direction:  str
+    :param is_corner: Indicates if the fragment is a corner fragment. Defaults to False.
+    :type is_corner: bool
 
-    Returns:
-        tuple: A tuple containing the keyword arguments for drawing the fragment and the text inside the fragment.
+    :return: A tuple containing the keyword arguments for drawing the fragment and the text inside the fragment.
+    :rtype: tuple
     """
+
     if fragment_direction == "forward":
         forward = True
     elif fragment_direction == "reverse":
@@ -415,12 +443,13 @@ def get_N_terminus_params(params: dict) -> dict:
     Returns a modified dictionary of parameters for the N-terminus.
     gets N terminus params
 
-    Args:
-        params (dict): The original dictionary of parameters.
+    :param params: The original dictionary of parameters.
+    :type params: dict
 
-    Returns:
-        dict: The modified dictionary of parameters.
+    :return: The modified dictionary of parameters.
+    :rtype: dict
     """
+
     out_params = copy.deepcopy(params)
     mod_params = {
         "radius": 35,
@@ -441,13 +470,15 @@ def get_C_terminus_params(params: dict, previous_params:dict) -> dict:
     """
     Calculates the parameters for the C-terminus of a peptide sequence.
 
-    Args:
-        params (dict): The parameters for the C-terminus.
-        previous_params (dict): The parameters for the previous residue.
+    :param  params: The parameters for the C-terminus.
+    :type params: dict
+    :param previous_params: The parameters for the previous residue.
+    :type previous_params: dict
 
-    Returns:
-        dict: The updated parameters for the C-terminus.
+    :return: The updated parameters for the C-terminus.
+    :rtype: dict
     """
+
     c_terminus_x = params["x"]
     out_params = copy.deepcopy(params)
 
@@ -478,15 +509,18 @@ def get_kwargs_from_symbols(symbols: list, termini_present: list = ["N", "C"]) -
     ['D', 'E', 'Cys(R1)', 'A', 'A', 'K', 'D', 'F', 'V', 'Cys(R2)', 'W', 'L', 'L', 'D', 'H', 'H'] + \
     ['P', 'S', 'S', 'G', 'Q', 'P', 'P', 'P', 'S', 'CN', 'C', '123456789', 'NH2']
 
-    Args:
-        symbols (list): List of symbols.
-        termini_present (list, optional): List of termini to include. Defaults to ["N", "C"].
+    :param symbols: List of symbols.
+    :type symbols: list
+    :param termini_present: List of termini to include. Defaults to ["N", "C"].
+    :type termini_present: list
 
-    Returns:
-        tuple: A tuple containing two lists - all_kwargs_list and all_kwargs_text_list.
-            - all_kwargs_list: List of keyword arguments for drawing symbols.
-            - all_kwargs_text_list: List of keyword arguments for drawing text associated with symbols.
+    :return: A tuple containing two lists - all_kwargs_list and all_kwargs_text_list.
+    :rtype: tuple
+
+    - all_kwargs_list: List of keyword arguments for drawing symbols.
+    - all_kwargs_text_list: List of keyword arguments for drawing text associated with symbols.
     """
+
     fragments = list(schema_layout_generator_from_symbols(symbols))
     y = 70
     is_start = True
@@ -550,17 +584,25 @@ def draw_ellipse_ball(
     Draws an ellipse on the provided cairo.Context at the specified (x, y) coordinates.
 
     Args:
-        cairo_context (cairo.Context): The cairo context on which to draw the ellipse.
-        x (int): The x-coordinate of the center of the ellipse.
-        y (int): The y-coordinate of the center of the ellipse.
-        rgb_fractions (tuple): The RGB color fractions (0-1) for the interior of the ellipse.
-        outline_rgb_fractions (tuple, optional): The RGB color fractions (0-1) for the outline of the ellipse. Defaults to (0.3, 0.3, 0.3).
-        outline_width (int, optional): The width of the outline. Defaults to 2.
-        radius (int, optional): The radius of the ellipse. Defaults to 50.
+    :param cairo_context: The cairo context on which to draw the ellipse.
+    :type cairo_context: cairo.Context
+    :param x: The x-coordinate of the center of the ellipse.
+    :type x: int
+    :param y: The y-coordinate of the center of the ellipse.
+    :type y: int
+    :param rgb_fractions: The RGB color fractions (0-1) for the interior of the ellipse.
+    :type rgb_fractions: tuple
+    :param outline_rgb_fractions: The RGB color fractions (0-1) for the outline of the ellipse. Defaults to (0.3, 0.3, 0.3).
+    :type outline_rgb_fractions: tuple, optional
+    :param outline_width: The width of the outline. Defaults to 2.
+    :type outline_width: int, optional
+    :param radius: The radius of the ellipse. Defaults to 50.
+    :type radius: int
 
-    Returns:
-        cairo.Context: The modified cairo context after drawing the ellipse.
+    :return: The modified cairo context after drawing the ellipse.
+    :rtype: cairo.Context
     """
+
     cairo_context.save()
     cairo_context.translate(x, y)
     cairo_context.scale(1, 0.7)
@@ -585,13 +627,15 @@ def draw_ellipse_balls(cairo_context: cairo.Context, keyword_args_sequence: list
     The color of ellipse inside is given by rgb_fractions
     Outline of ellipse is grey (0.3, 0.3, 0.3)
 
-    Args:
-        cairo_context (cairo.Context): The Cairo context on which to draw the ellipse balls.
-        keyword_args_sequence (list): A list of dictionaries containing keyword arguments for each ellipse ball.
+    :param cairo_context: The Cairo context on which to draw the ellipse balls.
+    :type cairo_context: cairo.Context
+    :param keyword_args_sequence: A list of dictionaries containing keyword arguments for each ellipse ball.
+    :type keyword_args_sequence: list
 
-    Returns:
-        cairo.Context: The updated Cairo context after drawing the ellipse balls.
+    :return: The modified Cairo context after drawing the ellipse balls.
+    :rtype: cairo.Context
     """
+
     for kwargs in keyword_args_sequence:
         x = kwargs["x"]
         y = kwargs["y"]
@@ -620,16 +664,21 @@ def draw_text_in_ellipse(cairo_context: cairo.Context, x: int, y: int, text: str
     The color of text is white
     and font is Purisa
 
-    Args:
-        cairo_context (cairo.Context): The Cairo context to draw on.
-        x (int): The x-coordinate of the center of the ellipse.
-        y (int): The y-coordinate of the center of the ellipse.
-        text (str): The text to be drawn.
-        font_size (int, optional): The font size of the text. Defaults to 34.
+    :param cairo_context: The Cairo context to draw on.
+    :type cairo_context: cairo.Context
+    :param x: The x-coordinate of the center of the ellipse.
+    :type x: int
+    :param y: The y-coordinate of the center of the ellipse.
+    :type y: int
+    :param text: The text to be drawn.
+    :type text: str
+    :param font_size: The font size of the text. Defaults to 34.
+    :type font_size: int
 
-    Returns:
-        cairo.Context: The updated Cairo context.
+    :return: The modified Cairo context after drawing the text.
+    :rtype: cairo.Context
     """
+
     text_rgb_fractions = (1.0, 1.0, 1.0)
     cairo_context.set_source_rgb(*text_rgb_fractions)
     font_face_args = ("Purisa", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
@@ -651,17 +700,19 @@ def draw_text_in_ellipse_balls(
     The color of text is white
     and font is Purisa
 
-    Args:
-        cairo_context (cairo.Context): The Cairo context to draw on.
-        keyword_args_sequence (list): A list of dictionaries containing keyword arguments for each ellipse ball.
-            Each dictionary should contain the following keys:
+    :param cairo_context: The Cairo context to draw on.
+    :type cairo_context: cairo.Context
+    :param keyword_args_sequence: A list of dictionaries containing keyword arguments for each ellipse ball.
+    :type keyword_args_sequence: list
+
+    Each dictionary should contain the following keys:
             - 'x' (float): The x-coordinate of the center of the ellipse ball.
             - 'y' (float): The y-coordinate of the center of the ellipse ball.
             - 'text' (str): The text to be drawn inside the ellipse ball.
             - 'font_size' (float): The font size of the text.
 
-    Returns:
-        cairo.Context: The updated Cairo context after drawing the text in the ellipse balls.
+    :return: The updated Cairo context after drawing the text in the ellipse balls.
+    :rtype: cairo.Context
     """
     for kwargs in keyword_args_sequence:
         x = kwargs["x"]
@@ -678,12 +729,13 @@ def get_png_string_from_surface(surface: cairo.ImageSurface) -> bytes:
     turns cairo.ImageSurface into png byte buffer
     and then into PNG image format string
 
-    Args:
-        surface (cairo.ImageSurface): The Cairo ImageSurface to convert.
+    :param surface: The Cairo ImageSurface to convert.
+    :type surface: cairo.ImageSurface
 
-    Returns:
-        bytes: The PNG string representation of the ImageSurface.
+    :return: The PNG string representation of the ImageSurface.
+    :rtype: bytes
     """
+
     buffer = BytesIO()
     surface.write_to_png(buffer)  # _stream
     pngData = buffer.getvalue()
@@ -710,16 +762,21 @@ def draw_symbols(symbols: list, width: int = 1024, height: int = 1024,
     and/or 
     whether C terminus different than 'OH' is present
 
-    Args:
-        symbols (list): List of symbols to be drawn.
-        width (int, optional): Width of the surface in pixels. Defaults to 1024.
-        height (int, optional): Height of the surface in pixels. Defaults to 1024.
-        termini_present (list, optional): List of termini present in the symbols. Defaults to ["N", "C"].
-        out (str, optional): Output file path to save the image. If not provided, the image is returned as a PNG string.
+    :param symbols: List of symbols to be drawn.
+    :type symbols: list
+    :param width: Width of the surface in pixels. Defaults to 1024.
+    :type width: int
+    :param height: Height of the surface in pixels. Defaults to 1024.
+    :type height: int
+    :param termini_present: List of termini present in the symbols. Defaults to ["N", "C"].
+    :type termini_present: list
+    :param out: Output file path to save the image. If not provided, the image is returned as a PNG string.
+    :type out: str, optional
 
-    Returns:
-        str: If out is provided, returns the output file path. Otherwise, returns the PNG image as a string.
+    :return: If out is provided, returns the output file path. Otherwise, returns the PNG image as a string.
+    :rtype: str
     """
+
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     cairo_context = cairo.Context(surface)
     kwargs_list, kwargs_text_list = get_kwargs_from_symbols(

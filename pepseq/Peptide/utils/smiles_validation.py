@@ -14,11 +14,11 @@ def has_attachment_point(smiles: str) -> bool:
     """
     Check if a given SMILES string has an attachment point.
 
-    Args:
-        smiles (str): The SMILES string to check.
+    :param smiles (str): The SMILES string to check.
+    :type smiles: str
 
-    Returns:
-        bool: True if the SMILES string has an attachment point, False otherwise.
+    :return: True if the SMILES string has an attachment point, False otherwise.
+    :rtype: bool
     """
     mol = rdkit.Chem.MolFromSmiles(smiles)
     for atom in mol.GetAtoms():
@@ -31,8 +31,8 @@ def validate_attachment_points_on_smiles(smiles_codes: list[str]):
     """
     Validates the attachment points on a list of SMILES codes.
     
-    Args:
-        smiles_codes (list[str]): A list of SMILES codes to validate.
+    :param smiles_codes: A list of SMILES codes to validate.
+    :type smiles_codes: list[str]
     
     Raises:
         UnattachedSmilesError: If any of the SMILES codes do not have an attachment point to Peptide.
@@ -52,11 +52,11 @@ def can_create_rdkit_molecule(smiles: str) -> bool:
     """
     Check if a molecule can be created from a SMILES string.
 
-    Args:
-        smiles (str): The SMILES string to check.
+    :param smiles (str): The SMILES string to check.
+    :type smiles: str
 
-    Returns:
-        bool: True if a molecule can be created from the SMILES string, False otherwise.
+    :return: True if a molecule can be created from the SMILES string, False otherwise.
+    :rtype: bool
     """
     mol = rdkit.Chem.MolFromSmiles(smiles)
     if mol is None:
@@ -69,14 +69,15 @@ def validate_structure_by_rdkit(smiles_codes: Union[list[str], None] = None):
     This validates SMILES by rdkit
     Validates a list of SMILES codes.
 
-    Args:
-        smiles_codes (list[str], None): A list of SMILES codes to be validated.
+    :param smiles_codes: A list of SMILES codes to be validated.
+    :type smiles_codes: list[str]
 
+    :return: None
+    :rtype: None
+    
     Raises:
         InvalidSmilesError: If any of the SMILES codes is invalid and cannot be constructed into a molecule.
 
-    Returns:
-        None
     """
     if smiles_codes is not None:
         for i in range(len(smiles_codes)):
@@ -89,8 +90,8 @@ def validate_smiles_codes(smiles_codes: Union[list[str], None] = None):
     """
     Validates a list of SMILES codes.
 
-    Args:
-        smiles_codes (list[str], None): A list of SMILES codes to be validated.
+    :param smiles_codes: A list of SMILES codes to be validated.
+    :type smiles_codes: list[str]
 
     Raises:
         InvalidSmilesError: If any of the SMILES codes is invalid and cannot be constructed into a molecule.

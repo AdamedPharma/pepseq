@@ -23,12 +23,13 @@ def calculate_pepseq_and_mods(smiles: str) -> dict:
     """
     Calculate the peptide sequence and modification strings from a given SMILES string.
 
-    Args:
-        smiles (str): The SMILES string representing the peptide.
+    :param smiles: The SMILES string representing the peptide.
+    :type smiles: str
 
-    Returns:
-        dict: A dictionary containing the peptide sequence and modification strings.
+    :return: A dictionary containing the peptide sequence and modification strings.
+    :rtype: dict
     """
+
     return from_smiles_to_pepseq_and_mod_smiles_strings(smiles, db_json)
 
 
@@ -36,13 +37,15 @@ def validate(pepseq: str, smiles: List[str] = [], db: dict = db_json):
     """
     Validates a peptide sequence and its associated SMILES strings.
 
-    Args:
-        pepseq (str): The peptide sequence to validate.
-        smiles (List[str], optional): List of SMILES strings associated with the peptide sequence. Defaults to [].
-        db (dict, optional): The database to use for validation. Defaults to db_json.
+    :param pepseq: The peptide sequence to validate.
+    type pepseq: str
+    :param smiles: List of SMILES strings associated with the peptide sequence. Defaults to [].
+    :type smiles: List[str]
+    :param db: The database to use for validation. Defaults to db_json.
+    :type db: dict
 
-    Returns:
-        None
+    :return: None
+    :rtype: None
     """
     validation.validate(pepseq=pepseq, smiles=smiles)
 
@@ -51,18 +54,21 @@ def calculate(pepseq: str, smiles: list[str] = [], db: dict = None) -> dict:
     """
     Calculate various properties of a peptide sequence.
 
-    Args:
-        pepseq (str): The peptide sequence.
-        smiles (list[str], optional): List of SMILES strings. Defaults to [].
-        db (dict, optional): Database dictionary. Defaults to None.
+    :param pepseq: The peptide sequence.
+    :type pepseq: str
+    :param smiles: List of SMILES strings. Defaults to [].
+    :type smiles: list[str]
+    :param db: Database dictionary. Defaults to None.
+    :type db: dict
 
-    Returns:
-        dict: A dictionary containing the calculated properties:
+    :return: A dictionary containing the calculated properties:
             - complete_smiles (str): The complete SMILES string.
             - length (int): The length of the peptide sequence.
             - mw (float): The molecular weight of the peptide.
             - sequence (str): The peptide sequence.
+    :rtype: dict
     """
+
     if smiles == []:
         smiles = None
     if db is None:

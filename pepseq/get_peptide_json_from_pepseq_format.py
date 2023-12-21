@@ -23,7 +23,10 @@ def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles
 
     :param mod_smiles: SMILES code for External Modification
 
+    :return: JSON representation of External Modification
+    :rtype: Dict
     """
+
     mod_mol = rdkit.Chem.MolFromSmiles(mod_smiles)
     mod_atoms = mod_mol.GetAtoms()
 
@@ -54,12 +57,15 @@ def get_ext_mod_json(symbols: list[str], smiles: list) -> list:
     Get the JSON representation of external modifications based on symbols and SMILES.
 
     Args:
-        symbols (list[str]): List of symbols representing attachment points on the sequence.
-        smiles (list): List of SMILES strings representing the modifications.
+    :param symbols: List of symbols representing attachment points on the sequence.
+    :type  symbols: list[str]
+    :param smiles: List of SMILES strings representing the modifications.
+    :type  smiles: list[str]
 
-    Returns:
-        list: List of JSON representations of external modifications.
+    :return: List of JSON representations of external modifications.
+    :rtype: list
     """
+
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
     ext_mod_jsons = []
 
@@ -76,12 +82,13 @@ def get_smiles_json(symbols: str, mod_smiles_list: list[str]):
     """
     Retrieves the JSON representation of modified peptides based on their SMILES representation.
 
-    Args:
-        mod_smiles_list (list[str]): A list of SMILES representations of modified peptides.
+    :param mod_smiles_list: A list of SMILES representations of modified peptides.
+    :type  mod_smiles_list: list[str]
 
-    Returns:
-        list: A list of JSON objects representing the modified peptides. If no modified peptides are found, an empty list is returned.
+    :return: A list of JSON objects representing the modified peptides. If no modified peptides are found, an empty list is returned.
+    :rtype: list
     """
+
     if mod_smiles_list is not None:
         ext_mod = get_ext_mod_json(symbols, mod_smiles_list)
         if ext_mod is not None:
@@ -96,14 +103,15 @@ def get_pepseq_json(pepseq_format: str, db_json: Dict = db_json):
     """
     Convert a peptide sequence in pepseq format to a JSON representation.
 
-    Args:
-        pepseq_format (str): The peptide sequence in pepseq format.
-        db_json (Dict, optional): The database JSON containing the mapping of symbols to amino acids. Defaults to db_json.
+    :param pepseq_format: The peptide sequence in pepseq format.
+    :type  pepseq_format: str
+    :param db_json: The database JSON containing the mapping of symbols to amino acids. Defaults to db_json.
+    :type  db_json: Dict
 
-    Returns:
-        dict: A JSON representation of the peptide sequence.
-
+    :return: A JSON representation of the peptide sequence.
+    :rtype: Dict
     """
+
     N_terminus, C_terminus, pepseq = find_termini(pepseq_format, db_json)
     symbols = parse_canonical2(pepseq)
     base_seq = get_base_seq(symbols)
@@ -145,13 +153,15 @@ def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: l
     'internal_modifications':
     'external_modifications':
 
-    Args:
-        pepseq_format (str): The peptide sequence in pepseq format.
-        db_json (Dict, optional): The database JSON object. Defaults to db_json.
-        mod_smiles_list (list, optional): The list of modified SMILES strings. Defaults to None.
+    :param pepseq_format: The peptide sequence in pepseq format.
+    :type  pepseq_format: str
+    :param db_json: The database JSON object. Defaults to db_json.
+    :type  db_json: Dict
+    :param mod_smiles_list: The list of modified SMILES strings. Defaults to None.
+    :type  mod_smiles_list: list[str]
 
-    Returns:
-        Dict: The JSON object representing the peptide sequence.
+    :return: The JSON object representing the peptide sequence.
+    :rtype: Dict
     """
 
     pep_json = get_pepseq_json(pepseq_format, db_json)

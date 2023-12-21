@@ -34,11 +34,11 @@ def get_attachment_points_on_smiles(smiles_code: str) -> list:
     """
     Retrieves the attachment points on a SMILES code.
 
-    Args:
-        smiles_code (str): The SMILES code.
+    :param smiles_code: The SMILES code.
+    :type smiles_code: str
 
-    Returns:
-        list: A list of attachment point IDs.
+    :return: A list of attachment point IDs.
+    :rtype: list
     """
     attachment_points_ids = []
     mol = rdkit.Chem.MolFromSmiles(smiles_code)
@@ -54,11 +54,11 @@ def get_attachment_points_on_smiles_codes(smiles_codes: Union[list, None] = None
     """
     Retrieves the attachment points on SMILES codes.
 
-    Args:
-        smiles_codes (Union[list, None], optional): List of SMILES codes. Defaults to None.
+    :param smiles_codes: List of SMILES codes. Defaults to None.
+    :type smiles_codes: Union[list, None], optional
 
-    Returns:
-        set: Set of attachment point IDs.
+    :return: Set of attachment point IDs.
+    :rtype: set
 
     Raises:
         AttachmentPointsNonUniqueError: If attachment point labels on SMILES are not unique.
@@ -79,9 +79,10 @@ def validate_matching_attachment_points(pepseq: str, smiles_codes: list):
     """
     Validates if the attachment points on a peptide sequence match the attachment points on SMILES codes.
 
-    Args:
-        pepseq (str): The peptide sequence.
-        smiles_codes (list): List of SMILES codes.
+    :param pepseq: The peptide sequence.
+    :type pepseq: str
+    :param smiles_codes: List of SMILES codes.
+    :type smiles_codes: list
 
     Raises:
         AttachmentPointsMismatchError: If the attachment points on the sequence do not match the attachment points on the SMILES codes.
@@ -95,9 +96,6 @@ def validate_matching_attachment_points(pepseq: str, smiles_codes: list):
     attachment_points_on_sequence = get_attachment_points_on_sequence_json(symbols)
     attachment_point_ids_on_sequence = set(attachment_points_on_sequence.keys())
     attachment_point_ids_on_smiles = get_attachment_points_on_smiles_codes(smiles_codes)
-    print(
-        attachment_point_ids_on_smiles, attachment_point_ids_on_sequence,
-        attachment_point_ids_on_smiles == attachment_point_ids_on_sequence )
     if (attachment_point_ids_on_sequence != attachment_point_ids_on_smiles):
         raise AttachmentPointsMismatchError(
             'Attachment Points on Sequence: %s do not Match Attachment Points on Smiles: %s' % (
@@ -110,11 +108,9 @@ def validate (pepseq: str, smiles: List[str] = [], db: dict = db_json):
 
     :param pepseq – obligatory parameter pepseq in form like 
         CSCACGCK or {CH3}-CSCACGCK-{NH2} or CS{Cys(R1)}GACG~NH2
-
     :type pepseq: str
 
     :param smiles – list of smiles codes that can be empty or full; can 
-
     :type    smiles: List[str]
      
     """

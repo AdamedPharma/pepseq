@@ -49,7 +49,7 @@ def get_R3(G: nx.Graph, label: str = 'R3') -> int:
     :param label: 'dummyLabel' to look for 'R3'
     :type  label: str
 
-    :return i: Index of dummyAtom (radical) marked as R3
+    :return: Index of dummyAtom (radical) marked as R3
     :rtype: int
     """
     G_nodes = list( G.nodes(data=True) )
@@ -160,7 +160,7 @@ def get_smiles_set(db_json: dict) -> set:
     """
     Return set of all SMILES codes for all monomers/building blocks found in db_json database
 
-    :param db_json database containing info on monomers/building blocks for Modified Peptides
+    :param db_json: database containing info on monomers/building blocks for Modified Peptides
     :type  db_json: dict
 
     :return smiles_set: set of all SMILES codes for all monomers/building blocks found in db_json database
@@ -179,7 +179,7 @@ def get_row_jsons(new_monomers_dataframe: pd.DataFrame, colname='m_abbr', mol_co
     Create JSON for database of new monomers to be added to monomers database (db_json). Add only monomers
     not yet present in db_json (check for duplicate SMILES codes).
 
-    :param df_new: DataFrame 
+    :param df_new: DataFrame with rows containing info on monomers to be added to monomers database
     :type df_new: pd.DataFrame
 
     :param colname: name of DataFrame column containing name for the monomer/building block
@@ -188,7 +188,7 @@ def get_row_jsons(new_monomers_dataframe: pd.DataFrame, colname='m_abbr', mol_co
     :param mol_colname: name of DataFrame column containing monomer/building block rdkit.Mol object
     :type  mol_colname: str
 
-    :return: new_monomers_db_json - database of new monomers
+    :return: database of new monomers
     :rtype:  dict
     """
     new_monomers_db_json = {} 
@@ -222,7 +222,7 @@ def augment_db_json(db_json: dict, df_sdf: pd.DataFrame = None, name_column = 'm
     :param mol_colname: name of DataFrame column containing monomer/building block rdkit.Mol object
     :type  mol_colname: str
 
-    :return: db_json - database of monomers inserted with new monomers read from SDF file through
+    :return: database of monomers inserted with new monomers read from SDF file through
     pandas DataFrame
     :rtype:  dict
     """
@@ -251,9 +251,8 @@ def replace_atom(mol: rdkit.Chem.rdchem.Mol, atom_id: int, atom_smarts: str) -> 
     :param atom_smarts: SMARTS code for pattern to be assigned to atom
     :type  atom_smarts: str
 
-    :return mol_new_smarts: SMARTS code for new updated molecule pattern
+    :return: SMARTS code for new updated molecule pattern
     :rtype str
-
     """
 
     atom = mol.GetAtomWithIdx(atom_id)
@@ -287,8 +286,7 @@ def N_term_mod_smarts(smarts: str) -> Union[str, None]:
     :param smarts: SMARTS code
     :type  smarts: str
 
-    :return mol_new_smarts: new SMARTS code updated with N terminally modified 
-    N atom pattern
+    :return: new SMARTS code updated with N terminally modified N atom pattern
     :rtype: str
     """
     sm_start =   '[$([N&X3&H2,N&X4&H3&+]),$([N&X3&H1](C)C)]'
@@ -314,7 +312,7 @@ def get_Nter_versions_cxsmarts_db(aa_smarts_dict: dict) -> dict:
     :param aa_smarts_dict: dictionary database of SMARTS codes for amino_acids 
     :type  aa_smarts_dict: dict
 
-    :return: updated_aa_smarts_dict: updated dictionary of SMARTS codes for amino acids
+    :return: updated dictionary of SMARTS codes for amino acids
     with patterns changed to include N terminal modifications
     :rtype: dict
 
@@ -336,7 +334,7 @@ def get_Nter_versions(aa_smarts_dict: dict) -> dict:
     :param aa_smarts_dict: dictionary database of SMARTS codes for amino_acids 
     :type  aa_smarts_dict: dict
 
-    :return: updated_aa_smarts_dict: updated dictionary of SMARTS codes for amino acids
+    :return: updated dictionary of SMARTS codes for amino acids
     with patterns changed to include N terminal modifications
     :rtype: dict
     """
@@ -361,7 +359,7 @@ def change_exit_atom(smiles: str) -> str:
     :param smiles: SMILES code for amino acid with R3 radical connected to Exit Atom
     :type  smiles: str
 
-    :return smiles: SMILES code for amino acid with removed R3 but Exit Atom labeled as such
+    :return: SMILES code for amino acid with removed R3 but Exit Atom labeled as such
     :rtype: str
 
     """
@@ -414,7 +412,7 @@ def get_substructure_relations(mols: list[rdkit.Chem.rdchem.Mol]) -> list:
     :param mols: list of rdkit.Chem.rdchem.Mol
     :type  mols: list[rdkit.Chem.rdchem.Mol]
 
-    :return substructure_relations: all cases where one amino acid is a sbustructure
+    :return: all cases where one amino acid is a substructure
     of others (e.g. glycine in serine or alanine in phenylalanine)
     :rtype: list
     """
@@ -439,7 +437,7 @@ def order_graph_nodes_from_root_to_leaves(G: nx.DiGraph, aa_codes: list[str]):
     :param aa_codes: list of amino acid nodes names
     :type  aa_codes: list: str
 
-    :return new_aa_order: list of ordered amino acids from smallest to biggest
+    :return: list of ordered amino acids from smallest to biggest
     :rtype: list
 
     """
@@ -475,7 +473,11 @@ def order_aas(db_json: dict) -> list:
 
     :param db_json: database containing info on Modified Peptide monomers/building blocks
     :type  db_json: dict
-        
+
+    :return: new_aa_order - list of amino acids ordered from smallest to largest:
+        e.g. ['Gly', 'Ala', 'Ser', 'Phe']
+    :rtype: list    
+
     """
     aa_smiles = db_json.get('smiles').get('aa')
     aa_codes = sorted(aa_smiles.keys())
@@ -503,7 +505,7 @@ def remove_radicals(smarts: str) -> str:
     :param smarts: SMARTS code for amino acid
     :type  smarts: str
 
-    :return: cx_smarts - CXSMARTS code for amino acid with removed radicals / dummyAtoms
+    :return: CXSMARTS code for amino acid with removed radicals / dummyAtoms
     :rtype: str
         
     """

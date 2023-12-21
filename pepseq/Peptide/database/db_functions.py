@@ -2,11 +2,11 @@ def get_coding(db_json: dict) -> dict:
     """
     Get the coding dictionary from the given database JSON.
 
-    Args:
-        db_json (dict): The database JSON.
+    :param db_json: The database JSON.
+    :type db_json: dict
 
-    Returns:
-        dict: The coding dictionary.
+    return: The coding dictionary.
+    :rtype: dict
     """
     keys = [
         "l_proteogenic_3letter",

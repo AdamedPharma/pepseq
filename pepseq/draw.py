@@ -14,14 +14,17 @@ def draw_pepseq(
     Draw Peptide Schema Image based on sequence. Save it to (image_file_name)
     if image_file_name is not provided an UUID is generated.
 
-    Args:
-        pepseq (str): The peptide sequence to be drawn.
-        width (int, optional): The width of the drawing in pixels. Defaults to 1124.
-        height (int, optional): The height of the drawing in pixels. Defaults to 640.
-        omit_standard_termini (bool, optional): Whether to omit standard termini (N-terminus and C-terminus) from the drawing. Defaults to False.
+    :param pepseq: The peptide sequence to be drawn.
+    :type  pepseq: str
+    :param width: The width of the drawing in pixels. Defaults to 1124.
+    :type  width: int
+    :param height: The height of the drawing in pixels. Defaults to 640.
+    :type  height: int
+    :param omit_standard_termini: Whether to omit standard termini (N-terminus and C-terminus) from the drawing. Defaults to False.
+    :type  omit_standard_termini: bool
 
-    Returns:
-        str: The PNG image of the drawn peptide sequence.
+    :return: The PNG image of the drawn peptide sequence.
+    :rtype: str
     """
 
     symbols = get_pep_json(pepseq)["symbols"]
