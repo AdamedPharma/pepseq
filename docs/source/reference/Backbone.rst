@@ -1,15 +1,14 @@
 .. _Backbone:
 
-*******************************
 Backbone (:mod:`pepseq.Backbone`)
-*******************************
+==================================
 
 .. currentmodule:: pepseq
 
 
 
 Backbone
-########
+---------
 
 .. autofunction:: pepseq.Backbone.generate_bb_smiles
 

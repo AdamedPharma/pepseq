@@ -1,7 +1,7 @@
 .. _commands:
 
 *******************************
-Command Line Interface Commands
+MonomerConnector
 *******************************
 
 .. currentmodule:: pepseq
@@ -10,7 +10,7 @@ Command Line Interface Commands
 Pepseq provides Command Line Interface commands.
 
 ************************************
-Creating SMILES from Pepseq Format
+smi_to_G
 ************************************
 
 to create SMILES code from Modified Peptide given in Pepseq Format

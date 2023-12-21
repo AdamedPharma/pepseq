@@ -1,8 +1,7 @@
-.. _commands:
+.. _cap_termini:
 
-*******************************
-Command Line Interface Commands
-*******************************
+cap_termini
+"""""""""""
 
 .. currentmodule:: pepseq
 
@@ -10,7 +9,7 @@ Command Line Interface Commands
 Pepseq provides Command Line Interface commands.
 
 ************************************
-Creating SMILES from Pepseq Format
+prepare_ter_G
 ************************************
 
 to create SMILES code from Modified Peptide given in Pepseq Format

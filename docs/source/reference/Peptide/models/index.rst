@@ -3,9 +3,8 @@
 .. _models:
 
 
-####################################
-Peptide
-####################################
+Models
+------
 
 
 :Release: |version|
@@ -17,6 +16,6 @@ For learning how to use NumPy, see the :ref:`complete documentation <pepseq_docs
 
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 4
 
    Peptide

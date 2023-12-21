@@ -1,17 +1,15 @@
-.. _commands:
+.. _Drawer:
 
-*******************************
-Command Line Interface Commands
-*******************************
+Drawer
+=======
 
 .. currentmodule:: pepseq
 
 
 Pepseq provides Command Line Interface commands.
 
-************************************
-Creating SMILES from Pepseq Format
-************************************
+get_start_x
+-----------
 
 to create SMILES code from Modified Peptide given in Pepseq Format
 you can use the ``pepseq.commands.pepseq_to_smiles()`` function:

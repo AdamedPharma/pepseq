@@ -9,9 +9,9 @@ Command Line Interface Commands
 
 Pepseq provides Command Line Interface commands.
 
-************************************
+
 Creating SMILES from Pepseq Format
-************************************
+===================================
 
 to create SMILES code from Modified Peptide given in Pepseq Format
 you can use the ``pepseq.commands.pepseq_to_smiles()`` function:
@@ -26,9 +26,8 @@ you can use the ``pepseq.commands.pepseq_to_smiles()`` function:
     '[H]NCC(=O)N[C@@H](CS)C(=O)O'
 
 
-*****************************************************
 Reading Sequence and Modification from SMILES string
-*****************************************************
+=====================================================
 
 
 To calculate sequence(s) in Pepseq Format and  list of modification SMILES from
@@ -42,9 +41,8 @@ Modified Peptide structure given in SMILES you can use the
     >>> import pepseq
     >>> pepseq.commands.read-smiles('stuff_in.smi', db_path='augmented_db.json', out=path)
 
-************************************
 Augment Monomer Database
-************************************
+=========================
 
 To augment monomers database with new monomers and modifications you can use
 the ``pepseq.commands.augment_db_json_command()``
@@ -59,9 +57,9 @@ the ``pepseq.commands.augment_db_json_command()``
                                 )
 
 
-********************************************
 Calculate JSON representing Modified Peptide
-********************************************
+=============================================
+
 
 to calculate JSON representing Modified Peptide through peptide sequence in
 Pepseq format and modification list in SMILES format

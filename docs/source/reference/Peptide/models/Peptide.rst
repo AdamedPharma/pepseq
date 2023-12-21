@@ -1,32 +1,30 @@
-.. _commands:
+.. _peptide:
 
-*******************************
-Command Line Interface Commands
-*******************************
+Peptide
+-------
 
 .. currentmodule:: pepseq
 
 
 Pepseq provides Command Line Interface commands.
 
-************************************
-Creating SMILES from Pepseq Format
-************************************
+get_smiles_descriptors
+^^^^^^^^^^^^^^^^^^^^^^
 
-to create SMILES code from Modified Peptide given in Pepseq Format
-you can use the ``pepseq.commands.pepseq_to_smiles()`` function:
+    to create SMILES code from Modified Peptide given in Pepseq Format
+    you can use the ``pepseq.commands.pepseq_to_smiles()`` function:
 
-.. autofunction:: commands.pepseq_to_smiles
-
-
-.. admonition:: Example
-
-    >>> import pepseq
-    >>> pepseq.commands.pepseq_to_smiles('GC')
-    '[H]NCC(=O)N[C@@H](CS)C(=O)O'
+    .. autofunction:: commands.pepseq_to_smiles
 
 
-.. autofunction:: pepseq.Peptide.models.Peptide.get_smiles_descriptors
+    .. admonition:: Example
 
-.. autoclass:: pepseq.Peptide.models.Peptide.Peptide
+        >>> import pepseq
+        >>> pepseq.commands.pepseq_to_smiles('GC')
+        '[H]NCC(=O)N[C@@H](CS)C(=O)O'
+
+
+    .. autofunction:: pepseq.Peptide.models.Peptide.get_smiles_descriptors
+
+    .. autoclass:: pepseq.Peptide.models.Peptide.Peptide
 

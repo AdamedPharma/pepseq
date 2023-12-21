@@ -1,17 +1,15 @@
 .. _commands:
 
-*******************************
-Command Line Interface Commands
-*******************************
+get_peptide_json_from_pepseq_format
+===================================
 
 .. currentmodule:: pepseq
 
 
 Pepseq provides Command Line Interface commands.
 
-************************************
-Creating SMILES from Pepseq Format
-************************************
+decompose_symbol
+----------------
 
 to create SMILES code from Modified Peptide given in Pepseq Format
 you can use the ``pepseq.get_peptide_json_from_pepseq_format.get_attachment_point_json()`` function:

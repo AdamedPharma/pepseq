@@ -53,8 +53,10 @@ Pepseq documentation
 creates a new format for representing modified peptide called Pepseq.
 Format can be created from input arguments or from parsed *SMILES* code.
 
-To build this documentation cd to main project folder and type:
-sphinx-build -M html docs/source/ docs/build/
+.. note::
+    
+    To build this documentation cd to main project folder and type:
+    sphinx-build -M html docs/source/ docs/build/
 
 .. note::
 

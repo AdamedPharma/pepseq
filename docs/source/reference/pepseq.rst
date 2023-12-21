@@ -1,14 +1,14 @@
 .. _pepseq_submodule_reference:
 
-*******************************
+*******
 pepseq
-*******************************
+*******
 
 .. currentmodule:: pepseq
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
 
 
    Backbone

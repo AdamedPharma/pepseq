@@ -1,17 +1,15 @@
-.. _commands:
+.. _smiles_validation:
 
-*******************************
-Command Line Interface Commands
-*******************************
+smiles_validation
+^^^^^^^^^^^^^^^^^^
 
 .. currentmodule:: pepseq
 
 
 Pepseq provides Command Line Interface commands.
 
-************************************
-Creating SMILES from Pepseq Format
-************************************
+has_attachment_point
+"""""""""""""""""""""
 
 to create SMILES code from Modified Peptide given in Pepseq Format
 you can use the ``pepseq.commands.pepseq_to_smiles()`` function:

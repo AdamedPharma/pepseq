@@ -1,11 +1,10 @@
-.. module:: pepseq
-
 .. _utils:
 
 
-####################################
-Peptide
-####################################
+.. module:: pepseq
+
+utils
+------
 
 
 :Release: |version|

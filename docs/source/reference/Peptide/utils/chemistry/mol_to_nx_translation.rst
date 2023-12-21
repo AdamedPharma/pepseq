@@ -1,7 +1,7 @@
 .. _commands:
 
 *******************************
-Command Line Interface Commands
+mol_to_nx_translation
 *******************************
 
 .. currentmodule:: pepseq
@@ -10,7 +10,7 @@ Command Line Interface Commands
 Pepseq provides Command Line Interface commands.
 
 ************************************
-Creating SMILES from Pepseq Format
+get_edge_tuple
 ************************************
 
 to create SMILES code from Modified Peptide given in Pepseq Format

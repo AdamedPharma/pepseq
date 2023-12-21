@@ -1,17 +1,15 @@
 .. _Building_Modified_Peptide_From_PeptideJSON:
 
-*******************************
 Building Modified Peptide From PeptideJSON
-*******************************
+==========================================
 
 .. currentmodule:: pepseq
 
 
 Pepseq provides Command Line Interface commands.
 
-************************************
 Add Internal Bond
-************************************
+-----------------
 
 to create SMILES code from Modified Peptide given in Pepseq Format
 you can use the ``pepseq.commands.pepseq_to_smiles()`` function:
