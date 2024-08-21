@@ -15,7 +15,7 @@ from pepseq.functions import calculate
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.read import from_json, from_pepseq
 import pepseq.Peptide.utils.Parser
-from augmenting_db_json import augment_db_json
+from pepseq.augmenting_db_json import augment_db_json
 from pepseq.Peptide.utils.pure_parsing_functions import decompose_symbol, get_attachment_point_json, \
      get_attachment_points_on_sequence_json
 

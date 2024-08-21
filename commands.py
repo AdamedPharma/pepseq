@@ -44,7 +44,7 @@ import rdkit.Chem.PandasTools
 
 from pepseq.BuildPeptideJSONFromSMILES import \
     from_smiles_to_pepseq_and_one_mod_smiles_strings
-from augmenting_db_json import augment_db_json
+from pepseq.augmenting_db_json import augment_db_json
 
 import os
 
