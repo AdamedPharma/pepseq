@@ -6,9 +6,10 @@ setup(
     description="Module to Read And Write Modified Peptide Repsesentations",
     author="MS",
     packages=(
-        find_packages(where="..")
+        find_packages(where="..") + 
+        find_packages(where=".")
     ),
-    package_dir={"": ".."},
+    package_dir={"": "..", "pepseq": "./pepseq"},
     package_data={'':['pepseq/Peptide/database/db.json','Peptide/database/db.json']},
     include_package_data=True,
     author_email="omitted_for_now",
