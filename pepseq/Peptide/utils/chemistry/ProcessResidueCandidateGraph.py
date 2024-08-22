@@ -4,7 +4,7 @@ import networkx as nx
 import rdkit
 
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx, nx_to_mol)
-from augmenting_db_json import get_Nter_versions_cxsmarts_db
+from pepseq.augmenting_db_json import get_Nter_versions_cxsmarts_db
 
 """
 
