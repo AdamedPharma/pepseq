@@ -1,4 +1,4 @@
-import json
+import json, copy
 import pkgutil
 import rdkit
 
@@ -24,6 +24,19 @@ def smiles_are_identical(smi1: str, smi2: str) -> bool:
     mol1 = rdkit.Chem.MolFromSmiles(smi1)
     mol2 = rdkit.Chem.MolFromSmiles(smi2)
     return mols_are_identical(mol1, mol2)
+
+
+def result_jsons_are_identical(j1: dict, j2: dict):
+    j1_copy = copy.deepcopy(j1)
+    j2_copy = copy.deepcopy(j2)
+
+    smi1 = j1_copy.pop('complete_smiles')
+    smi2 = j2_copy.pop('complete_smiles')
+
+    if not smiles_are_identical(smi1, smi2):
+        return False
+    
+    return j1_copy == j2_copy
 
 
 def load_tests(name):
@@ -58,3 +71,10 @@ def test_peptide_from_pepseq_new(data_pepseq_smiles):
     # augment_db_json_command('my_monomers.sdf', 'augmented_db.json')    
     #peptide = from_pepseq(pepseq)
     assert smiles_are_identical(smiles, correct_smiles)
+
+
+def test_calculate_json_from(data_calculate):
+    args, result = data_calculate
+    #result_jsons_are_identical(calculate(*args), result)
+    result_jsons_are_identical(calculate_json_from(*args), result)
+
