@@ -11,7 +11,7 @@ Examples:
         read_smiles, augment_db_json_command
     >>> pepseq_to_smiles('CH3~SCAFC~NH2')
     
-    >>> calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC') calculations.multiply(2.0, 4.0)
+    >>> calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC')
     
     >>> read_smiles('mypeptide.smi', 'myppeptide_out')
 
