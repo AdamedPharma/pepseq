@@ -58,15 +58,9 @@ def pytest_generate_tests(metafunc):
             metafunc.parametrize(fixture, tests)
 
 
-
-
-
-
-
 def test_peptide_from_pepseq_new(data_pepseq_smiles):
     pepseq, correct_smiles = data_pepseq_smiles
     smiles = pepseq_to_smiles(pepseq)
-    # calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC')
     # read_smiles('mypeptide.smi', 'myppeptide_out')
     # augment_db_json_command('my_monomers.sdf', 'augmented_db.json')    
     #peptide = from_pepseq(pepseq)
@@ -76,5 +70,6 @@ def test_peptide_from_pepseq_new(data_pepseq_smiles):
 def test_calculate_json_from(data_calculate):
     args, result = data_calculate
     #result_jsons_are_identical(calculate(*args), result)
-    result_jsons_are_identical(calculate_json_from(*args), result)
+    # calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC')
+    assert result_jsons_are_identical(calculate_json_from(*args), result)
 
