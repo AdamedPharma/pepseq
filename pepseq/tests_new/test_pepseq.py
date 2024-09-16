@@ -221,12 +221,22 @@ def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
     fixture_complete_smiles_2 = '[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O'
     fixture_mod_smiles_2 = ['[1*]CNCC[2*]', '[3*]CNCCSP']
 
+    fixture_mod_smiles_3 = ['[*:1]CNCC[*:2]', '[*:3]CNCCSP']
+    
     pepseq_2, mod_smiles_2 = from_smiles_to_pepseq_and_one_mod_smiles_strings(
         fixture_complete_smiles_2, db_json
     )
 
     assert pepseq_2 == fixture_pepseq_2
     assert mod_smiles_2 == fixture_mod_smiles_2
+
+    pepseq_3, mod_smiles_3 = from_smiles_to_pepseq_and_one_mod_smiles_strings(
+        fixture_complete_smiles_2, db_json, ketcher=True
+    )
+
+    assert pepseq_3 == fixture_pepseq_2
+    assert mod_smiles_3 == fixture_mod_smiles_3
+
     return
 
 
