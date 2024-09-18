@@ -6,6 +6,7 @@ import rdkit
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx, nx_to_mol)
 from pepseq.augmenting_db_json import get_Nter_versions_cxsmarts_db
 
+
 """
 
 """
@@ -321,22 +322,46 @@ def sorted_connection(connection):
     return [connection[i] for (res_id, i) in sorted_res_ids]
 
 
-def add_connection_point_to_molecular_graph(G: nx.classes.graph.Graph, point_id: int, atom_id: int) -> nx.classes.graph.Graph:
-    G.add_node(
-        "%d*" % point_id,
-        **{
-            "atomic_num": 0,
-            "formal_charge": 0,
-            "chiral_tag": rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
-            "hybridization": rdkit.Chem.rdchem.HybridizationType.SP3,
-            "num_explicit_hs": 0,
-            "is_aromatic": False,
-            "isotope": point_id,
-        }
-    )
+def add_connection_point_to_molecular_graph(G: nx.classes.graph.Graph, point_id: int, atom_id: int, ketcher: bool =False) -> nx.classes.graph.Graph:
+    if ketcher:
+        node_name = "*:%d" % point_id
+        G.add_node(
+            node_name,
+            **{
+                "atomic_num": 0,
+                "formal_charge": 0,
+                "chiral_tag": rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
+                "hybridization": rdkit.Chem.rdchem.HybridizationType.SP3,
+                "num_explicit_hs": 0,
+                "is_aromatic": False,
+                "isotope": 0,
+                "dummyLabel": '*',
+                "molAtomMapNumber": str(point_id)
+
+            }
+        )
+        #dummyLabel = node_dict.get('dummyLabel')
+        #molAtomMapNumber = node_dict.get('molAtomMapNumber')
+
+    else:
+        node_name = "%d*" % point_id,
+    
+        G.add_node(
+            node_name,
+            **{
+                "atomic_num": 0,
+                "formal_charge": 0,
+                "chiral_tag": rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED,
+                "hybridization": rdkit.Chem.rdchem.HybridizationType.SP3,
+                "num_explicit_hs": 0,
+                "is_aromatic": False,
+                "isotope": point_id,
+            }
+        )
+
     G.add_edge(
         atom_id,
-        "%d*" % point_id,
+        node_name,
         bond_type=rdkit.Chem.rdchem.BondType.SINGLE,
     )
 
@@ -353,7 +378,8 @@ def get_residue_id_and_atoms(res_matches, res_name):
     return res_id, res_atoms
 
 
-def process_external_modification(G_mod: nx.classes.graph.Graph, mod_bonds, res_matches, atom_names_dict, point_id):
+def process_external_modification(G_mod: nx.classes.graph.Graph, mod_bonds,
+        res_matches, atom_names_dict, point_id, ketcher = False):
     """
     For each modification (like staple) we need unambigious info to 
 
@@ -385,7 +411,7 @@ def process_external_modification(G_mod: nx.classes.graph.Graph, mod_bonds, res_
                 "ResidueName": "",
             }
             G_mod = add_connection_point_to_molecular_graph(G_mod,
-                            point_id, mod_atom)
+                            point_id, mod_atom, ketcher=ketcher)
 
     mod_mol = nx_to_mol(G_mod)
     mod_smiles = rdkit.Chem.MolToSmiles(mod_mol)
@@ -399,7 +425,8 @@ def process_external_modification(G_mod: nx.classes.graph.Graph, mod_bonds, res_
     return mod_json, point_id
 
 
-def process_external_connections(modifications, res_matches, modification_graphs, G: nx.classes.graph.Graph):
+def process_external_connections(modifications, res_matches, modification_graphs, G: nx.classes.graph.Graph,
+        ketcher = False):
     attachment_point_id = 0
     external_modifications = []
 
@@ -410,7 +437,7 @@ def process_external_connections(modifications, res_matches, modification_graphs
         mod_bonds = modifications.get(mod_id)
 
         external_modification, attachment_point_id = process_external_modification(
-            mod_graph, mod_bonds, res_matches, atom_names_dict, attachment_point_id)
+            mod_graph, mod_bonds, res_matches, atom_names_dict, attachment_point_id, ketcher=ketcher)
         external_modifications.append(external_modification)
     return external_modifications
 
@@ -547,7 +574,8 @@ def get_connections(G_edges:list, subgraph_tuples: list):
     return bonds
 
 
-def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, n_subst_limit=None):
+def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, n_subst_limit=None,
+        ketcher = False):
     """
     We use rdkit.Chem.rdchem.Mol representation of residue candidate
 
@@ -572,8 +600,8 @@ def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, n_subst_li
         res_res_connections, res_matches, G
     )
     external_connections = process_external_connections(
-        external_mod_connections, res_matches, modification_graphs, G
-    )
+        external_mod_connections, res_matches, modification_graphs, G,
+        ketcher = ketcher)
     res_names = {res_id: res_matches[res_id][0] for res_id in res_matches}
     return res_names, {
         "internal_modifications": internal_connections,
@@ -631,7 +659,7 @@ def sequence_dict_to_string(sequence_dict: dict) -> str:
     return sequence_string
 
 
-def decompose_residues_internal(fragments: list, cx_smarts_db: dict, n_subst_limit=None) -> tuple:
+def decompose_residues_internal(fragments: list, cx_smarts_db: dict, n_subst_limit=None, ketcher=False) -> tuple:
     """
     """
     sequence_dict = {}
@@ -642,7 +670,7 @@ def decompose_residues_internal(fragments: list, cx_smarts_db: dict, n_subst_lim
 
     for mol in [nx_to_mol(fragment) for fragment in fragments]:
         fragment_res_names, fragment_modifications = full_decomposition(mol, cx_smarts_db,
-                                                            n_subst_limit=n_subst_limit)
+                                                            n_subst_limit=n_subst_limit, ketcher=ketcher)
         internal_modifications += fragment_modifications["internal_modifications"]
 
         if fragment_modifications.get("external_modifications"):

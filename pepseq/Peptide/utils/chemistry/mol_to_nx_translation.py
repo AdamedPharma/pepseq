@@ -71,7 +71,7 @@ def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
     return G
 
 
-def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
+def nx_to_mol(G: nx.classes.graph.Graph, ketcher = False) -> rdkit.Chem.rdchem.Mol:
     """
     transforms nx.classes.graph.Graph graph
     into  rdkit.Chem.rdchem.Mol molecule
@@ -85,6 +85,9 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
     node_hybridizations = nx.get_node_attributes(G, "hybridization")
     num_explicit_hss = nx.get_node_attributes(G, "num_explicit_hs")
     isotope = nx.get_node_attributes(G, "isotope")
+    dummyLabels = nx.get_node_attributes(G, "dummyLabel")
+    molAtomMapNumber = nx.get_node_attributes(G, "molAtomMapNumber")
+    #think if i want all attrx
 
     basic_propNames = set(
         [
@@ -108,9 +111,15 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
         a.SetChiralTag(chiral_tags[node])
         a.SetFormalCharge(formal_charges[node])
         a.SetIsAromatic(node_is_aromatics[node])
-        a.SetHybridization(node_hybridizations[node])
+        if node_hybridizations[node] is not None:
+            a.SetHybridization(node_hybridizations[node])
         a.SetNumExplicitHs(num_explicit_hss[node])
-        a.SetIsotope(isotope[node])
+        if ketcher:
+            a.SetIsotope(0)
+        else:
+            a.SetIsotope(isotope[node])
+
+            #if 
         idx = mol.AddAtom(a)
         node_to_idx[node] = idx
 
@@ -151,11 +160,12 @@ def get_hybridization_int(hybridization):
         return 1
 
 
-def get_node_tuple(node_data):
+def get_node_tuple(node_data, keys=None):
     idx, node_dict = node_data
-    keys = ['atomic_num', 'formal_charge', 'chiral_tag',
-        'hybridization', 'num_explicit_hs', 'is_aromatic',
-        'isotope', 'AtomName', 'ResID']
+    if keys is None:
+        keys = ['atomic_num', 'formal_charge', 'chiral_tag',
+            'hybridization', 'num_explicit_hs', 'is_aromatic',
+            'isotope', 'AtomName', 'ResID']
     row = []
     for key in keys:
         if key == 'chiral_tag':
@@ -180,21 +190,38 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
 
     """
     nodes_list = list( G.nodes(data=True) )
-    node_dicts = [ node_tuple[1] for node_tuple in nodes_list ]
-    node_ids = [node_tuple[0] for node_tuple in nodes_list ]
 
-    df = pd.DataFrame(node_dicts)
-    df['node_id'] = node_ids
+    node_dicts = []
+    for node_tuple in nodes_list:
+        node_id = node_tuple[0]
+        node_attrs =  node_tuple[1]
+        node_attrs['node_id'] = node_id
+        node_dicts.append( copy.deepcopy(node_attrs) )    
+
+    #node_dicts = [ node_tuple[1] for node_tuple in nodes_list ]
+    #node_ids = [node_tuple[0] for node_tuple in nodes_list ]
+
+    nodekeys = set()
+    for i in node_dicts:
+        nodekeys |=  set(i.keys()) 
+    
+    nodes_columns = sorted( list(nodekeys) )
+
+
+    #df = pd.DataFrame(node_dicts)
+    #df['node_id'] = node_ids
 
 
     node_rows = []
     for node_data in nodes_list:
-        node_tuple = get_node_tuple(node_data)
+        node_tuple = get_node_tuple(node_data, keys=nodes_columns)
         node_rows.append(node_tuple)
-
+    
+    """
     nodes_columns = ['atomic_num', 'formal_charge', 'chiral_tag',
         'hybridization', 'num_explicit_hs', 'is_aromatic',
         'isotope', 'AtomName', 'ResID', 'node_id']
+    """
 
     edges_list = list(G.edges(data=True))
     edges_tuple = tuple([get_edge_tuple(edge) for edge in edges_list])
@@ -236,12 +263,48 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
     """
     G = nx.Graph()
 
+    #    'nodes_tuple': node_rows,
+    #    'nodes_columns': nodes_columns,
+
     nodes_tuple = mol_json['nodes_tuple']
+    nodes_columns = mol_json['nodes_columns']
+
+    node_dicts = []
+    """
+    [
+            'atomic_num', 'chiral_tag', 'dummyLabel', 'formal_charge', 'hybridization',
+            'is_aromatic', 'isotope', 'molAtomMapNumber', 'num_explicit_hs'
+            ]
+    """
+
+    n_columns = len(nodes_columns)
 
     for node_tuple in nodes_tuple:
+        node_dict = {}
+        for i in range(n_columns):
+            node_dict[nodes_columns[i]] = node_tuple[i]
+        node_dicts.append( copy.deepcopy(node_dict) )
+
+    for node_dict in node_dicts:
+        atomic_num = node_dict.get('atomic_num')
+        formal_charge = node_dict.get('formal_charge')
+        chiral_tag = node_dict.get('chiral_tag')
+        hybridization = node_dict.get('hybridization')
+        num_explicit_hs = node_dict.get('num_explicit_hs')
+        is_aromatic = node_dict.get('is_aromatic')
+        isotope = node_dict.get('isotope')
+        AtomName = node_dict.get('AtomName')
+        ResID = node_dict.get('ResID')
+        node_id = node_dict.get('node_id')
+        #node dict keys introduce
+        dummyLabel = node_dict.get('dummyLabel')
+        molAtomMapNumber = node_dict.get('molAtomMapNumber')
+        """
         (atomic_num, formal_charge, chiral_tag, hybridization, 
          num_explicit_hs, is_aromatic, isotope, AtomName, 
          ResID, node_id) = node_tuple
+        """
+
         
         if (chiral_tag is None) or (chiral_tag == 0):
             chiral_tag = rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED
@@ -266,6 +329,11 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
                 num_explicit_hs=num_explicit_hs,
                 is_aromatic=is_aromatic,
                 isotope=isotope)
+        if dummyLabel is not None:
+            kwargs['dummyLabel'] = dummyLabel
+        if molAtomMapNumber is not None:
+            kwargs['molAtomMapNumber'] = molAtomMapNumber
+
         if ResID is not None:
             kwargs['ResID'] = ResID
         if AtomName is not None:
