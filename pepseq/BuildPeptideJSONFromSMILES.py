@@ -22,7 +22,7 @@ def get_cx_smarts_db(db_json: dict) -> dict:
     return cx_smarts_db
 
 
-def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None) -> dict:
+def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None, ketcher=False) -> dict:
     """
     """
 
@@ -34,7 +34,7 @@ def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None) -> 
     cx_smarts_db = get_cx_smarts_db(db_json)
 
     seq, internal_modifications, external_modifications = decompose_residues_internal(
-        residues, cx_smarts_db, n_subst_limit=n_subst_limit
+        residues, cx_smarts_db, n_subst_limit=n_subst_limit, ketcher=ketcher
     )
     return {
         "sequence": seq,
@@ -135,7 +135,7 @@ def append_pepseq_R_info(j: dict) -> str:
     return new_seq
 
 
-def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_limit=None) -> dict:
+def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_limit=None, ketcher = False) -> dict:
     """
     Decompose peptide molecule given in SMILES into peptide_json representation with modification
     SMILES codes
@@ -156,7 +156,7 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_li
 
     """
 
-    peptide_json = decompose_peptide_smiles(smiles, db_json, n_subst_limit=n_subst_limit)
+    peptide_json = decompose_peptide_smiles(smiles, db_json, n_subst_limit=n_subst_limit, ketcher=ketcher)
     c_terminus__c_ind = get_c_term_from_peptide_json(peptide_json, db_json)
 
     n_terminus__n_ind = get_n_term_from_peptide_json(peptide_json, db_json)
@@ -212,7 +212,8 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_li
     return peptide_json
 
 
-def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None) -> tuple:
+def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None,
+        ketcher=False) -> tuple:
     """
     Based on SMILES produce
     Output pepseq_string:
@@ -236,7 +237,7 @@ def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_s
 
     """
 
-    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json, n_subst_limit=n_subst_limit)
+    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json, n_subst_limit=n_subst_limit, ketcher=ketcher)
     pepseq_format = peptide_json["pepseq_format"]
     mod_smiles_list = [
         ext_mod["smiles"] for ext_mod in peptide_json["external_modifications"]
@@ -248,7 +249,7 @@ def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_s
     #return pepseq_format, mod_smiles_list
 
 
-def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None):
+def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None, ketcher=False):
     """
     Example of string in pepseq format is H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
     where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
@@ -259,7 +260,16 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict,
     { Cys(R1) } <- is attached in [1*] attachment point on staple
     { Cys(R2) } <- is attached in [2*] attachment point on staple
 
+<<<<<<< HEAD
     :parameter smiles: string of peptide sequence with modified amino acids
+=======
+        SMILES - string of peptide sequence with modified amino acids
+            modification(s)
+        
+        db_json - database json
+
+        ketcher - setting if the output is going to be compatible with ketcher
+>>>>>>> c18b813 (Change result of full_decomposition function and dependencies to fit ketcher format; Write appropriate tests; Change mol_to_nx_translation module to fit ketcher format; Write appropriate tests; TO DO: write more tests for higher level functions)
 
     :parameter db_json: database JSON containing the mapping of symbols to amino acids
 
@@ -270,7 +280,7 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict,
     """
     
     pepseq_format, mod_smiles_list = from_smiles_to_pepseq_and_mod_smiles_strings(
-        smiles, db_json, n_subst_limit=n_subst_limit
+        smiles, db_json, n_subst_limit=n_subst_limit, ketcher=ketcher
     )
     if len(mod_smiles_list) == 1:
         return pepseq_format, mod_smiles_list[0]

@@ -6,6 +6,9 @@ import pytest
 import rdkit
 import rdkit.Chem.PandasTools
 
+import importlib
+from pepseq.tests_new.helpers import mols_are_identical, smiles_are_identical
+
 
 from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
     get_smiles_from_peptide_json
@@ -119,12 +122,6 @@ correct_smiles = (
 )
 
 
-
-
-
-
-import importlib
-
 def load_tests(name):
     # Load module which contains test data
     tests_module = importlib.import_module(name)
@@ -143,8 +140,6 @@ def pytest_generate_tests(metafunc):
             tests = load_tests(fixture)
             metafunc.parametrize(fixture, tests)
 
-from pepseq.tests_new.helpers import smiles_are_identical
-
 
 def result_jsons_are_identical(j1: dict, j2: dict):
     j1_copy = copy.deepcopy(j1)
@@ -157,6 +152,7 @@ def result_jsons_are_identical(j1: dict, j2: dict):
         return False
     
     return j1_copy == j2_copy
+
 
 def test_peptide_from_pepseq_new(data_pepseq_smiles):
     pepseq, smiles = data_pepseq_smiles

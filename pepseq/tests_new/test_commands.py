@@ -1,6 +1,10 @@
 import json, copy
 import pkgutil
 import rdkit
+import importlib
+
+
+from pepseq.tests_new.helpers import mols_are_identical, smiles_are_identical
 
 from commands import pepseq_to_smiles, calculate_json_from, read_smiles, \
     augment_db_json_command
@@ -9,21 +13,6 @@ db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
 
 with open(db_path) as fp:
     db_json = json.load(fp)
-
-
-import importlib
-
-def mols_are_identical(mol1: rdkit.Chem.rdchem.Mol, mol2: rdkit.Chem.rdchem.Mol) -> bool:
-    are_identical = mol1.HasSubstructMatch(
-        mol2, useChirality=True
-    ) and mol2.HasSubstructMatch(mol1, useChirality=True)
-    return are_identical
-
-
-def smiles_are_identical(smi1: str, smi2: str) -> bool:
-    mol1 = rdkit.Chem.MolFromSmiles(smi1)
-    mol2 = rdkit.Chem.MolFromSmiles(smi2)
-    return mols_are_identical(mol1, mol2)
 
 
 def result_jsons_are_identical(j1: dict, j2: dict):

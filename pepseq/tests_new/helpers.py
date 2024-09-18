@@ -1,5 +1,4 @@
 import rdkit
-import rdkit.Chem.PandasTools
 
 
 def mols_are_identical(mol1: rdkit.Chem.rdchem.Mol, mol2: rdkit.Chem.rdchem.Mol) -> bool:
