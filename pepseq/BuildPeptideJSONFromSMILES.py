@@ -202,7 +202,7 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_li
 
     for ext_mod in peptide_json.get("external_modifications"):
         ext_mod_translated = translate_external_modification(
-            ext_mod, offset=offset)
+            ext_mod, offset=offset, ketcher=ketcher)
         offset += ext_mod_translated.get('max_attachment_point_id')
         ext_mods_translated.append(ext_mod_translated)
 

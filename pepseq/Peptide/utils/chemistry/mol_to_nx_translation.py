@@ -219,7 +219,7 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
     for node_tuple in nodes_list:
         node_id = node_tuple[0]
         node_attrs =  node_tuple[1]
-        node_attrs['node_id'] = node_id
+        #node_attrs['node_id'] = node_id
         node_dicts.append( copy.deepcopy(node_attrs) )    
 
     #node_dicts = [ node_tuple[1] for node_tuple in nodes_list ]
@@ -229,6 +229,8 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
     for i in node_dicts:
         nodekeys |=  set(i.keys()) 
     
+    #nodekeys.pop('node_id')
+
     nodes_columns = sorted( list(nodekeys) )
 
 
@@ -251,6 +253,7 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
     edges_tuple = tuple([get_edge_tuple(edge) for edge in edges_list])
 
     edges_columns = ['bond_type', 'is_peptide_bond', 'bond_start', 'bond_end']
+    nodes_columns += ['node_id'] 
 
 
     mol_j = {
@@ -420,6 +423,9 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
             bond_type = rdkit.Chem.rdchem.BondType.SINGLE
         elif bond_type == 2:
             bond_type = rdkit.Chem.rdchem.BondType.DOUBLE
+        elif bond_type == 12:
+            bond_type = rdkit.Chem.rdchem.BondType.AROMATIC
+            #to do include all possible bond types
         kwargs = {}
         if is_peptide_bond is not None:
             kwargs = {'is_peptide_bond': is_peptide_bond}

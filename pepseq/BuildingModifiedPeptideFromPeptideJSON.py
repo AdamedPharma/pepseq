@@ -75,7 +75,7 @@ def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) ->
     return add_internal_bond(G, res1_id, "SG", res2_id, "SG")
 
 
-def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
+def get_attachment_points(staple_graph: nx.classes.graph.Graph, ketcher=False) -> tuple:
     """
 
     :param staple_graph: molecular graph representing molecular staple
@@ -88,18 +88,32 @@ def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
     :rtype: nx.classes.graph.Graph
 
     """
-    dummyAtoms = [
-        n for n, v in staple_graph.nodes(data=True) if v.get("atomic_num") == 0
-    ]
-    attachment_points_on_staple_dict = {}
-    for dummyAtom in dummyAtoms:
-        attachment_point = list(staple_graph.neighbors(dummyAtom))[0]
-        attachment_point_id = staple_graph.nodes[dummyAtom]["isotope"]
+    if ketcher:
+        dummyAtoms = [
+            n for n, v in staple_graph.nodes(data=True) if v.get("dummyLabel") == '*'
+        ]
+        attachment_points_on_staple_dict = {}
+        for dummyAtom in dummyAtoms:
+            attachment_point = list(staple_graph.neighbors(dummyAtom))[0]
+            attachment_point_id = staple_graph.nodes[dummyAtom]['molAtomMapNumber']
+            attachment_points_on_staple_dict[attachment_point_id] = attachment_point
 
-        attachment_points_on_staple_dict[attachment_point_id] = attachment_point
+    else:
+
+        dummyAtoms = [
+            n for n, v in staple_graph.nodes(data=True) if v.get("atomic_num") == 0
+        ]
+        attachment_points_on_staple_dict = {}
+        for dummyAtom in dummyAtoms:
+            attachment_point = list(staple_graph.neighbors(dummyAtom))[0]
+            attachment_point_id = staple_graph.nodes[dummyAtom]["isotope"]
+
+            attachment_points_on_staple_dict[attachment_point_id] = attachment_point
 
     for dummyAtom in dummyAtoms:
         staple_graph.remove_node(dummyAtom)
+        
+
     return staple_graph, attachment_points_on_staple_dict
 
 
@@ -126,9 +140,9 @@ def find_atom(G: nx.classes.graph.Graph, ResID, AtomName: str) -> str:
 
 def add_staple(
     peptide_graph: nx.classes.graph.Graph, staple_graph: nx.classes.graph.Graph,
-    peptide_attachment_points, prefix="staple_1_"
+    peptide_attachment_points, prefix="staple_1_", ketcher=False
 ) -> nx.classes.graph.Graph:
-    staple_graph, attachment_points_on_staple_dict = get_attachment_points(staple_graph)
+    staple_graph, attachment_points_on_staple_dict = get_attachment_points(staple_graph, ketcher=ketcher)
 
     G_stapled_peptide_union = nx.union(peptide_graph, staple_graph, rename=("", prefix))
 
@@ -320,7 +334,7 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
     def __init__(self):
         return
 
-    def execute(self, peptide_json: dict, db_json: dict) -> rdkit.Chem.rdchem.Mol:
+    def execute(self, peptide_json: dict, db_json: dict, ketcher=False) -> rdkit.Chem.rdchem.Mol:
         peptide_mol = get_molecule_from_json(peptide_json, db_json)
 
         peptide_graph = mol_to_nx(peptide_mol)
@@ -342,7 +356,7 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
                 peptide_graph,
                 staple_graph.copy(),
                 attachment_points_on_sequence,
-                prefix,
+                prefix, ketcher=ketcher
             )
 
         for internal_modification_id in internal_modifications:
@@ -360,7 +374,7 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
         return nx_to_mol(peptide_graph)
 
 
-def get_smiles_from_peptide_json(peptide_json: dict, db_json: dict) -> str:
-    mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
+def get_smiles_from_peptide_json(peptide_json: dict, db_json: dict, ketcher=False) -> str:
+    mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json, ketcher=ketcher)
     smiles = rdkit.Chem.MolToSmiles(mol)
     return smiles

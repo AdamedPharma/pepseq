@@ -28,14 +28,14 @@ def validate (pepseq: str, smiles: List[str] = [], db: dict = db_json):
 
 
 
-def calculate(pepseq: str, smiles: list[str] = [], db: dict = None) -> dict:
+def calculate(pepseq: str, smiles: list[str] = [], db: dict = None, ketcher=False) -> dict:
     if smiles == []:
         smiles = None
     if db is None:
         db = db_json
 
-    peptide_json = get_pep_json(pepseq, db, smiles)
-    peptide = from_json(peptide_json, db)
+    peptide_json = get_pep_json(pepseq, db, smiles, ketcher=ketcher)
+    peptide = from_json(peptide_json, db, ketcher=ketcher)
     complete_smiles = peptide.complete_smiles
     sequence = peptide.sequence
     length = peptide.length

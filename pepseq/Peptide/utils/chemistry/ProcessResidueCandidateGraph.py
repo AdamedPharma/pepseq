@@ -671,20 +671,28 @@ def translate_attachment_points_on_seq(attachment_points_on_seq, offset=0):
     return attachment_points_on_seq
 
 
-def translate_mod_smiles(smiles: str, offset=0):
+def translate_mod_smiles(smiles: str, offset=0, ketcher=False):    
     mol = rdkit.Chem.MolFromSmiles(smiles)
-    for atom in mol.GetAtoms():
-        if atom.GetAtomicNum() == 0:
-            isotope = atom.GetIsotope()
-            isotope += offset
-            atom.SetIsotope(isotope)
+
+    if ketcher:
+        for atom in mol.GetAtoms():
+            if ('dummyLabel' in atom.GetPropNames()) and ('molAtomMapNumber' in atom.GetPropNames()):
+                molAtomMapNumber = int(atom.GetProp('molAtomMapNumber'))
+                molAtomMapNumber += offset
+                atom.SetProp('molAtomMapNumber', str(molAtomMapNumber))
+    else:
+        for atom in mol.GetAtoms():
+            if atom.GetAtomicNum() == 0:
+                isotope = atom.GetIsotope()
+                isotope += offset
+                atom.SetIsotope(isotope)
     smiles = rdkit.Chem.MolToSmiles(mol)
     return smiles
 
 
-def translate_external_modification(mod: dict, offset=0) -> dict:
+def translate_external_modification(mod: dict, offset=0, ketcher=False) -> dict:
     mod_smiles = mod.get("smiles")
-    mod_smiles = translate_mod_smiles(mod_smiles, offset=offset)
+    mod_smiles = translate_mod_smiles(mod_smiles, offset=offset, ketcher=ketcher)
 
     attachment_points_on_seq = mod.get("attachment_points_on_sequence")
     attachment_points_on_seq = translate_attachment_points_on_seq(
