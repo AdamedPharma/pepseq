@@ -16,20 +16,20 @@ with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 
-def from_pepseq(pepseq: str, db_json: Dict = db_json) -> Peptide:
+def from_pepseq(pepseq: str, db_json: Dict = db_json, ketcher=False) -> Peptide:
     """Read peptide from PepSeq string"""
     mod_smiles = None
     peptide_json = get_pep_json(pepseq, db_json, mod_smiles)
-    smiles = get_smiles_from_peptide_json(peptide_json, db_json)
+    smiles = get_smiles_from_peptide_json(peptide_json, db_json, ketcher=ketcher)
     peptide = Peptide(smiles, peptide_json)
     return peptide
 
 
 def from_pepseq_and_mod_smiles(
-    pepseq: str, mod_smiles: str, db_json: Dict = db_json
+    pepseq: str, mod_smiles: str, db_json: Dict = db_json, ketcher=False
 ) -> Peptide:
     peptide_json = get_pep_json(pepseq, db_json, mod_smiles)
-    peptide = from_json(peptide_json)
+    peptide = from_json(peptide_json, ketcher=ketcher)
     return peptide
 
 
@@ -39,7 +39,7 @@ def from_smiles(smiles: str, db_json: Dict = db_json) -> Peptide:
     return peptide
 
 
-def from_json(peptide_json: Dict[str, Any], db: Dict = db_json) -> Peptide:
+def from_json(peptide_json: Dict[str, Any], db: Dict = db_json, ketcher=False) -> Peptide:
     """Read (modified) peptide from json
         pepseq json should looks as below:
     {"sequence":"H{Aib}EGTFTSDVSSYLEGQAAKEFIAWLVRGRG",
@@ -67,6 +67,6 @@ def from_json(peptide_json: Dict[str, Any], db: Dict = db_json) -> Peptide:
     return: Peptide: peptide object
         
     """
-    smiles = get_smiles_from_peptide_json(peptide_json, db)
+    smiles = get_smiles_from_peptide_json(peptide_json, db, ketcher=ketcher)
     peptide = Peptide(smiles, peptide_json)
     return peptide

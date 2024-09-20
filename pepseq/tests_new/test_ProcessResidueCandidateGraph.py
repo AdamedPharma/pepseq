@@ -2,8 +2,10 @@ import json
 import pkgutil
 import rdkit
 
+import importlib
+
 from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import add_connection_point_to_molecular_graph, process_external_modification, \
-     process_external_connections, full_decomposition
+     process_external_connections, full_decomposition, decompose_residues_internal
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx, nx_to_mol,
      nx_to_json, mol_json_to_nx, mol_json_to_mol)
 
@@ -15,6 +17,26 @@ from pepseq.BuildPeptideJSONFromSMILES import  get_cx_smarts_db
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
 with open(db_path) as fp:
     db_json = json.load(fp)
+
+
+def load_tests(name):
+    # Load module which contains test data
+    tests_module = importlib.import_module(name)
+    # Tests are to be found in the variable `tests` of the module
+    for test in tests_module.tests:
+        yield test
+
+
+# content of test_example.py
+def pytest_generate_tests(metafunc):
+
+    for fixture in metafunc.fixturenames:
+        print(fixture)
+        if fixture.startswith('data_'):
+            # Load associated test data
+            tests = load_tests(fixture)
+            metafunc.parametrize(fixture, tests)
+
 
 
 def test_add_connection_point_to_molecular_graph():
@@ -247,4 +269,62 @@ def test_full_decomposition():
     return
 
 
-#def test_decompose_residues_internal(fragments: list, cx_smarts_db: dict, n_subst_limit=None, ketcher=False)
+def test_decompose_residues_internal(data_decompose_residues_internal):
+    #fragments: list, cx_smarts_db: dict, n_subst_limit=None, ketcher=False
+    seq_fx = 'CACDAPEPsEQCGCDEF'
+    internal_modifications_fx = []
+    external_modifications_fx = [
+        {
+            'smiles': 'C(C[*:2])NC[*:1]',
+            'max_attachment_point_id': 2,
+            'attachment_points_on_sequence': {
+                1: {
+                    'attachment_point_id': 1,
+                    'ResID': '1',
+                    'AtomName': 'SG',
+                    'ResidueName': ''
+                    },
+                2: {
+                    'attachment_point_id': 2,
+                    'ResID': '12',
+                    'AtomName': 'SG',
+                    'ResidueName': ''
+                    }
+                }
+            },
+        {
+            'smiles': 'PSCCNC[*:1]',
+            'max_attachment_point_id': 1,
+            'attachment_points_on_sequence': {
+                1: {
+                    'attachment_point_id': 1,
+                    'ResID': '14',
+                    'AtomName': 'SG',
+                    'ResidueName': ''
+                    }
+                }
+            },
+        {
+            'smiles': 'O[*:1]',
+            'max_attachment_point_id': 1,
+            'attachment_points_on_sequence': {
+                1: {
+                    'attachment_point_id': 1,
+                    'ResID': '17',
+                    'AtomName': 'CO',
+                    'ResidueName': ''
+                    }
+                }
+            }
+        ]
+
+
+
+    fragments, cx_smarts_db, n_subst_limit, ketcher = data_decompose_residues_internal
+
+    seq, internal_modifications, external_modifications = decompose_residues_internal(
+        fragments, cx_smarts_db, n_subst_limit=n_subst_limit, ketcher=True
+    )
+    assert seq == seq_fx
+    assert internal_modifications == internal_modifications_fx
+    assert external_modifications == external_modifications_fx

@@ -16,7 +16,7 @@ with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 
-def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles: str) -> Dict:
+def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles: str, ketcher=False) -> Dict:
     """
     :param attachment_points_on_sequence - 
     :type  attachment_points_on_sequence: Dict
@@ -27,16 +27,25 @@ def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles
     mod_mol = rdkit.Chem.MolFromSmiles(mod_smiles)
     mod_atoms = mod_mol.GetAtoms()
 
-    radical_dummy_atoms = [atom for atom in mod_mol.GetAtoms() if (atom.GetAtomicNum() == 0)]
-    #in rdkit dummy Atoms are identified by AtomicNum = 0
+    if ketcher:
+        radical_dummy_atoms = [atom for atom in mod_mol.GetAtoms() if (('dummyLabel' in atom.GetPropNames()) and (atom.GetProp('dummyLabel') == '*'))]
+        radical_ids_str = set([atom.GetProp('molAtomMapNumber') for atom in radical_dummy_atoms])
+        min_att_points = {
+            radical_id: attachment_points_on_sequence[int(radical_id)]
+            for radical_id in radical_ids_str
+        }
 
-    radical_ids_str = set([atom.GetIsotope() for atom in radical_dummy_atoms])
+    else:
+        radical_dummy_atoms = [atom for atom in mod_mol.GetAtoms() if (atom.GetAtomicNum() == 0)]
+        #in rdkit dummy Atoms are identified by AtomicNum = 0
+
+        radical_ids_str = set([atom.GetIsotope() for atom in radical_dummy_atoms])
     
 
-    min_att_points = {
-        radical_id: attachment_points_on_sequence[radical_id]
-        for radical_id in radical_ids_str
-    }
+        min_att_points = {
+            radical_id: attachment_points_on_sequence[radical_id]
+            for radical_id in radical_ids_str
+        }
 
     max_attachment_point_id = max([int(i) for i in min_att_points.keys()])
 
@@ -49,7 +58,7 @@ def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles
     return ext_mod
 
 
-def get_ext_mod_json(symbols: list[str], smiles: list) -> list:
+def get_ext_mod_json(symbols: list[str], smiles: list, ketcher=False) -> list:
     """
     Get the JSON representation of external modifications based on symbols and SMILES.
 
@@ -66,13 +75,13 @@ def get_ext_mod_json(symbols: list[str], smiles: list) -> list:
     if attachment_points_on_sequence.keys():
         for mod_smiles in smiles:
             ext_mod_json = get_single_modification_json(
-                attachment_points_on_sequence, mod_smiles
-            )
+                attachment_points_on_sequence, mod_smiles,
+            ketcher=ketcher)
             ext_mod_jsons.append(ext_mod_json)
     return ext_mod_jsons
 
 
-def get_smiles_json(symbols: str, mod_smiles_list: list[str]):
+def get_smiles_json(symbols: str, mod_smiles_list: list[str], ketcher=False):
     """
     Retrieves the JSON representation of modified peptides based on their SMILES representation.
 
@@ -83,7 +92,7 @@ def get_smiles_json(symbols: str, mod_smiles_list: list[str]):
         list: A list of JSON objects representing the modified peptides. If no modified peptides are found, an empty list is returned.
     """
     if mod_smiles_list is not None:
-        ext_mod = get_ext_mod_json(symbols, mod_smiles_list)
+        ext_mod = get_ext_mod_json(symbols, mod_smiles_list, ketcher=ketcher)
         if ext_mod is not None:
             return ext_mod
         else:
@@ -123,11 +132,24 @@ def get_pepseq_json(pepseq_format: str, db_json: Dict = db_json):
     return pep_json
 
 
+<<<<<<< HEAD
 def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None) -> Dict:
     """Get pep_json
         peptide_json, a JSON containing info about modified peptide with
         'sequence', 'internal_modifications', 'external_modifications'
         pepseq format example is H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+=======
+def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None, ketcher=False) -> Dict:
+    """
+
+    Input:
+
+
+        pepseq_string:
+
+            str = string in pepseq format
+            H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+>>>>>>> 6a13ba4 (make all test pass for new representation. TO DO: assure that old representation is also recognized)
         where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
         amino acid; {Cys(R1)} - is amino acid
         with staple attached, {Cys(R1)} - amino acid with staple attached
@@ -144,7 +166,7 @@ def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: l
     """
 
     pep_json = get_pepseq_json(pepseq_format, db_json)
-    pep_json["external_modifications"] = get_smiles_json(pep_json['symbols'][1:-1], mod_smiles_list)
+    pep_json["external_modifications"] = get_smiles_json(pep_json['symbols'][1:-1], mod_smiles_list, ketcher=ketcher)
     return pep_json
 
 
