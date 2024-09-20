@@ -133,6 +133,12 @@ def calculate_json_from(
     sequence: str,
     mod_smiles: Annotated[Optional[List[str]], 'List of modification SMILES codes'] = None,
     out: str = None,
+<<<<<<< HEAD
+    db_path: str = None, **kwargs
+=======
+    db_path: str = None,
+    ketcher: bool = False
+>>>>>>> 6a13ba4 (make all test pass for new representation. TO DO: assure that old representation is also recognized)
     db_path: str = None,
     ketcher: bool = False,
     ) -> dict:
@@ -195,6 +201,7 @@ def read_smiles(
         out: str = 'out',
         db_path: str = db_path,
         v: bool = False,
+        ketcher: bool = True,
     ) -> list:
     """
 
@@ -225,6 +232,7 @@ def read_smiles(
     """
     with open(smiles_filename) as fp:
         s = fp.read()
+    
     smiles_list = [smiles for smiles in s.split('\n') if smiles]
 
     pepseq_list = []
@@ -242,6 +250,7 @@ def read_smiles(
         pepseq_format, mod_smiles = from_smiles_to_pepseq_and_one_mod_smiles_strings(
             smiles, **kwargs
         )
+        mod_smiles_list = []
         if v:
             print('Sequence in pepseq format: ', pepseq_format)
             print('List of modification by SMILES codes with points of attachment: ', mod_smiles)
@@ -270,7 +279,7 @@ def read_smiles(
         fp.write(mod_smiles_list_str)
         fp.flush()
 
-    return [out_mod_smiles, mod_smiles_list]
+    return [pepseq_list, mod_smiles_list]
 
 
 @app.command()
