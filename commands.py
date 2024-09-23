@@ -100,6 +100,37 @@ def pepseq_to_smiles(
     return peptide.smiles
 
 
+<<<<<<< HEAD
+=======
+def get_ketcher_param(smi):
+    """
+
+    Determine whether the radical (attachment point) is in ketcher compatible format e.g. '[*:1]CCC'
+    or the format used previously e.g. '[1*]CCC'
+
+    """
+    mol = rdkit.Chem.MolFromSmiles(smi)
+
+    PropNamesSet = set([])
+    atoms = [i for i in mol.GetAtoms()]
+    for atom in atoms:
+        PropNames = atom.GetPropNames()
+        PropNamesSet |= set([i for i in PropNames])
+    return 'molAtomMapNumber' in PropNamesSet
+
+
+def convert_to_ketcher(smi = '[1*]CCC'):    
+    mol = rdkit.Chem.MolFromSmiles(smi)
+    atoms = [i for i in mol.GetAtoms()]
+    for atom in atoms:
+        PropNames = [i for i in atom.GetPropNames()]
+        if ('dummyLabel' in PropNames) and ('molAtomMapNumber' not in PropNames):
+            atom.SetProp('molAtomMapNumber', str(atom.GetIsotope()))
+            atom.SetIsotope(0)
+    return rdkit.Chem.MolToSmiles(mol)
+    
+
+>>>>>>> 3782101 (add commands.convert_to_ketcher function to convert from old SMILES format to ketcher format e.g. [1*]CCC -> [*:1]CCC)
 @app.command()
 def calculate_json_from(
     sequence: str,
