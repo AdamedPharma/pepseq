@@ -70,3 +70,52 @@ def test_calculate_json_from(data_calculate):
     kwargs['ketcher'] = True
     assert result_jsons_are_identical(calculate_json_from(*args, **kwargs), result)
 
+"""
+def test_calculate_json_from_old_format(data_calculate_old_format):
+    args, result = data_calculate
+    #result_jsons_are_identical(calculate(*args), result)
+    # calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC')
+    kwargs = {}
+    kwargs['ketcher'] = True
+    assert result_jsons_are_identical(calculate_json_from(*args, **kwargs), result)
+"""
+
+
+def test_ketchers():
+    res_ketcher_true = calculate_json_from('CH3~SC{Cys(R1)}AFC~NH2', '[*:1]CCC', ketcher=True)
+    res_ketcher_false = calculate_json_from('CH3~SC{Cys(R1)}AFC~NH2', '[1*]CCC', ketcher=False)
+
+    complete_smiles_fx = 'CCCSC[C@H](NC(=O)[C@H](CS)NC(=O)[C@H](CO)NC)C(=O)N[C@@H](C)C(=O)N[C@@H](Cc1ccccc1)C(=O)N[C@@H](CS)C(N)=O'
+
+    assert smiles_are_identical(res_ketcher_true.get('complete_smiles'), complete_smiles_fx)
+    assert smiles_are_identical(res_ketcher_false.get('complete_smiles'), complete_smiles_fx)
+
+    assert res_ketcher_true.get('length') == 6
+    assert res_ketcher_false.get('length') == 6
+
+    assert res_ketcher_true.get('mw') == 687.91
+    assert res_ketcher_false.get('mw') == 687.91
+
+    assert res_ketcher_true.get('sequence') == 'SCCAFC'
+    assert res_ketcher_false.get('sequence') == 'SCCAFC'
+    
+    
+    res_ketcher_true_nd = calculate_json_from('CH3~SC{Cys(R1)}AFC~NH2', '[*:1]CCC')
+    res_ketcher_false_nd = calculate_json_from('CH3~SC{Cys(R1)}AFC~NH2', '[1*]CCC')
+
+    
+    assert smiles_are_identical(res_ketcher_true_nd.get('complete_smiles'), complete_smiles_fx)
+    assert smiles_are_identical(res_ketcher_false_nd.get('complete_smiles'), complete_smiles_fx)
+
+    assert res_ketcher_true_nd.get('length') == 6
+    assert res_ketcher_false_nd.get('length') == 6
+
+    assert res_ketcher_true_nd.get('mw') == 687.91
+    assert res_ketcher_false_nd.get('mw') == 687.91
+
+    assert res_ketcher_true_nd.get('sequence') == 'SCCAFC'
+    assert res_ketcher_false_nd.get('sequence') == 'SCCAFC'
+    
+    return
+
+

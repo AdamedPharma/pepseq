@@ -100,13 +100,30 @@ def pepseq_to_smiles(
     return peptide.smiles
 
 
+def get_ketcher_param(smi):
+    """
+
+    Determine whether the radical (attachment point) is in ketcher compatible format e.g. '[*:1]CCC'
+    or the format used previously e.g. '[1*]CCC'
+
+    """
+    mol = rdkit.Chem.MolFromSmiles(smi)
+
+    PropNamesSet = set([])
+    atoms = [i for i in mol.GetAtoms()]
+    for atom in atoms:
+        PropNames = atom.GetPropNames()
+        PropNamesSet |= set([i for i in PropNames])
+    return 'molAtomMapNumber' in PropNamesSet
+
+
 @app.command()
 def calculate_json_from(
     sequence: str,
     mod_smiles: Annotated[Optional[List[str]], typer.Option(default=None)] = None,
     out: str = None,
     db_path: str = None,
-    ketcher: bool = False
+    ketcher: bool = None
     ) -> dict:
     """
 
@@ -139,8 +156,14 @@ def calculate_json_from(
         with open(db_path) as fp:
             db_json = json.load(fp)
             kwargs['db_json'] = db_json
-    kwargs['ketcher'] = ketcher
 
+    if type(mod_smiles) == str:
+        mod_smiles = [mod_smiles]
+
+    if ketcher is None:
+        ketcher = get_ketcher_param(mod_smiles[0])
+
+    kwargs['ketcher'] = ketcher
     args = (sequence, mod_smiles)
     result = calculate(*args, **kwargs)
     print('complete_smiles: ', result.get('complete_smiles'))
