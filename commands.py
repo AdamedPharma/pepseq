@@ -117,6 +117,17 @@ def get_ketcher_param(smi):
     return 'molAtomMapNumber' in PropNamesSet
 
 
+def convert_to_ketcher(smi = '[1*]CCC'):    
+    mol = rdkit.Chem.MolFromSmiles(smi)
+    atoms = [i for i in mol.GetAtoms()]
+    for atom in atoms:
+        PropNames = [i for i in atom.GetPropNames()]
+        if ('dummyLabel' in PropNames) and ('molAtomMapNumber' not in PropNames):
+            atom.SetProp('molAtomMapNumber', str(atom.GetIsotope()))
+            atom.SetIsotope(0)
+    return rdkit.Chem.MolToSmiles(mol)
+    
+
 @app.command()
 def calculate_json_from(
     sequence: str,
