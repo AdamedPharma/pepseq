@@ -103,9 +103,9 @@ def pepseq_to_smiles(
 @app.command()
 def calculate_json_from(
     sequence: str,
-    mod_smiles: Annotated[Optional[List[str]], typer.Option(default=None)] = None,
+    mod_smiles: Annotated[Optional[List[str]], 'List of modification SMILES codes'] = None,
     out: str = None,
-    db_path: str = None
+    db_path: str = None, **kwargs
     ) -> dict:
     """
 
@@ -264,7 +264,7 @@ def augment_db_json_command(sdf_path='sdf_file.sdf',
     with open(out, 'w') as fp:
         json.dump(db_json_augmented, fp)
 
-    return db_json
+    return db_json_augmented
 
 
 if __name__ == "__main__":
