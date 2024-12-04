@@ -13,15 +13,11 @@ def output_modified_residue(ResName: str, R_id: str) -> str:
     e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility
 
 
-    :param ResName: one letter symbol of Residue e.g. C for Cysteine; K for Lysine
-    :type  ResName: str
+    :parameter ResName: one letter symbol of Residue e.g. C for Cysteine; K for Lysine: str
 
-    :param R_id: sequence attachment point id
-    :type  R_id: str
+    :parameter R_id: sequence attachment point id: str
 
-    :return: radical_name - string in the form '{ResidueName}(R{radical_id})',
-    e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility
-    :rtype: str
+    :return: radical_name - string in the form '{ResidueName}(R{radical_id})', e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility: str
 
     """
     d = {"C": "Cys", "K": "Lys"}

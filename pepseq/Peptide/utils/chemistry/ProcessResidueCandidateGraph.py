@@ -38,21 +38,17 @@ def get_match_with_external_modifications():
 
 def get_matches(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, useChirality=True) -> dict:
     """
-    Input:
-        FragmentMol: rdkit.Chem.rdchem.Mol
+    For each of the amino acid SMARTS codes present in database
+    they are matched against FragmentMolecule
+    Each matched Amino Acid specie is returned as dictionary
+    together with matched substructures
 
-        cx_smarts_db: {'C': Cysteine_SMARTS_code, ...}
+    :parameter mol rdkit.Chem.rdchem.Mol
+    :parameter cx_smarts_db dict
+    :parameter useChirality bool
 
-    Action:
-        For each of the amino acid SMARTS codes present in database
-        they are matched against FragmentMolecule
-        Each matched Amino Acid specie is returned as dictionary
-        together with matched substructures
+    :return dict
 
-    Output:
-        {
-            'C': (C_mol: rdkit.Chem.rdchem.Mol, (1,2,3), (4,5,6))
-        }
     """
     matches_dict = {}
     for aa in cx_smarts_db:
@@ -84,29 +80,17 @@ def get_match_cover(G: nx.classes.graph.Graph, ResID: str):
 
 def match_molecular_graph_to_res_id(G: nx.classes.graph.Graph, ResID: str, matches_dict: dict) -> tuple:
     """
-    Input:
-        FragmentMol: rdkit.Chem.rdchem.Mol
-
-        matches_dict: 
-            {
-                'C': (C_mol: rdkit.Chem.rdchem.Mol, (1,2,3), (4,5,6))
-            }
-    ResID:   for example '1' (one of the many ResIDs determined by fitting Peptide Backbone)
-
-    Output:
-
-    (max_aa: amino_acid specie with greatest cover over fragment portion including ResX (X=ResID)
-    and only ResX,
-    max_aa_mol: molecule substructure covered by amino acid specie: rdkit.Chem.rdchem.Mol
-    max_match: e.g. (1,2,3) atom_ids covered by match
-    )
-
-    Action:
-
+    We match molecular graph to ResidueID
     for each of the substructure matches grouped by amino acid specie
     we filter the ones covering only one residue and return the match covering
     the biggest posrtion of that residue (i.e. Cysteine is preferred over Alaine)
-    if Alanine and Cysteine are matched; Cysteine match will be returned
+    if Alanine and Cysteine are matched; Cysteine match will be returned.
+
+    :parameter G: nx.classes.graph.Graph
+    :parameter ResID: str
+    :parameter matches_dict: dict
+
+    :return: tuple
 
     """
     max_cover = 0
@@ -499,15 +483,12 @@ def decompose(mol: rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, n_subst_limit=None
 
 def get_internal_connections_subgraph_tuples(G: nx.classes.graph.Graph, res_matches: dict) -> list:
     """
-    Input:
+    Get internal connections between Residue Subgraphs
 
-    G - molecular graph representing fragment molecule
-    Output:
+    :parameter G: nx.classes.graph.Graph
+    :parameter res_matches: dict
 
-    subgraph_tuples - [
-        ( 'Res_1_C', G_residue1_molecular_subgraph ),
-        ( 'Res_2_X', G_residue2_molecular_subgraph ),
-    ]
+    :return: list
 
     """
     subgraph_tuples = []
@@ -522,18 +503,13 @@ def get_internal_connections_subgraph_tuples(G: nx.classes.graph.Graph, res_matc
 
 def get_subgraph_tuples(res_matches: dict, modification_graphs_nodes, G: nx.classes.graph.Graph):
     """
-    Input:
+    Get subgraphs.
 
-    G - molecular graph representing fragment molecule
+    :parameter res_matches dict
+    :parameter modification_graphs_nodes list
+    :parameter G nx.classes.graph.Graph
 
-    Output:
-
-    subgraph_tuples - [
-        ( 'Res_1_C', G_residue1_molecular_subgraph ),
-        ( 'Res_2_X', G_residue2_molecular_subgraph ),
-        ( 'Mod_1_X', G_modification1_molecular_subgraph ),
-            ]
-
+    :return list 
     """
 
     internal_subgraph_tuples = get_internal_connections_subgraph_tuples(G, res_matches)
@@ -545,30 +521,15 @@ def get_subgraph_tuples(res_matches: dict, modification_graphs_nodes, G: nx.clas
 
 def get_connections(G_edges:list, subgraph_tuples: list):
     """
-    Input:
+    get connections between Residue Subgraphs
+    For each pair of Residue Subgraphs
+    We find whether in Fragment MolecularGraph edges there is a connecting
+    edge between Residue1 and Residue2
 
-        subgraph_tuples - [
-            (ResName_1, SubGraphRes_1),
-            (ResName_2, SubGraphRes_2),
-            ...
-        ]
+    :parameter G_edges: list
+    :parameter subgraph_tuples: list
 
-        G_edges - [
-            (Res1_Node1, Res1_Node2),
-            (Res1_Node1, Res2_Node2),
-            ... 
-        ]
-
-    Output:
-
-    connections - [
-        (res1, res2, [(node1_1, node2_1), (node1_2, node2_34)])
-    ]
-
-    Action:
-        For each pair of Residue Subgraphs
-        We find whether in Fragment MolecularGraph edges there is a connecting
-        edge between Residue1 and Residue2
+    :return: list
     
     """
 
@@ -590,25 +551,11 @@ def full_decomposition(mol:rdkit.Chem.rdchem.Mol, cx_smarts_db: dict, n_subst_li
     """
     We use rdkit.Chem.rdchem.Mol representation of residue candidate
 
-    Input:
+    :parameter mol: rdkit.Chem.rdchem.Mol
+    :parameter cx_smarts_db: dict
+    :parameter n_subst_limit: int
 
-    mol - rdkit.Chem.rdchem.Mol
-
-    Output:
-
-    res_return - {
-        'ResID1': 'ResName',
-        ...
-    }
-
-    internal connections:
-
-    external connections:
-
-
-    Action:
-
-    
+    :return: tuple
     """
 
     G, res_matches, modification_graphs = decompose(mol, cx_smarts_db, n_subst_limit=n_subst_limit)

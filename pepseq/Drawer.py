@@ -38,17 +38,21 @@ def get_start_x(
     is_start: bool = None
 ) -> float:
     """
-    Get starting X coordinate for 
+    Get starting X coordinate for next line of drawn sequence
 
+    :parameter left_margin: int = left margin of the image
 
-     ACDEF
-          G
-     NMLKI
-    P
-     QRSTV
-          W
-         Y
+    :parameter is_corner: bool = whether the sequence is a corner
 
+    :parameter forward: bool = whether the sequence is drawn forward
+
+    :parameter step_x: float = step in X direction
+
+    :parameter is_start: bool = whether the sequence is the first in the line
+
+    :return: float = X coordinate
+
+    :return: float = X coordinate
     """
 
     right_margin = left_margin + (8.6 * step_x)
@@ -211,11 +215,11 @@ def generate_kwargs_for_ellipse_balls(
 
 def get_is_corner(num_iteration: int = None) -> bool:
     """
-    ACDEFGHIK       num_iteration = 0 => False
-             L      num_iteration = 1 => True
-     VTSRQPNM       num_iteration = 2 => False
-    W               num_iteration = 3 => True
-     Y              num_iteration = 4 => False
+    Every odd iteration is a corner and even is not corner.
+
+    :parameter num_iteration
+
+    :return: bool = whether the iteration is a corner
     """
 
     odd = bool(num_iteration % 2)
@@ -224,12 +228,12 @@ def get_is_corner(num_iteration: int = None) -> bool:
 
 def get_direction(num_iteration: int = None) -> str:
     """
-    ACDEFGHIK       num_iteration = 0 => forward
-             L      num_iteration = 1 => reverse
-     VTSRQPNM       num_iteration = 2 => reverse
-    W               num_iteration = 3 => forward
-     Y              num_iteration = 4 => forward
-        
+    Every 4th iteration is forward, 1st is reverse, 2nd is reverse, 3rd is forward
+
+    :parameter num_iteration
+
+    :return: str = direction of the iteration
+
     """
     remainder = num_iteration % 4
     if remainder in [0, 3]:
@@ -245,13 +249,17 @@ def get_fragment_length(remaining_length: int=None, num_iteration: int=None,
                             'standard': 8
                         }) -> int:
     """
+    Get length of sequence fragment. First fragment is 9, corner is 1, standard is 8.
+    If length of remaining sequence is less than fragment length, fragment length is the length of the remaining sequence.
 
+    :parameter remaining_length: int = length of the remaining sequence
 
-    ACDEFGHIK       num_iteration = 0; remaining_length = 20 => length = 9
-             L      num_iteration = 1; remaining_length = 11 => length = 1
-     VTSRQPNM       num_iteration = 2; remaining_length = 10 => length = 8
-    W               num_iteration = 3; remaining_length = 2 => length = 1
-     Y              num_iteration = 4; remaining_length = 1 => length = 1
+    :parameter num_iteration: int = iteration number
+
+    :parameter lengths: dict = dictionary of lengths for first, corner and standard fragments
+
+    :return: int = length of the fragment
+
     """
     is_first = (num_iteration == 0)
     if is_first:
@@ -270,23 +278,12 @@ def get_fragment_length(remaining_length: int=None, num_iteration: int=None,
 
 def schema_layout_generator_from_symbols(symbols: list):
     """
-    input:
+    Generate schema layout based on list of symbols. Schema layout is a list of tuples.
+    Each tuple contains a list of symbols, length of the fragment, direction of the fragment and whether the fragment is a corner.
 
-    symbols = [
-        'A','C','D','E','F','G','H','I','K','L','M','N','P','Q','R','S','T','V','W','Y'
-    ]
-    
-    is generator
+    :parameter symbols: list = list of symbols
 
-    yields
-
-    list(output) =   [
-        (['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K'], 9, 'forward', False),
-        (['L'], 1, 'reverse', True),
-        (['M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V'], 8, 'reverse', False),
-        (['W'], 1, 'forward', True),
-        (['Y'], 1, 'forward', False)
-        ]
+    :return: generator = generator of schema layout
 
     """
     remaining_symbols = symbols
@@ -563,21 +560,24 @@ def get_png_string_from_surface(surface: cairo.ImageSurface) -> bytes:
 def draw_symbols(symbols: list, width: int = 1024, height: int = 1024,
                   termini_present: list = ["N", "C"], out: str = None) -> str:
     """
-    From symbols list (a sequence already split into residue symbols)
-    Input:
-        symbols: residue symbols
+    Example of symbols list is [
+    'CH3', 'Y', 'aMeAla', 'Q', 'G', 'T', 'F', 'T', 'S', 'D', 'Y', 'S', 'K', 'Y', 'L'] + \
+    ['D', 'E', 'Cys(R1)', 'A', 'A', 'K', 'D', 'F', 'V', 'Cys(R2)', 'W', 'L', 'L', 'D', 'H', 'H'] + \
+    ['P', 'S', 'S', 'G', 'Q', 'P', 'P', 'P', 'S', 'CN', 'C', 'R', 'NH2']
 
-        symbols = [
-             'CH3', 'Y', 'aMeAla', 'Q', 'G', 'T', 'F', 'T', 'S', 'D', 'Y', 'S', 'K', 'Y', 'L'] + \
-            ['D', 'E', 'Cys(R1)', 'A', 'A', 'K', 'D', 'F', 'V', 'Cys(R2)', 'W', 'L', 'L', 'D', 'H', 'H'] + \
-            ['P', 'S', 'S', 'G', 'Q', 'P', 'P', 'P', 'S', 'CN', 'C', 'R', 'NH2']
-        
-        width: image width (px)
-        height: image height (px)
-        termini_present:
-            whether N terminus different than 'H' is present
-            and/or 
-            whether C terminus different than 'OH' is present
+    From symbols list (a sequence already split into residue symbols)
+
+    :parameter symbols: list = residue symbols
+
+    :parameter width: int = image width (px)
+
+    :parameter height: int = image height (px)
+
+    :parameter termini_present: list = whether N terminus different than 'H' is present and/or whether C terminus different than 'OH' is present
+
+    :parameter out: str = output file name
+
+    :return: str = PNG image format string
 
     """
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)

@@ -19,22 +19,16 @@ def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
     Add internal bonds within peptide molecule from values defined in peptide JSON.
 
     :param G: Modified Peptide molecule as networkx nx.classes.graph.Graph
-    :type G: nx.classes.graph.Graph
 
-    :param res1_id: Index of first amino acid residue involved in bonding
-    :type int
+    :param res1_id: Index of first amino acid residue involved in bonding: int
 
-    :param atom_name_1: Name of atom in first amino acid residue involved in bonding
-    :type str
+    :param atom_name_1: Name of atom in first amino acid residue involved in bonding: str
 
-    :param res2_id: Index of second amino acid residue involved in bonding
-    :type int
+    :param res2_id: Index of second amino acid residue involved in bonding: int
 
-    :param atom_name_2: Name of atom in second amino acid residue involved in bonding
-    :type str
+    :param atom_name_2: Name of atom in second amino acid residue involved in bonding: str
     
     :return: peptide molecule - Modified Peptide molecule as networkx nx.classes.graph.Graph
-    :rtype: nx.classes.graph.Graph
     
     """
     
@@ -58,17 +52,13 @@ def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) ->
     Add disulfide bond within peptide molecule from values defined in peptide JSON.
     Atom Name values are set to 'SG'
 
-    :param G: Modified Peptide molecule as networkx nx.classes.graph.Graph
-    :type G: nx.classes.graph.Graph
+    :parameter G: Modified Peptide molecule as networkx nx.classes.graph.Graph
 
-    :param res1_id: Index of first amino acid residue involved in bonding
-    :type int
+    :parameter res1_id: Index of first amino acid residue involved in bonding: int
 
-    :param res2_id: Index of second amino acid residue involved in bonding
-    :type int
+    :parameter res2_id: Index of second amino acid residue involved in bonding: int
 
     :return: peptide molecule - Modified Peptide molecule as networkx nx.classes.graph.Graph
-    :rtype: nx.classes.graph.Graph
     
     """
 
@@ -77,15 +67,14 @@ def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) ->
 
 def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
     """
-
-    :param staple_graph: molecular graph representing molecular staple
-    :type nx.classes.graph.Graph
-
-    :return: tuple composed of staple_graph (molecular graph nx.classes.graph.Graph representing
-     molecular staple with dummy Atoms removed) and dictionary representing atoms on staple that connect 
+    Return tuple is composed of staple_graph (molecular graph nx.classes.graph.Graph representing
+    molecular staple with dummy Atoms removed) and dictionary representing atoms on staple that connect 
     to amino acid chain
 
-    :rtype: nx.classes.graph.Graph
+
+    :parameter staple_graph: molecular graph representing molecular staple: nx.classes.graph.Graph
+
+    :return: tuple composed of composed of staple_graph and atom_id_dict
 
     """
     dummyAtoms = [

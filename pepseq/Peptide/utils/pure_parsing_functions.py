@@ -13,14 +13,12 @@ def get_attachment_point_json(res_id: int, decomposition: tuple, default_exit_at
     :param res_id: Residue ID
     :type  res_id:  int
 
-    :param decomposition: in the form of ResidueName ('Cys', 'Lys', etc.) and connecting point_id
-    (e.g. ('Cys', 1) )
+    :param decomposition: in the form of ResidueName ('Cys', 'Lys', etc.) and connecting point_id (e.g. ('Cys', 1) )
     :type  decomposition: tuple
 
     :param     
 
-    :return: att_point_json - JSON dictionary having info on Atom (Name) and Residue (Name and Index)
-    to which modification is connected
+    :return: att_point_json - JSON dictionary having info on Atom (Name) and Residue (Name and Index) to which modification is connected
     :rtype: dict
 
     """
@@ -44,12 +42,10 @@ def decompose_symbol(symbol: str) -> Union[tuple, str]:
     """
     If symbol is composed e.g. Cys(R1), decompose it into (Cys, '1')
 
-    :param s: symbol can be in normal form e.g. 'C', 'S', 'Aib', or can contain Radical
-    with ID e.g. Cys(R1)
+    :param s: symbol can be in normal form e.g. 'C', 'S', 'Aib', or can contain Radical with ID e.g. Cys(R1)
     :type  s: str
 
-    :return: decomp - decomposition can be a tuple of residue name and radical id
-    or can be an input symbol
+    :return: decomp - decomposition can be a tuple of residue name and radical id or can be an input symbol
     """
     has_round_bracket = ("(" in symbol) and (")" in symbol)
 

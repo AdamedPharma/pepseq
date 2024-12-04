@@ -22,7 +22,7 @@ The module contains the following functions:
 - `pepseq_to_smiles(pepseq, out, db_path)` - Returns the SMILES code for pepseq.
 - `calculate_json_from(sequence, mod_smiles, out, db_path)` - Returns JSON dict 
    containing info about amino acid sequence and sequence modifications
-- `read_smiles(smiles_filename, out, db_path, v) - Reads SMILES from file  and
+- `read_smiles(smiles_filename, out, db_path, v)` - Reads SMILES from file  and
    Writes parsed Pepseq and its modifications into separate txt files.
 - `augment_db_json_command(sdf_path, out)` - Reads additional (Modified) Peptide
    building blocks from SDF file. Adds them to database and outputs it to file.
@@ -160,7 +160,7 @@ def read_smiles(
     """
 
     Calculate sequence(s) in Pepseq Format and  list of modification SMILES from
-      Modified Peptide structure given in SMILES.
+    Modified Peptide structure given in SMILES.
     Output results into files
 
     :param smiles_filename: string in pepseq format.
@@ -175,9 +175,7 @@ def read_smiles(
     :param v: bool switch regulating verbosity.
     :type v: bool or None
     
-    :return: result_list list of results given as list of sequences in Pepseq Format.
-    and list of modification SMILES
-    :rtype: list
+    :return: result_list list of results given as list of sequences in Pepseq Format. and list of modification SMILES
     
     Input SMILES filepath 
 

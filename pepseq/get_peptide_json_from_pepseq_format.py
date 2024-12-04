@@ -124,40 +124,22 @@ def get_pepseq_json(pepseq_format: str, db_json: Dict = db_json):
 
 
 def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None) -> Dict:
-    """
-
-    Input:
-
-
-        pepseq_string:
-
-            str = string in pepseq format
-            H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+    """Get pep_json
+        peptide_json, a JSON containing info about modified peptide with
+        'sequence', 'internal_modifications', 'external_modifications'
+        pepseq format example is H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
         where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
         amino acid; {Cys(R1)} - is amino acid
         with staple attached, {Cys(R1)} - amino acid with staple attached
+        mod_smiles example is SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+        modification with attachment
+    
+    :parameter pepseq_format: str = string in pepseq format
 
+    :parameter db_json: Dict = database JSON containing the mapping of symbols to amino acids
+    :parameter mod_smiles_list: list = list of SMILES strings representing the modifications
 
-        mod_smiles:
-
-            SMILES string (e.g. '[1*]C[2*]') - showing the structure of
-                modification with attachment
-            points:
-
-                { Cys(R1) } <- is attached in [1*] attachment point on staple
-                { Cys(R2) } <- is attached in [2*] attachment point on staple
-
-    Output:
-
-        peptide_json:
-
-            JSON containing info about modified peptide with
-
-                'sequence':
-
-                'internal_modifications':
-
-                'external_modifications':
+    :return: peptide_json = JSON representation of the peptide sequence
 
     """
 

@@ -4,4 +4,6 @@ API
 .. autosummary::
    :toctree: generated
 
-   lumache
+   pepseq
+
+   

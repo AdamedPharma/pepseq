@@ -66,37 +66,37 @@ the ``pepseq.commands.augment_db_json_command()``
 Augment Monomer Database
 ************************************
 
-.. autofunction:: augmenting_db_json.get_R3
+.. autofunction:: pepseq.augmenting_db_json.get_R3
 
-.. autofunction:: augmenting_db_json.set_default_exit_atom
+.. autofunction:: pepseq.augmenting_db_json.set_default_exit_atom
 
-.. autofunction:: augmenting_db_json.get_basic_smiles
+.. autofunction:: pepseq.augmenting_db_json.get_basic_smiles
 
-.. autofunction:: augmenting_db_json.get_ro_json
+.. autofunction:: pepseq.augmenting_db_json.get_ro_json
 
-.. autofunction:: augmenting_db_json.get_ro_json_from_row
+.. autofunction:: pepseq.augmenting_db_json.get_ro_json_from_row
 
-.. autofunction:: augmenting_db_json.get_smiles_set
+.. autofunction:: pepseq.augmenting_db_json.get_smiles_set
 
-.. autofunction:: augmenting_db_json.get_row_jsons
+.. autofunction:: pepseq.augmenting_db_json.get_row_jsons
 
-.. autofunction:: augmenting_db_json.augment_db_json
+.. autofunction:: pepseq.augmenting_db_json.augment_db_json
 
-.. autofunction:: augmenting_db_json.N_term_mod_smarts
+.. autofunction:: pepseq.augmenting_db_json.N_term_mod_smarts
 
-.. autofunction:: augmenting_db_json.get_Nter_versions_cxsmarts_db
+.. autofunction:: pepseq.augmenting_db_json.get_Nter_versions_cxsmarts_db
 
-.. autofunction:: augmenting_db_json.get_Nter_versions
+.. autofunction:: pepseq.augmenting_db_json.get_Nter_versions
 
-.. autofunction:: augmenting_db_json.change_exit_atom
+.. autofunction:: pepseq.augmenting_db_json.change_exit_atom
 
-.. autofunction:: augmenting_db_json.change_exit_atoms
+.. autofunction:: pepseq.augmenting_db_json.change_exit_atoms
 
-.. autofunction:: augmenting_db_json.order_aas
+.. autofunction:: pepseq.augmenting_db_json.order_aas
 
-.. autofunction:: augmenting_db_json.remove_radicals
+.. autofunction:: pepseq.augmenting_db_json.remove_radicals
 
-.. autofunction:: augmenting_db_json.remove_radicals_from_db_smarts
+.. autofunction:: pepseq.augmenting_db_json.remove_radicals_from_db_smarts
 
 ************************************
 pepseq
@@ -131,8 +131,6 @@ BuildingModifiedPeptideFromPeptideJSON
 
 .. autofunction:: pepseq.BuildingModifiedPeptideFromPeptideJSON.get_peptide_json_from_sequence
    
-.. autofunction:: pepseq.BuildingModifiedPeptideFromPeptideJSON.get_residue_symbols_from_sequence
-
 .. autofunction:: pepseq.BuildingModifiedPeptideFromPeptideJSON.get_molecule_from_sequence
 
 .. autofunction:: pepseq.BuildingModifiedPeptideFromPeptideJSON.get_smiles_from_sequence
@@ -234,8 +232,6 @@ Drawer
 functions
 ################
 
-.. autofunction:: pepseq.functions.validate_pepseq
-
 .. autofunction:: pepseq.functions.calculate_pepseq_and_mods
 
 .. autofunction:: pepseq.functions.calculate
@@ -243,10 +239,6 @@ functions
 
 get_peptide_json_from_pepseq_format
 ########################################
-
-.. autofunction:: pepseq.get_peptide_json_from_pepseq_format.get_attachment_point_json
-
-.. autofunction:: pepseq.get_peptide_json_from_pepseq_format.decompose_symbol
 
 .. autofunction:: pepseq.get_peptide_json_from_pepseq_format.get_attachment_points_on_sequence_json
 
@@ -346,13 +338,21 @@ Parser
 .. autofunction:: pepseq.Peptide.utils.Parser.get_canonical
 
 
+pure_parsing_functions
+======================
+
+.. autofunction:: pepseq.Peptide.utils.pure_parsing_functions.decompose_symbol
+
+.. autofunction:: pepseq.Peptide.utils.pure_parsing_functions.get_attachment_point_json
+
+
 validation 
 ==========
 
 
-.. autofunction:: pepseq.Peptide.utils.validation.has_attachment_point
+.. autofunction:: pepseq.Peptide.utils.smiles_validation.has_attachment_point
    
-.. autofunction:: pepseq.Peptide.utils.validation.validate_attachment_points_on_smiles
+.. autofunction:: pepseq.Peptide.utils.smiles_validation.validate_attachment_points_on_smiles
    
 .. autofunction:: pepseq.Peptide.utils.validation.validate_smiles_codes
 
@@ -362,11 +362,13 @@ validation
 
 .. autofunction:: pepseq.Peptide.utils.validation.validate_matching_attachment_points
    
-.. autofunction:: pepseq.Peptide.utils.validation.validate_termini
+.. autofunction:: pepseq.Peptide.utils.pepseq_validation.validate_termini
    
-.. autofunction:: pepseq.Peptide.utils.validation.check_parentheses
+.. autofunction:: pepseq.Peptide.utils.pepseq_validation.check_parentheses
 
-.. autofunction:: pepseq.Peptide.utils.validation.check_for_nested_brackets
+.. autofunction:: pepseq.Peptide.utils.pepseq_validation.check_for_nested_brackets
+
+.. autofunction:: pepseq.Peptide.utils.pepseq_validation.validate_pepseq
 
 
 chemistry 

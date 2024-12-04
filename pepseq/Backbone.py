@@ -55,8 +55,9 @@ def generate_bb_mol(num_res: int, OH: bool = False) -> rdkit.Chem.rdchem.Mol:
 class GetLongestPolymerWithin(Functionality):
     """
     The Longest Polymer of (monomer) form -[NCC(=O) ]*n- is being
-      rdkit.substructureMatch
+    rdkit.substructureMatch
     of rdkit.MoleculeFromSMILES ProteinBackbone Is (SMARTS * N)?
+
     """
 
     def __init__(self):
@@ -99,12 +100,9 @@ class MarkingPeptideBackbone(Functionality):
 
     rdkit.Chem.rdchem.Mol object representing modified peptide molecule
     with:
-        - protein backbone atoms N-Ca-Co assigned new properties:
-          ResidueID and AtomName (N, CA, or CO)
+    - protein backbone atoms N-Ca-Co assigned new properties: ResidueID and AtomName (N, CA, or CO)
         
-        - protein backbone peptide bonds connecting residues
-          assigned new property ("is_peptide_bond" = "True")
-
+    - protein backbone peptide bonds connecting residues assigned new property ("is_peptide_bond" = "True")
 
     Purpose:
 

@@ -102,7 +102,7 @@ def get_ro_json(mol: rdkit.Chem.rdchem.Mol, name: str = 'Orn') -> dict:
     Molecule with default exit atom (atom to attach modifications unless
     specified otherwise) is computed by set_default_exit_atom_function.
     From this CXSMILES and CXSMARTS are created together with SMILES code
-     depicting basic molecule (without radicals attached).
+    depicting basic molecule (without radicals attached).
     
     :param mol: (Amino Acid) molecule as rdkit object
     :type mol: rdkit.Chem.rdchem.Mol
@@ -222,9 +222,8 @@ def augment_db_json(db_json: dict, df_sdf: pd.DataFrame = None, name_column = 'm
     :param mol_colname: name of DataFrame column containing monomer/building block rdkit.Mol object
     :type  mol_colname: str
 
-    :return: db_json - database of monomers inserted with new monomers read from SDF file through
-    pandas DataFrame
-    :rtype:  dict
+    :return: db_json - database of monomers inserted with new monomers read from SDF file through pandas DataFrame:  dict
+
     """
     aa_keys = set( db_json['smiles']['aa'].keys() )
     df_new = df_sdf[~df_sdf[name_column].isin(aa_keys)]
@@ -287,9 +286,7 @@ def N_term_mod_smarts(smarts: str) -> Union[str, None]:
     :param smarts: SMARTS code
     :type  smarts: str
 
-    :return mol_new_smarts: new SMARTS code updated with N terminally modified 
-    N atom pattern
-    :rtype: str
+    :return mol_new_smarts: new SMARTS code updated with N terminally modified N atom pattern: str
     """
     sm_start =   '[$([N&X3&H2,N&X4&H3&+]),$([N&X3&H1](C)C)]'
     sm_changed = '[$([NX3H2,NX4H3+]),$([NX3H](C)(C)),$([NX3H])]'
@@ -314,10 +311,7 @@ def get_Nter_versions_cxsmarts_db(aa_smarts_dict: dict) -> dict:
     :param aa_smarts_dict: dictionary database of SMARTS codes for amino_acids 
     :type  aa_smarts_dict: dict
 
-    :return: updated_aa_smarts_dict: updated dictionary of SMARTS codes for amino acids
-    with patterns changed to include N terminal modifications
-    :rtype: dict
-
+    :return: updated_aa_smarts_dict: updated dictionary of SMARTS codes for amino acids with patterns changed to include N terminal modifications: dict
     
     """
     updated_aa_smarts_dict = {}
@@ -333,12 +327,10 @@ def get_Nter_versions(aa_smarts_dict: dict) -> dict:
     """
     Update amino acid SMARTS pattern provided in db_json format database to match N terminal modifications.
     
-    :param aa_smarts_dict: dictionary database of SMARTS codes for amino_acids 
-    :type  aa_smarts_dict: dict
+    :param aa_smarts_dict: dictionary database of SMARTS codes for amino_acids: dict
 
-    :return: updated_aa_smarts_dict: updated dictionary of SMARTS codes for amino acids
-    with patterns changed to include N terminal modifications
-    :rtype: dict
+    :return: updated_aa_smarts_dict: updated dictionary of SMARTS codes for amino acids with patterns changed to include N terminal modifications
+    
     """
 
     updated_aa_smarts_dict = {}
@@ -457,17 +449,13 @@ def order_graph_nodes_from_root_to_leaves(G: nx.DiGraph, aa_codes: list[str]):
 
 
 def order_aas(db_json: dict) -> list:
-    """
-    
+    """    
     Some Amino Acids can be contained within larger
-    Amino Acids. (
-        e.g. Alanine within Serine, 
-             Glycine within Alanine
-             )
+    Amino Acids. ( e.g. Alanine within Serine,  Glycine within Alanine)
     
     When decomposing a Peptide Molecule into Monomers.
     Same sidechain would fit match few amino acids:
-        e.g. Serine will also match Alanine SMARTS pattern
+    e.g. Serine will also match Alanine SMARTS pattern
     
     In this case we select the largest Amino Acid
     that has been matched. In order to do that 

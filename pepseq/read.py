@@ -41,20 +41,20 @@ def from_smiles(smiles: str, db_json: Dict = db_json) -> Peptide:
 
 def from_json(peptide_json: Dict[str, Any], db: Dict = db_json) -> Peptide:
     """Read (modified) peptide from json
-
-    pepseq json should looks as below:
-
+        pepseq json should looks as below:
     {"sequence":"H{Aib}EGTFTSDVSSYLEGQAAKEFIAWLVRGRG",
         "modifications":[
-            {
-            "modification_smiles": \
-            "[*1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOC" +
-            "COCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[*2]",
+            "modification_smiles": 
+            "[\*1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOC" +
+            "COCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[\*2]",
             "connecting_residues": [17, 24]
             }
+            
         ]
+
     }
-    where [*1] and [*2] are attachement points
+
+    where [\*1] and [\*2] are attachement points
 
     Args:
         json (Dict[str, Any]): json in format as above
@@ -64,8 +64,8 @@ def from_json(peptide_json: Dict[str, Any], db: Dict = db_json) -> Peptide:
     Raises:
         Exception: _description_
 
-    Returns:
-        Peptide: peptide object
+    return: Peptide: peptide object
+        
     """
     smiles = get_smiles_from_peptide_json(peptide_json, db)
     peptide = Peptide(smiles, peptide_json)
