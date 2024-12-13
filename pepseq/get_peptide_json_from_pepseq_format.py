@@ -16,7 +16,7 @@ with open(full_db_path) as fp:
     db_json = json.load(fp)
 
 
-def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles: str) -> Dict:
+def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles: str, ketcher=False) -> Dict:
     """
     :param attachment_points_on_sequence - 
     :type  attachment_points_on_sequence: Dict
@@ -27,16 +27,26 @@ def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles
     mod_mol = rdkit.Chem.MolFromSmiles(mod_smiles)
     mod_atoms = mod_mol.GetAtoms()
 
-    radical_dummy_atoms = [atom for atom in mod_mol.GetAtoms() if (atom.GetAtomicNum() == 0)]
-    #in rdkit dummy Atoms are identified by AtomicNum = 0
+    if ketcher:
+        radical_dummy_atoms = [
+            atom for atom in mod_mol.GetAtoms() if (('dummyLabel' in atom.GetPropNames()) and (
+                atom.GetProp('dummyLabel') == '*'))]
+        radical_ids_str = set([atom.GetProp('molAtomMapNumber') for atom in radical_dummy_atoms])
+        min_att_points = {
+            radical_id: attachment_points_on_sequence[int(radical_id)]
+            for radical_id in radical_ids_str
+        }
+    else:
+        radical_dummy_atoms = [atom for atom in mod_mol.GetAtoms() if (atom.GetAtomicNum() == 0)]
+        #in rdkit dummy Atoms are identified by AtomicNum = 0
 
-    radical_ids_str = set([atom.GetIsotope() for atom in radical_dummy_atoms])
-    
+        radical_ids_str = set([atom.GetIsotope() for atom in radical_dummy_atoms])
+        
 
-    min_att_points = {
-        radical_id: attachment_points_on_sequence[radical_id]
-        for radical_id in radical_ids_str
-    }
+        min_att_points = {
+            radical_id: attachment_points_on_sequence[radical_id]
+            for radical_id in radical_ids_str
+        }
 
     max_attachment_point_id = max([int(i) for i in min_att_points.keys()])
 
@@ -49,7 +59,7 @@ def get_single_modification_json(attachment_points_on_sequence: Dict, mod_smiles
     return ext_mod
 
 
-def get_ext_mod_json(symbols: list[str], smiles: list) -> list:
+def get_ext_mod_json(symbols: list[str], smiles: list, ketcher=False) -> list:
     """
     Get the JSON representation of external modifications based on symbols and SMILES.
 
@@ -66,24 +76,26 @@ def get_ext_mod_json(symbols: list[str], smiles: list) -> list:
     if attachment_points_on_sequence.keys():
         for mod_smiles in smiles:
             ext_mod_json = get_single_modification_json(
-                attachment_points_on_sequence, mod_smiles
+                attachment_points_on_sequence, mod_smiles,
+                ketcher=ketcher
             )
             ext_mod_jsons.append(ext_mod_json)
     return ext_mod_jsons
 
 
-def get_smiles_json(symbols: str, mod_smiles_list: list[str]):
+def get_smiles_json(symbols: str, mod_smiles_list: list[str], ketcher=False):
     """
     Retrieves the JSON representation of modified peptides based on their SMILES representation.
 
     Args:
         mod_smiles_list (list[str]): A list of SMILES representations of modified peptides.
+        ketcher: bool: is the format ketcher?
 
     Returns:
         list: A list of JSON objects representing the modified peptides. If no modified peptides are found, an empty list is returned.
     """
     if mod_smiles_list is not None:
-        ext_mod = get_ext_mod_json(symbols, mod_smiles_list)
+        ext_mod = get_ext_mod_json(symbols, mod_smiles_list, ketcher=ketcher)
         if ext_mod is not None:
             return ext_mod
         else:
@@ -123,7 +135,7 @@ def get_pepseq_json(pepseq_format: str, db_json: Dict = db_json):
     return pep_json
 
 
-def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None) -> Dict:
+def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None, ketcher=False) -> Dict:
     """Get pep_json
         peptide_json, a JSON containing info about modified peptide with
         'sequence', 'internal_modifications', 'external_modifications'
@@ -138,13 +150,14 @@ def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: l
 
     :parameter db_json: Dict = database JSON containing the mapping of symbols to amino acids
     :parameter mod_smiles_list: list = list of SMILES strings representing the modifications
+    :parameter ketcher: bool = is that a ketcher format?
 
     :return: peptide_json = JSON representation of the peptide sequence
 
     """
 
     pep_json = get_pepseq_json(pepseq_format, db_json)
-    pep_json["external_modifications"] = get_smiles_json(pep_json['symbols'][1:-1], mod_smiles_list)
+    pep_json["external_modifications"] = get_smiles_json(pep_json['symbols'][1:-1], mod_smiles_list, ketcher=ketcher)
     return pep_json
 
 

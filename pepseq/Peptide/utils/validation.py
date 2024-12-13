@@ -88,7 +88,7 @@ def validate_matching_attachment_points(pepseq: str, smiles_codes: list):
     
     TO BE IMPROVED: the sequence needs to be parsed into residue symbols in order to validate the symbols agreement with SMILES codes;
     this forces us to make multiple calls to get_pep_json function just in order to validate;
-    In general some features can be validated only after extracting them
+    In general some features can be validated only after extracting them.
 
     """
     symbols = get_pep_json(pepseq)['symbols']
@@ -106,7 +106,9 @@ def validate_matching_attachment_points(pepseq: str, smiles_codes: list):
 
 def validate (pepseq: str, smiles: List[str] = [], db: dict = db_json):
     """
-    Validate the system of smiles and pepseq (however it might be problematic I guess because we wanted to separate validating sequence in pepseq format from validating SMILES and then validate them together
+    Validate the system of smiles and pepseq (however it might be problematic
+     I guess because we wanted to separate validating sequence in pepseq format
+     from validating SMILES and then validate them together.
 
     :param pepseq – obligatory parameter pepseq in form like 
         CSCACGCK or {CH3}-CSCACGCK-{NH2} or CS{Cys(R1)}GACG~NH2

@@ -24,7 +24,6 @@ def get_attachment_point_json(res_id: int, decomposition: tuple, default_exit_at
     """
 
     ResName, attachment_point_id = decomposition
-
     
 
     AtomName = default_exit_atom_name.get(ResName, "")

@@ -143,18 +143,7 @@ def pytest_generate_tests(metafunc):
             tests = load_tests(fixture)
             metafunc.parametrize(fixture, tests)
 
-
-def mols_are_identical(mol1: rdkit.Chem.rdchem.Mol, mol2: rdkit.Chem.rdchem.Mol) -> bool:
-    are_identical = mol1.HasSubstructMatch(
-        mol2, useChirality=True
-    ) and mol2.HasSubstructMatch(mol1, useChirality=True)
-    return are_identical
-
-
-def smiles_are_identical(smi1: str, smi2: str) -> bool:
-    mol1 = rdkit.Chem.MolFromSmiles(smi1)
-    mol2 = rdkit.Chem.MolFromSmiles(smi2)
-    return mols_are_identical(mol1, mol2)
+from pepseq.tests_new.helpers import smiles_are_identical
 
 
 def result_jsons_are_identical(j1: dict, j2: dict):
@@ -221,12 +210,24 @@ def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
     fixture_complete_smiles_2 = '[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O'
     fixture_mod_smiles_2 = ['[1*]CNCC[2*]', '[3*]CNCCSP']
 
+    fixture_pepseq_3 = 'H~CD~OH'
+
+    fixture_complete_smiles_3 = '[H]N[C@@H](CS)C(=O)N[C@@H](CC(=O)O)C(=O)O'
+    fixture_mod_smiles_3 = []
+
     pepseq_2, mod_smiles_2 = from_smiles_to_pepseq_and_one_mod_smiles_strings(
         fixture_complete_smiles_2, db_json
     )
 
     assert pepseq_2 == fixture_pepseq_2
     assert mod_smiles_2 == fixture_mod_smiles_2
+
+    pepseq_3, mod_smiles_3 = from_smiles_to_pepseq_and_one_mod_smiles_strings(
+        fixture_complete_smiles_3, db_json
+    )
+
+    assert pepseq_3 == fixture_pepseq_3
+    assert mod_smiles_3 == fixture_mod_smiles_3
     return
 
 
@@ -270,7 +271,6 @@ def test_get_ext_mod_json():
     base_seq_fixture, mod_smiles_list)
     print(ext_mod_json_created)
     assert ext_mod_json_created == ext_mod_json
-
 
 
 def test_get_attachment_points_on_sequence_json():

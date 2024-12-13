@@ -22,7 +22,7 @@ The module contains the following functions:
 - `pepseq_to_smiles(pepseq, out, db_path)` - Returns the SMILES code for pepseq.
 - `calculate_json_from(sequence, mod_smiles, out, db_path)` - Returns JSON dict 
    containing info about amino acid sequence and sequence modifications
-- `read_smiles(smiles_filename, out, db_path, v)` - Reads SMILES from file  and
+- `read_smiles(smiles_filename, out, db_path, v)` - Reads SMILES from file and
    Writes parsed Pepseq and its modifications into separate txt files.
 - `augment_db_json_command(sdf_path, out)` - Reads additional (Modified) Peptide
    building blocks from SDF file. Adds them to database and outputs it to file.
@@ -100,12 +100,41 @@ def pepseq_to_smiles(
     return peptide.smiles
 
 
+def get_ketcher_param(smi):
+    """
+
+    Determine whether the radical (attachment point) is in ketcher compatible format e.g. '[*:1]CCC'
+    or the format used previously e.g. '[1*]CCC'
+
+    """
+    mol = rdkit.Chem.MolFromSmiles(smi)
+
+    PropNamesSet = set([])
+    atoms = [i for i in mol.GetAtoms()]
+    for atom in atoms:
+        PropNames = atom.GetPropNames()
+        PropNamesSet |= set([i for i in PropNames])
+    return 'molAtomMapNumber' in PropNamesSet
+
+
+def convert_to_ketcher(smi = '[1*]CCC'):    
+    mol = rdkit.Chem.MolFromSmiles(smi)
+    atoms = [i for i in mol.GetAtoms()]
+    for atom in atoms:
+        PropNames = [i for i in atom.GetPropNames()]
+        if ('dummyLabel' in PropNames) and ('molAtomMapNumber' not in PropNames):
+            atom.SetProp('molAtomMapNumber', str(atom.GetIsotope()))
+            atom.SetIsotope(0)
+    return rdkit.Chem.MolToSmiles(mol)
+
+
 @app.command()
 def calculate_json_from(
     sequence: str,
     mod_smiles: Annotated[Optional[List[str]], 'List of modification SMILES codes'] = None,
     out: str = None,
-    db_path: str = None, **kwargs
+    db_path: str = None,
+    ketcher: bool = False,
     ) -> dict:
     """
 
@@ -120,6 +149,9 @@ def calculate_json_from(
     :type out: str or None
     :param db_path: Optional db path.
     :type db_path: str or None
+
+    :param ketcher: bool whether to use ketcher compatible format for SMILES codes.
+    :type ketcher: bool or None
 
     :return: SMILES code.
     :rtype: dict
@@ -139,6 +171,13 @@ def calculate_json_from(
             db_json = json.load(fp)
             kwargs['db_json'] = db_json
 
+    if type(mod_smiles) == str:
+        mod_smiles = [mod_smiles]
+
+    if ketcher is None:
+        ketcher = get_ketcher_param(mod_smiles[0])
+
+    kwargs['ketcher'] = ketcher
     args = (sequence, mod_smiles)
     result = calculate(*args, **kwargs)
     print('complete_smiles: ', result.get('complete_smiles'))
@@ -197,7 +236,8 @@ def read_smiles(
             with open(db_path) as fp:
                 db_json = json.load(fp)
                 kwargs['db_json'] = db_json
-
+        
+        mod_smiles_list = []
 
         pepseq_format, mod_smiles = from_smiles_to_pepseq_and_one_mod_smiles_strings(
             smiles, **kwargs

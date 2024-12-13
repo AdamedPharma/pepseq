@@ -1,7 +1,7 @@
 import os, json
 
 from pathlib import Path
-from pepseq.Peptide.exceptions import (ExcessTildeError, NestedBracketError, ParenthesesError, InvalidSymbolError,)
+from pepseq.Peptide.exceptions import (ExcessTildeError, NestedBracketError, ParenthesesError, InvalidSymbolError, ValidationError)
 from pepseq.Peptide.utils.Parser import find_termini, parse_canonical2
 from pepseq.Peptide.utils.pure_parsing_functions import get_base_symbols
 

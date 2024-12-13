@@ -83,7 +83,7 @@ def match_molecular_graph_to_res_id(G: nx.classes.graph.Graph, ResID: str, match
     We match molecular graph to ResidueID
     for each of the substructure matches grouped by amino acid specie
     we filter the ones covering only one residue and return the match covering
-    the biggest posrtion of that residue (i.e. Cysteine is preferred over Alaine)
+    the biggest posrtion of that residue (i.e. Cysteine is preferred over Alanine)
     if Alanine and Cysteine are matched; Cysteine match will be returned.
 
     :parameter G: nx.classes.graph.Graph

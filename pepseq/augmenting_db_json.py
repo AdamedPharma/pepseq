@@ -406,7 +406,7 @@ def get_substructure_relations(mols: list[rdkit.Chem.rdchem.Mol]) -> list:
     :param mols: list of rdkit.Chem.rdchem.Mol
     :type  mols: list[rdkit.Chem.rdchem.Mol]
 
-    :return substructure_relations: all cases where one amino acid is a sbustructure
+    :return substructure_relations: all cases where one amino acid is a substructure
     of others (e.g. glycine in serine or alanine in phenylalanine)
     :rtype: list
     """
