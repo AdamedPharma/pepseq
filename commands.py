@@ -100,8 +100,6 @@ def pepseq_to_smiles(
     return peptide.smiles
 
 
-<<<<<<< HEAD
-=======
 def get_ketcher_param(smi):
     """
 
@@ -130,18 +128,13 @@ def convert_to_ketcher(smi = '[1*]CCC'):
     return rdkit.Chem.MolToSmiles(mol)
     
 
->>>>>>> 3782101 (add commands.convert_to_ketcher function to convert from old SMILES format to ketcher format e.g. [1*]CCC -> [*:1]CCC)
 @app.command()
 def calculate_json_from(
     sequence: str,
     mod_smiles: Annotated[Optional[List[str]], 'List of modification SMILES codes'] = None,
     out: str = None,
-<<<<<<< HEAD
-    db_path: str = None, **kwargs
-=======
     db_path: str = None,
     ketcher: bool = False
->>>>>>> 6a13ba4 (make all test pass for new representation. TO DO: assure that old representation is also recognized)
     ) -> dict:
     """
 
