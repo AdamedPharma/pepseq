@@ -140,9 +140,7 @@ def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: l
         peptide_json, a JSON containing info about modified peptide with
         'sequence', 'internal_modifications', 'external_modifications'
         pepseq format example is H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
-=======
-def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: list=None, ketcher=False) -> Dict:
-    """
+
 
     Input:
 
@@ -151,7 +149,6 @@ def get_pep_json(pepseq_format: str, db_json: Dict = db_json, mod_smiles_list: l
 
             str = string in pepseq format
             H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
->>>>>>> 6a13ba4 (make all test pass for new representation. TO DO: assure that old representation is also recognized)
         where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
         amino acid; {Cys(R1)} - is amino acid
         with staple attached, {Cys(R1)} - amino acid with staple attached
