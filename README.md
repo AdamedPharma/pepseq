@@ -9,6 +9,8 @@ A **text format** to conveniently handle complicated modified peptide structures
 - Easily readable 1aa code like : 
 KYLDERAAQDFVQW
 
+- D-amino acids encoded as small letters (example: kylderaaqdfvqw); **A** for L-Alanine; **a** for D-alanine 
+
 - 3aa code that allows to handle non-standard amino acids: 
 Ala-Aib-Gly-Lys
 
