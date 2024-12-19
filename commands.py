@@ -135,7 +135,6 @@ def calculate_json_from(
     out: str = None,
     db_path: str = None,
     ketcher: bool = False
->>>>>>> 6a13ba4 (make all test pass for new representation. TO DO: assure that old representation is also recognized)
     ) -> dict:
     """
 

@@ -65,7 +65,7 @@ def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) ->
     return add_internal_bond(G, res1_id, "SG", res2_id, "SG")
 
 
-def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
+def get_attachment_points(staple_graph: nx.classes.graph.Graph, ketcher: bool=False) -> tuple:
     """
     Return tuple is composed of staple_graph (molecular graph nx.classes.graph.Graph representing
     molecular staple with dummy Atoms removed) and dictionary representing atoms on staple that connect 
