@@ -3,8 +3,7 @@ from typing import TypeVar
 import networkx as nx
 import rdkit
 import rdkit.Chem
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
-                                                                  nx_to_mol)
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
 
 AminoAcidInstance = TypeVar("AminoAcidInstance")
 
@@ -16,7 +15,11 @@ def smi_to_G(smiles: str) -> nx.classes.graph.Graph:
 
 
 def is_R(v: dict, ResID: int, r_id: int) -> bool:
-    return (v["atomic_num"] == 0) and (v["isotope"] == r_id) and (v["ResID"] == ResID)
+    return (
+        (v["atomic_num"] == 0)
+        and (v.get("molAtomMapNumber") == r_id)
+        and (v["ResID"] == ResID)
+    )
 
 
 def find_R(G: nx.classes.graph.Graph, ResID: int, r_id: int) -> dict:
@@ -66,7 +69,6 @@ def get_residues_Gs(residue_symbols: list, smiles_building_blocks_db: dict) -> l
 
 
 def merge_residue_graphs(graphs: list) -> nx.classes.graph.Graph:
-
     first_residue_graph = graphs[0]
     peptide_graph = nx.union(
         first_residue_graph,

@@ -1,31 +1,33 @@
-import json, copy
+import json
+import copy
 import pkgutil
-import rdkit
 import importlib
 
 
-from pepseq.tests_new.helpers import mols_are_identical, smiles_are_identical
+from pepseq.tests_new.helpers import smiles_are_identical
 
-from commands import pepseq_to_smiles, calculate_json_from, read_smiles, \
-    augment_db_json_command
+from commands import (
+    pepseq_to_smiles,
+    calculate_json_from,
+    read_smiles,
+)
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
 
 with open(db_path) as fp:
     db_json = json.load(fp)
 
-# from_smiles_to_pepseq_and_one_mod_smiles_strings
 
 def result_jsons_are_identical(j1: dict, j2: dict):
     j1_copy = copy.deepcopy(j1)
     j2_copy = copy.deepcopy(j2)
 
-    smi1 = j1_copy.pop('complete_smiles')
-    smi2 = j2_copy.pop('complete_smiles')
+    smi1 = j1_copy.pop("complete_smiles")
+    smi2 = j2_copy.pop("complete_smiles")
 
     if not smiles_are_identical(smi1, smi2):
         return False
-    
+
     return j1_copy == j2_copy
 
 
@@ -39,10 +41,9 @@ def load_tests(name):
 
 # content of test_example.py
 def pytest_generate_tests(metafunc):
-
     for fixture in metafunc.fixturenames:
         print(fixture)
-        if fixture.startswith('data_'):
+        if fixture.startswith("data_"):
             # Load associated test data
             tests = load_tests(fixture)
             metafunc.parametrize(fixture, tests)
@@ -51,22 +52,21 @@ def pytest_generate_tests(metafunc):
 def test_peptide_from_pepseq_new(data_pepseq_smiles):
     pepseq, correct_smiles = data_pepseq_smiles
     smiles = pepseq_to_smiles(pepseq)
-    #pepseq_list, # read_smiles('mypeptide.smi', 'myppeptide_out')
-    # augment_db_json_command('my_monomers.sdf', 'augmented_db.json')    
-    #peptide = from_pepseq(pepseq)
-    pepseq_list, mod_smiles_list = read_smiles('mypeptide.smi', 'myppeptide_out')
+    pepseq_list, mod_smiles_list = read_smiles("mypeptide.smi", "myppeptide_out")
 
-    assert pepseq_list == ['H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH']
-    assert mod_smiles_list == ['[1*]CNCC[2*]\t[3*]CNCCSP']
+    assert pepseq_list == ["H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH"]
+    mod_smiles_list = mod_smiles_list[0].split("\t")
+    for i in range(len(mod_smiles_list)):
+        assert smiles_are_identical(
+            mod_smiles_list[i], ["[*:1]CNCC[*:2]", "[*:3]CNCCSP"][i]
+        )
 
     assert smiles_are_identical(smiles, correct_smiles)
 
 
 def test_calculate_json_from(data_calculate):
     args, result = data_calculate
-    #result_jsons_are_identical(calculate(*args), result)
+    # result_jsons_are_identical(calculate(*args), result)
     # calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC')
     kwargs = {}
-    kwargs['ketcher'] = True
     assert result_jsons_are_identical(calculate_json_from(*args, **kwargs), result)
-

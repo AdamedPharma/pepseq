@@ -2,18 +2,22 @@ import networkx as nx
 import rdkit
 
 from typing import Union
-from pepseq.Peptide.exceptions import InvalidSequenceError, InvalidSymbolError
-from pepseq.Peptide.utils.chemistry.cap_termini import (cap_C_terminus,
-                                                        cap_N_terminus)
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
-                                                                  nx_to_mol)
-from pepseq.Peptide.utils.chemistry.MonomerConnector import \
-    get_molecule_from_list_of_residue_symbols
-from pepseq.Peptide.utils.Parser import (find_termini, get_canonical,
-                                         parse_canonical)
+from pepseq.Peptide.exceptions import InvalidSymbolError
+from pepseq.Peptide.utils.chemistry.cap_termini import cap_C_terminus, cap_N_terminus
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
+from pepseq.Peptide.utils.chemistry.MonomerConnector import (
+    get_molecule_from_list_of_residue_symbols,
+)
+from pepseq.Peptide.utils.Parser import find_termini, get_canonical, parse_canonical
 
-def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
-                    res2_id: int, atom_name_2: str) -> nx.classes.graph.Graph:
+
+def add_internal_bond(
+    G: nx.classes.graph.Graph,
+    res1_id: int,
+    atom_name_1: str,
+    res2_id: int,
+    atom_name_2: str,
+) -> nx.classes.graph.Graph:
     """
 
     Add internal bonds within peptide molecule from values defined in peptide JSON.
@@ -27,11 +31,11 @@ def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
     :param res2_id: Index of second amino acid residue involved in bonding: int
 
     :param atom_name_2: Name of atom in second amino acid residue involved in bonding: str
-    
+
     :return: peptide molecule - Modified Peptide molecule as networkx nx.classes.graph.Graph
-    
+
     """
-    
+
     Cys1_SG = [
         n
         for n, v in G.nodes(data=True)
@@ -46,7 +50,9 @@ def add_internal_bond(G: nx.classes.graph.Graph, res1_id: int, atom_name_1: str,
     return G
 
 
-def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) -> nx.classes.graph.Graph:
+def add_disulfide_bond(
+    G: nx.classes.graph.Graph, res1_id: int, res2_id: int
+) -> nx.classes.graph.Graph:
     """
 
     Add disulfide bond within peptide molecule from values defined in peptide JSON.
@@ -59,16 +65,16 @@ def add_disulfide_bond(G: nx.classes.graph.Graph, res1_id: int, res2_id: int) ->
     :parameter res2_id: Index of second amino acid residue involved in bonding: int
 
     :return: peptide molecule - Modified Peptide molecule as networkx nx.classes.graph.Graph
-    
+
     """
 
     return add_internal_bond(G, res1_id, "SG", res2_id, "SG")
 
 
-def get_attachment_points(staple_graph: nx.classes.graph.Graph, ketcher: bool=False) -> tuple:
+def get_attachment_points(staple_graph: nx.classes.graph.Graph) -> tuple:
     """
     Return tuple is composed of staple_graph (molecular graph nx.classes.graph.Graph representing
-    molecular staple with dummy Atoms removed) and dictionary representing atoms on staple that connect 
+    molecular staple with dummy Atoms removed) and dictionary representing atoms on staple that connect
     to amino acid chain
 
 
@@ -77,30 +83,19 @@ def get_attachment_points(staple_graph: nx.classes.graph.Graph, ketcher: bool=Fa
     :return: tuple composed of composed of staple_graph and atom_id_dict
 
     """
-    if ketcher:
-        dummyAtoms = [
-            n for n, v in staple_graph.nodes(data=True) if v.get("dummyLabel") == '*'
-        ]
-        attachment_points_on_staple_dict = {}
-        for dummyAtom in dummyAtoms:
-            attachment_point = list(staple_graph.neighbors(dummyAtom))[0]
-            attachment_point_id = staple_graph.nodes[dummyAtom]['molAtomMapNumber']
-            attachment_points_on_staple_dict[attachment_point_id] = attachment_point
-    else:
-
-        dummyAtoms = [
-            n for n, v in staple_graph.nodes(data=True) if v.get("atomic_num") == 0
-        ]
-        attachment_points_on_staple_dict = {}
-        for dummyAtom in dummyAtoms:
-            attachment_point = list(staple_graph.neighbors(dummyAtom))[0]
-            attachment_point_id = staple_graph.nodes[dummyAtom]["isotope"]
-
-            attachment_points_on_staple_dict[attachment_point_id] = attachment_point
+    dummyAtoms = [
+        n
+        for n, v in staple_graph.nodes(data=True)
+        if v.get("molAtomMapNumber") is not None
+    ]
+    attachment_points_on_staple_dict = {}
+    for dummyAtom in dummyAtoms:
+        attachment_point = list(staple_graph.neighbors(dummyAtom))[0]
+        attachment_point_id = staple_graph.nodes[dummyAtom]["molAtomMapNumber"]
+        attachment_points_on_staple_dict[attachment_point_id] = attachment_point
 
     for dummyAtom in dummyAtoms:
         staple_graph.remove_node(dummyAtom)
-        
 
     return staple_graph, attachment_points_on_staple_dict
 
@@ -116,28 +111,42 @@ def find_atom(G: nx.classes.graph.Graph, ResID, AtomName: str) -> str:
     :param AtomName: name of atom
     :type  AtomName: str
 
-    :return 
+    :return
 
     """
     ResIDs = nx.get_node_attributes(G, "ResID")
     AtomNames = nx.get_node_attributes(G, "AtomName")
     atoms_with_right_name = [i for i in AtomNames if AtomNames[i] == AtomName]
-    point_list = [atom_id for atom_id in atoms_with_right_name if ResIDs[atom_id] == ResID]
+    point_list = [
+        atom_id for atom_id in atoms_with_right_name if ResIDs[atom_id] == ResID
+    ]
     return point_list.pop()
 
 
 def add_staple(
-    peptide_graph: nx.classes.graph.Graph, staple_graph: nx.classes.graph.Graph,
-    peptide_attachment_points, prefix="staple_1_",  ketcher=False
+    peptide_graph: nx.classes.graph.Graph,
+    staple_graph: nx.classes.graph.Graph,
+    peptide_attachment_points,
+    prefix="staple_1_",
 ) -> nx.classes.graph.Graph:
-    staple_graph, attachment_points_on_staple_dict = get_attachment_points(staple_graph, ketcher=ketcher)
+    staple_graph, attachment_points_on_staple_dict = get_attachment_points(staple_graph)
 
     G_stapled_peptide_union = nx.union(peptide_graph, staple_graph, rename=("", prefix))
 
     for attachment_point_id in attachment_points_on_staple_dict:
-        j_peptide_attachment_point = peptide_attachment_points[attachment_point_id]
+        j_peptide_attachment_point = peptide_attachment_points.get(attachment_point_id)
+        if j_peptide_attachment_point is None:
+            j_peptide_attachment_point = peptide_attachment_points.get(
+                str(attachment_point_id)
+            )
 
-        staple_attachment_point = attachment_points_on_staple_dict[attachment_point_id]
+        staple_attachment_point = attachment_points_on_staple_dict.get(
+            attachment_point_id
+        )
+        if staple_attachment_point is None:
+            staple_attachment_point = attachment_points_on_staple_dict.get(
+                str(attachment_point_id)
+            )
 
         ResID = j_peptide_attachment_point["ResID"]
 
@@ -168,13 +177,17 @@ def get_peptide_json_from_sequence(sequence: str, db_json: dict) -> dict:
 
 
 class Sequence(object):
-
-    def __init__(self, sequence: str, N_terminus: Union[str, None] = None, C_terminus: Union[str, None] = None):
+    def __init__(
+        self,
+        sequence: str,
+        N_terminus: Union[str, None] = None,
+        C_terminus: Union[str, None] = None,
+    ):
         self.sequence = sequence
         self.N_terminus = N_terminus
         self.C_terminus = C_terminus
         return
-    
+
     def extract_residue_symbols(self, db_json: dict):
         canonical_sequence = get_canonical(self.sequence, db_json)
         symbols_list_w_termini = parse_canonical(canonical_sequence)
@@ -183,12 +196,12 @@ class Sequence(object):
         if self.C_terminus is None:
             self.C_terminus = symbols_list_w_termini[-1]
         residue_symbols = symbols_list_w_termini[1:-1]
-        if ('[' in self.N_terminus) and (']' in self.N_terminus):
+        if ("[" in self.N_terminus) and ("]" in self.N_terminus):
             N_terminus_smiles = self.N_terminus[1:-1]
         else:
             N_terminus_smiles = None
 
-        if ('[' in self.C_terminus) and (']' in self.C_terminus):
+        if ("[" in self.C_terminus) and ("]" in self.C_terminus):
             C_terminus_smiles = self.C_terminus[1:-1]
         else:
             C_terminus_smiles = None
@@ -211,10 +224,11 @@ def get_coding(db_json: dict) -> dict:
     for key in keys:
         coding.update(db_json.get("coding").get(key))
     return coding
-    
 
-def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
-                            C_terminus=None) -> rdkit.Chem.rdchem.Mol:
+
+def get_molecule_from_sequence(
+    sequence: str, db_json: dict, N_terminus=None, C_terminus=None
+) -> rdkit.Chem.rdchem.Mol:
     """
 
     :param sequence
@@ -222,7 +236,11 @@ def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
     """
     try:
         sequence_object = Sequence(sequence, N_terminus, C_terminus)
-        residue_symbols, N_terminus_smiles, C_terminus_smiles = sequence_object.extract_residue_symbols(db_json)
+        (
+            residue_symbols,
+            N_terminus_smiles,
+            C_terminus_smiles,
+        ) = sequence_object.extract_residue_symbols(db_json)
 
         coding = get_coding(db_json)
         aa_smiles_dict = db_json["smiles"].get("aa")
@@ -231,10 +249,13 @@ def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
         unique_encoded_symbols = set(coding.keys())
         unique_aa = set(aa_smiles_dict.keys())
 
-        db_symbols_404 = unique_residue_symbols - (unique_encoded_symbols|unique_aa)
+        db_symbols_404 = unique_residue_symbols - (unique_encoded_symbols | unique_aa)
 
         if db_symbols_404:
-            raise InvalidSymbolError("Residue Symbols: %s not found in database." %', '.join(list(db_symbols_404)))
+            raise InvalidSymbolError(
+                "Residue Symbols: %s not found in database."
+                % ", ".join(list(db_symbols_404))
+            )
 
         for i in range(len(residue_symbols)):
             symbol = residue_symbols[i]
@@ -249,7 +270,9 @@ def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
                 error_msg = "Residue Symbol: %s not found in database." % residue_symbol
                 raise InvalidSymbolError(error_msg)
 
-            smiles_building_blocks_db[residue_symbol] = residue_db_entry["smiles_radical"]
+            smiles_building_blocks_db[residue_symbol] = residue_db_entry[
+                "smiles_radical"
+            ]
 
         N_terminus = sequence_object.N_terminus
         C_terminus = sequence_object.C_terminus
@@ -260,24 +283,26 @@ def get_molecule_from_sequence(sequence: str, db_json: dict, N_terminus=None,
             )["smiles_radical"]
 
         if C_terminus in db_json["smiles"]["c_terms"]:
-            smiles_building_blocks_db[C_terminus] = db_json["smiles"]["c_terms"][C_terminus][
-                "smiles_radical"
-            ]
+            smiles_building_blocks_db[C_terminus] = db_json["smiles"]["c_terms"][
+                C_terminus
+            ]["smiles_radical"]
 
         mol = get_molecule_from_list_of_residue_symbols(
             residue_symbols, smiles_building_blocks_db
         )
 
         mol_w_n_terminus = cap_N_terminus(
-            mol, terminus=N_terminus, smiles_building_blocks_db=smiles_building_blocks_db,
-            terminus_smiles=N_terminus_smiles
+            mol,
+            terminus=N_terminus,
+            smiles_building_blocks_db=smiles_building_blocks_db,
+            terminus_smiles=N_terminus_smiles,
         )
 
         mol_w_nc_terminus = cap_C_terminus(
             mol_w_n_terminus,
             terminus=C_terminus,
             smiles_building_blocks_db=smiles_building_blocks_db,
-            terminus_smiles=C_terminus_smiles
+            terminus_smiles=C_terminus_smiles,
         )
 
     except InvalidSymbolError as exc:
@@ -322,7 +347,7 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
     def __init__(self):
         return
 
-    def execute(self, peptide_json: dict, db_json: dict, ketcher=False) -> rdkit.Chem.rdchem.Mol:
+    def execute(self, peptide_json: dict, db_json: dict) -> rdkit.Chem.rdchem.Mol:
         peptide_mol = get_molecule_from_json(peptide_json, db_json)
 
         peptide_graph = mol_to_nx(peptide_mol)
@@ -344,7 +369,7 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
                 peptide_graph,
                 staple_graph.copy(),
                 attachment_points_on_sequence,
-                prefix, ketcher=ketcher
+                prefix,
             )
 
         for internal_modification_id in internal_modifications:
@@ -362,7 +387,7 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
         return nx_to_mol(peptide_graph)
 
 
-def get_smiles_from_peptide_json(peptide_json: dict, db_json: dict, ketcher=False) -> str:
-    mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json, ketcher=ketcher)
+def get_smiles_from_peptide_json(peptide_json: dict, db_json: dict) -> str:
+    mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     smiles = rdkit.Chem.MolToSmiles(mol)
     return smiles

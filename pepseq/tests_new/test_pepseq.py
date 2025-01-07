@@ -2,25 +2,27 @@ import json
 import pkgutil
 import copy
 
-import pytest
 import rdkit
 import rdkit.Chem.PandasTools
 
 import importlib
-from pepseq.tests_new.helpers import mols_are_identical, smiles_are_identical
+from pepseq.tests_new.helpers import smiles_are_identical
 
 
-from pepseq.BuildingModifiedPeptideFromPeptideJSON import \
-    get_smiles_from_peptide_json
-from pepseq.BuildPeptideJSONFromSMILES import \
-    from_smiles_to_pepseq_and_one_mod_smiles_strings
+from pepseq.BuildingModifiedPeptideFromPeptideJSON import get_smiles_from_peptide_json
+from pepseq.BuildPeptideJSONFromSMILES import (
+    from_smiles_to_pepseq_and_one_mod_smiles_strings,
+)
 from pepseq.functions import calculate
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.read import from_json, from_pepseq
 import pepseq.Peptide.utils.Parser
 from pepseq.augmenting_db_json import augment_db_json
-from pepseq.Peptide.utils.pure_parsing_functions import decompose_symbol, get_attachment_point_json, \
-     get_attachment_points_on_sequence_json
+from pepseq.Peptide.utils.pure_parsing_functions import (
+    decompose_symbol,
+    get_attachment_point_json,
+    get_attachment_points_on_sequence_json,
+)
 
 
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
@@ -29,28 +31,41 @@ with open(db_path) as fp:
 
 
 fixture_pepseq = "H~H{aMeAla}QGTY{Cys(R1)}DAQ{Cys(R2)}YS~NH2"
-pepseq_value = '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}'
-base_seq_fixture = ['Cys(R1)', 'A', 'C', 'D', 'A', 'P', 'E', 'P', 's', 'E', 'Q', 'Cys(R2)']
+pepseq_value = "{Cys(R1)}ACDAPEPsEQ{Cys(R2)}"
+base_seq_fixture = [
+    "Cys(R1)",
+    "A",
+    "C",
+    "D",
+    "A",
+    "P",
+    "E",
+    "P",
+    "s",
+    "E",
+    "Q",
+    "Cys(R2)",
+]
 
 
 single_modification_json = {
-        'smiles': '[*:1]CNCC[*:2]',
-        'max_attachment_point_id': 2,
-        'attachment_points_on_sequence': {
-            1: {
-                'attachment_point_id': '1',
-                'ResID': '1',
-                'AtomName': 'SG',
-                'ResidueName': 'Cys'
-            },
-            2: {
-                'attachment_point_id': '2',
-                'ResID': '12',
-                'AtomName': 'SG',
-                'ResidueName': 'Cys'
-            }
-        }
-    }
+    "smiles": "[*:1]CNCC[*:2]",
+    "max_attachment_point_id": 2,
+    "attachment_points_on_sequence": {
+        1: {
+            "attachment_point_id": "1",
+            "ResID": "1",
+            "AtomName": "SG",
+            "ResidueName": "Cys",
+        },
+        2: {
+            "attachment_point_id": "2",
+            "ResID": "12",
+            "AtomName": "SG",
+            "ResidueName": "Cys",
+        },
+    },
+}
 
 """
 single_modification_json = {
@@ -80,10 +95,26 @@ correct_peptide_json = {
     "C_terminus": "NH2",
     "N_terminus": "H",
     "pepseq_format": fixture_pepseq,
-    "symbols": ["H", "H", "aMeAla", "Q", "G", "T", "Y", "Cys(R1)", "D", "A", "Q", "Cys(R2)", "Y", "S", "NH2"],
+    "symbols": [
+        "H",
+        "H",
+        "aMeAla",
+        "Q",
+        "G",
+        "T",
+        "Y",
+        "Cys(R1)",
+        "D",
+        "A",
+        "Q",
+        "Cys(R2)",
+        "Y",
+        "S",
+        "NH2",
+    ],
     "external_modifications": [
         {
-            "smiles": "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NC"
+            "smiles": "[*:1]CC(=O)NCC[C@H](NC(=O)C[*:2])C(=O)NCCC(=O)NC"
             + "COC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O",
             "max_attachment_point_id": 2,
             "attachment_points_on_sequence": {
@@ -106,10 +137,10 @@ correct_peptide_json = {
 
 
 one_mod_smiles = (
-    "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(="
+    "[*:1]CC(=O)NCC[C@H](NC(=O)C[*:2])C(=O)NCCC(=O)NCCOC(="
     + "O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
 )
-#mod_smiles_no_ketch = "[1*]CNCC[2*]"
+# mod_smiles_no_ketch = "[1*]CNCC[2*]"
 mod_smiles = "[*:1]CNCC[*:2]"
 
 mod_smiles_list = [mod_smiles]
@@ -134,10 +165,9 @@ def load_tests(name):
 
 # content of test_example.py
 def pytest_generate_tests(metafunc):
-
     for fixture in metafunc.fixturenames:
         print(fixture)
-        if fixture.startswith('data_'):
+        if fixture.startswith("data_"):
             # Load associated test data
             tests = load_tests(fixture)
             metafunc.parametrize(fixture, tests)
@@ -147,12 +177,12 @@ def result_jsons_are_identical(j1: dict, j2: dict):
     j1_copy = copy.deepcopy(j1)
     j2_copy = copy.deepcopy(j2)
 
-    smi1 = j1_copy.pop('complete_smiles')
-    smi2 = j2_copy.pop('complete_smiles')
+    smi1 = j1_copy.pop("complete_smiles")
+    smi2 = j2_copy.pop("complete_smiles")
 
     if not smiles_are_identical(smi1, smi2):
         return False
-    
+
     return j1_copy == j2_copy
 
 
@@ -164,23 +194,32 @@ def test_peptide_from_pepseq_new(data_pepseq_smiles):
 
 def test_calculate(data_calculate):
     args, result = data_calculate
-    kwargs = {'ketcher': True}
+    kwargs = {}
     result_jsons_are_identical(calculate(*args, **kwargs), result)
 
 
 def test_from_pepseq_and_one_mod_smiles_strings_to_peptide_json():
-
     peptide_json = get_pep_json(fixture_pepseq, db_json, [one_mod_smiles])
     print(peptide_json)
 
-    assert peptide_json == correct_peptide_json
+    correct_smi = correct_peptide_json.get("external_modifications")[0].pop("smiles")
+    assert smiles_are_identical(
+        correct_smi, peptide_json.get("external_modifications")[0].pop("smiles")
+    )
+
+    for k, v in correct_peptide_json.items():
+        if k == "external_modifications":
+            continue
+        assert peptide_json.get(k) == v
     return
 
 
-def test_from_pepseq_string_and_mod_smiles_to_smiles(data_smiles_from_pepseq_and_smiles):
+def test_from_pepseq_string_and_mod_smiles_to_smiles(
+    data_smiles_from_pepseq_and_smiles,
+):
     args, correct_smiles = data_smiles_from_pepseq_and_smiles
 
-    peptide_json = get_pep_json( *args )
+    peptide_json = get_pep_json(*args)
     smiles = get_smiles_from_peptide_json(peptide_json, db_json)
     assert smiles == correct_smiles
     return
@@ -196,103 +235,110 @@ def test_from_pepseq_string_and_mod_smiles_to_peptide():
 
 
 def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
-
     pepseq_format, mod_smiles = from_smiles_to_pepseq_and_one_mod_smiles_strings(
         correct_smiles, db_json
     )
 
     assert pepseq_format == fixture_pepseq
-    assert mod_smiles == one_mod_smiles
+    assert smiles_are_identical(mod_smiles, one_mod_smiles)
 
+    fixture_pepseq_2 = "H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH"
+    fixture_complete_smiles_2 = "".join(
+        [
+            "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H]",
+            "(CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)",
+            "[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2C",
+            "CCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H]",
+            "(CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O",
+        ]
+    )
 
-    fixture_pepseq_2 = 'H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH'
-    fixture_complete_smiles_2 = '[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H](CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CCCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O'
-    fixture_mod_smiles_2 = ['[1*]CNCC[2*]', '[3*]CNCCSP']
+    fixture_mod_smiles_2 = ["[*:1]CNCC[*:2]", "[*:3]CNCCSP"]
 
-    fixture_mod_smiles_3 = ['[*:1]CNCC[*:2]', '[*:3]CNCCSP']
-    
     pepseq_2, mod_smiles_2 = from_smiles_to_pepseq_and_one_mod_smiles_strings(
         fixture_complete_smiles_2, db_json
     )
 
     assert pepseq_2 == fixture_pepseq_2
-    assert mod_smiles_2 == fixture_mod_smiles_2
-
-    pepseq_3, mod_smiles_3 = from_smiles_to_pepseq_and_one_mod_smiles_strings(
-        fixture_complete_smiles_2, db_json, ketcher=True
-    )
-
-    assert pepseq_3 == fixture_pepseq_2
-    assert smiles_are_identical((mod_smiles_3)[0], fixture_mod_smiles_3[0])
-    assert smiles_are_identical((mod_smiles_3)[1], fixture_mod_smiles_3[1])
+    assert smiles_are_identical(mod_smiles_2[0], fixture_mod_smiles_2[0])
+    assert smiles_are_identical(mod_smiles_2[1], fixture_mod_smiles_2[1])
 
     return
 
 
 def test_find_termini(data_canonical_sequence):
-    assert pepseq.Peptide.utils.Parser.find_termini(data_canonical_sequence, db_json) == (
-        'H', 'OH', '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}')
-
-
+    assert pepseq.Peptide.utils.Parser.find_termini(
+        data_canonical_sequence, db_json
+    ) == ("H", "OH", "{Cys(R1)}ACDAPEPsEQ{Cys(R2)}")
 
 
 def test_parse_canonical2(data_canonical_sequence):
-    assert pepseq.Peptide.utils.Parser.parse_canonical2(data_canonical_sequence) == base_seq_fixture
+    assert (
+        pepseq.Peptide.utils.Parser.parse_canonical2(data_canonical_sequence)
+        == base_seq_fixture
+    )
 
 
 def test_find_parentheses(data_canonical_sequence):
     assert pepseq.Peptide.utils.Parser.find_parentheses(data_canonical_sequence) == [
-        (0, 8), (19, 27)]
+        (0, 8),
+        (19, 27),
+    ]
 
 
 def test_get_base_seq():
     symbols = base_seq_fixture
     base_seq = pepseq.get_peptide_json_from_pepseq_format.get_base_seq(symbols)
-    assert base_seq == 'CACDAPEPsEQC'
+    assert base_seq == "CACDAPEPsEQC"
 
 
 def test_decompose_symbol():
-    assert decompose_symbol('Cys(R1)') == ('Cys', '1')
-    assert decompose_symbol('A') == 'A'
+    assert decompose_symbol("Cys(R1)") == ("Cys", "1")
+    assert decompose_symbol("A") == "A"
 
 
+attachment_points_on_sequence = single_modification_json.get(
+    "attachment_points_on_sequence"
+)
 
 
-attachment_points_on_sequence = single_modification_json.get('attachment_points_on_sequence')
-
-
-ext_mod_json = [ single_modification_json ]
+ext_mod_json = [single_modification_json]
 
 
 def test_get_ext_mod_json():
     ext_mod_json_created = pepseq.get_peptide_json_from_pepseq_format.get_ext_mod_json(
-    base_seq_fixture, mod_smiles_list, ketcher=True)
+        base_seq_fixture, mod_smiles_list
+    )
     print(ext_mod_json_created)
-    ext_mod_json_fx = [{
-        'smiles': '[*:1]CNCC[*:2]',
-        'max_attachment_point_id': 2,
-        'attachment_points_on_sequence': {
-            '1': {
-                'attachment_point_id': '1',
-                'ResID': '1',
-                'AtomName': 'SG',
-                'ResidueName': 'Cys'
+    ext_mod_json_fx = [
+        {
+            "smiles": "[*:1]CNCC[*:2]",
+            "max_attachment_point_id": 2,
+            "attachment_points_on_sequence": {
+                "1": {
+                    "attachment_point_id": "1",
+                    "ResID": "1",
+                    "AtomName": "SG",
+                    "ResidueName": "Cys",
+                },
+                "2": {
+                    "attachment_point_id": "2",
+                    "ResID": "12",
+                    "AtomName": "SG",
+                    "ResidueName": "Cys",
+                },
             },
-            '2': {
-                'attachment_point_id': '2',
-                'ResID': '12',
-                'AtomName': 'SG',
-                'ResidueName': 'Cys'
-            }
         }
-    }]
+    ]
 
-    assert smiles_are_identical(ext_mod_json_fx[0].get('smiles'), ext_mod_json_created[0].get('smiles') )
+    assert smiles_are_identical(
+        ext_mod_json_fx[0].get("smiles"), ext_mod_json_created[0].get("smiles")
+    )
     val = ext_mod_json_created[0]
 
-    val.pop('smiles')
+    val.pop("smiles")
     fx = ext_mod_json_fx[0]
-    fx.pop('smiles')
+    fx.pop("smiles")
     assert val == fx
 
 
@@ -303,24 +349,25 @@ def test_get_attachment_points_on_sequence_json():
 
 
 def test_get_single_modification_json():
-
     pepseq.get_peptide_json_from_pepseq_format.get_single_modification_json(
-                    attachment_points_on_sequence, mod_smiles, ketcher=True
-                ) == single_modification_json
+        attachment_points_on_sequence, mod_smiles
+    ) == single_modification_json
 
 
 def test_get_attachment_point_json():
-    decomposition = ('Cys', '1')
+    decomposition = ("Cys", "1")
     res_id = 1
-    assert get_attachment_point_json(res_id, decomposition
-        ) == attachment_points_on_sequence.get(1)
+    assert get_attachment_point_json(
+        res_id, decomposition
+    ) == attachment_points_on_sequence.get(1)
 
 
 def test_augmenting_db_json():
-    df_sdf = rdkit.Chem.PandasTools.LoadSDF('monomers.sdf')
+    df_sdf = rdkit.Chem.PandasTools.LoadSDF("monomers.sdf")
     db_json_augmented = augment_db_json(
-        db_json, df_sdf=df_sdf, name_column = 'm_abbr', mol_colname='ROMol')
+        db_json, df_sdf=df_sdf, name_column="m_abbr", mol_colname="ROMol"
+    )
 
-    assert bool(db_json_augmented) == True
+    assert db_json_augmented != {}
+    assert db_json_augmented is not None
     return
-

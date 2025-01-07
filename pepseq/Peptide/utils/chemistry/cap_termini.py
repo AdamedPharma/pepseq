@@ -1,7 +1,6 @@
 import networkx as nx
 import rdkit
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
-                                                                  nx_to_mol)
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
 from pepseq.Peptide.utils.chemistry.MonomerConnector import find_R
 
 
@@ -31,9 +30,14 @@ def find_max_ResID(G: nx.classes.graph.Graph) -> int:
     return ResID
 
 
-def cap_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None, smiles_building_blocks_db: int=None,
-                  TerminusResID: int=None, ResID: int=1, terminus_smiles:str=None) -> rdkit.Chem.rdchem.Mol:
-
+def cap_terminus(
+    mol: rdkit.Chem.rdchem.Mol,
+    terminus: str = None,
+    smiles_building_blocks_db: int = None,
+    TerminusResID: int = None,
+    ResID: int = 1,
+    terminus_smiles: str = None,
+) -> rdkit.Chem.rdchem.Mol:
     mol_G = mol_to_nx(mol)
     mol_G = relabel_to_str(mol_G)
 
@@ -69,17 +73,33 @@ def cap_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None, smiles_building
     return nx_to_mol(G_union)
 
 
-def cap_N_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None,
-                smiles_building_blocks_db: dict=None, terminus_smiles: str=None) -> rdkit.Chem.rdchem.Mol:
+def cap_N_terminus(
+    mol: rdkit.Chem.rdchem.Mol,
+    terminus: str = None,
+    smiles_building_blocks_db: dict = None,
+    terminus_smiles: str = None,
+) -> rdkit.Chem.rdchem.Mol:
     return cap_terminus(
-        mol, terminus, smiles_building_blocks_db, TerminusResID="N_terminus", ResID=1,
-        terminus_smiles=terminus_smiles
+        mol,
+        terminus,
+        smiles_building_blocks_db,
+        TerminusResID="N_terminus",
+        ResID=1,
+        terminus_smiles=terminus_smiles,
     )
 
 
-def cap_C_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None,
-                smiles_building_blocks_db=None, terminus_smiles=None) -> rdkit.Chem.rdchem.Mol:
+def cap_C_terminus(
+    mol: rdkit.Chem.rdchem.Mol,
+    terminus: str = None,
+    smiles_building_blocks_db=None,
+    terminus_smiles=None,
+) -> rdkit.Chem.rdchem.Mol:
     return cap_terminus(
-        mol, terminus, smiles_building_blocks_db, TerminusResID="C_terminus", ResID=-1,
-        terminus_smiles=terminus_smiles
+        mol,
+        terminus,
+        smiles_building_blocks_db,
+        TerminusResID="C_terminus",
+        ResID=-1,
+        terminus_smiles=terminus_smiles,
     )

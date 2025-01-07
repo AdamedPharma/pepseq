@@ -1,12 +1,13 @@
 import json
 import os
 
-from typing import Union, List
+from typing import List
 
 import pepseq.Peptide.utils.validation as validation
 
-from pepseq.BuildPeptideJSONFromSMILES import \
-    from_smiles_to_pepseq_and_mod_smiles_strings
+from pepseq.BuildPeptideJSONFromSMILES import (
+    from_smiles_to_pepseq_and_mod_smiles_strings,
+)
 from pepseq.get_peptide_json_from_pepseq_format import get_pep_json
 from pepseq.read import from_json
 
@@ -23,19 +24,18 @@ def calculate_pepseq_and_mods(smiles: str) -> dict:
     return from_smiles_to_pepseq_and_mod_smiles_strings(smiles, db_json)
 
 
-def validate (pepseq: str, smiles: List[str] = [], db: dict = db_json):
+def validate(pepseq: str, smiles: List[str] = [], db: dict = db_json):
     validation.validate(pepseq=pepseq, smiles=smiles)
 
 
-
-def calculate(pepseq: str, smiles: list[str] = [], db: dict = None, ketcher: bool = False) -> dict:
+def calculate(pepseq: str, smiles: list[str] = [], db: dict = None) -> dict:
     if smiles == []:
         smiles = None
     if db is None:
         db = db_json
 
-    peptide_json = get_pep_json(pepseq, db, smiles, ketcher=ketcher)
-    peptide = from_json(peptide_json, db, ketcher=ketcher)
+    peptide_json = get_pep_json(pepseq, db, smiles)
+    peptide = from_json(peptide_json, db)
     complete_smiles = peptide.complete_smiles
     sequence = peptide.sequence
     length = peptide.length

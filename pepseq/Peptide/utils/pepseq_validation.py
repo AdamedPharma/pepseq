@@ -1,7 +1,14 @@
-import os, json
+import os
+import json
 
 from pathlib import Path
-from pepseq.Peptide.exceptions import (ExcessTildeError, NestedBracketError, ParenthesesError, InvalidSymbolError, ValidationError)
+from pepseq.Peptide.exceptions import (
+    ExcessTildeError,
+    NestedBracketError,
+    ParenthesesError,
+    InvalidSymbolError,
+    ValidationError,
+)
 from pepseq.Peptide.utils.Parser import find_termini, parse_canonical2
 from pepseq.Peptide.utils.pure_parsing_functions import get_base_symbols
 
@@ -86,6 +93,7 @@ def check_for_nested_brackets(s):
             else:
                 raise ValidationError("Misplaced '}' Brackets")
 
+
 def get_all_available_symbols(db: dict):
     """
     Get all available symbols in the database.
@@ -119,19 +127,24 @@ def validate_monomers_in_database(pepseq_format: str, db: dict):
     print(pepseq_format, find_termini(pepseq_format, db))
     N_terminus, C_terminus, pepseq = find_termini(pepseq_format, db)
     residue_symbols = parse_canonical2(pepseq)
-    base_symbols = get_base_symbols(residue_symbols, three_to_one = {
-        "Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"})
+    base_symbols = get_base_symbols(
+        residue_symbols,
+        three_to_one={"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"},
+    )
 
     unique_residue_symbols = set(base_symbols)
 
-    #sequence_object = Sequence(sequence, N_terminus, C_terminus)
-    #residue_symbols, N_terminus_smiles, C_terminus_smiles = sequence_object.extract_residue_symbols(db_json)
+    # sequence_object = Sequence(sequence, N_terminus, C_terminus)
+    # residue_symbols, N_terminus_smiles, C_terminus_smiles = sequence_object.extract_residue_symbols(db_json)
     symbols_in_db = get_all_available_symbols(db)
 
     db_symbols_404 = unique_residue_symbols - symbols_in_db
 
     if db_symbols_404:
-        raise InvalidSymbolError("Residue Symbols: %s not found in database." %', '.join(list(db_symbols_404)))
+        raise InvalidSymbolError(
+            "Residue Symbols: %s not found in database."
+            % ", ".join(list(db_symbols_404))
+        )
     return
 
 

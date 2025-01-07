@@ -12,7 +12,7 @@ fixture_pepseq_2 = "CH3~Y{Gly(R1)}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~NH2"
 fixture_pepseq_3 = "CH3~Y{ala(R1)}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~NH2"
 
 one_mod_smiles = (
-    "[1*]CC(=O)NCC[C@H](NC(=O)C[2*])C(=O)NCCC(=O)NCCOC(="
+    "[*:1]CC(=O)NCC[C@H](NC(=O)C[*:2])C(=O)NCCC(=O)NCCOC(="
     + "O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
 )
 
@@ -58,20 +58,11 @@ correct_smiles_3 = (
 )
 
 
-one_mod_smiles_2 = (
-    "[1*]SCCCCC"
-)
+one_mod_smiles_2 = "[*:1]SCCCCC"
 
 
 tests = [
-    (
-        (fixture_pepseq, db_json, [one_mod_smiles]), correct_smiles
-    ),
-    (
-        (fixture_pepseq_2, db_json, [one_mod_smiles_2]), correct_smiles_2
-    ),
-    (
-        (fixture_pepseq_3, db_json, [one_mod_smiles_2]), correct_smiles_3
-    )
-
+    ((fixture_pepseq, db_json, [one_mod_smiles]), correct_smiles),
+    ((fixture_pepseq_2, db_json, [one_mod_smiles_2]), correct_smiles_2),
+    ((fixture_pepseq_3, db_json, [one_mod_smiles_2]), correct_smiles_3),
 ]

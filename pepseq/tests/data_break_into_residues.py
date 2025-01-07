@@ -17,9 +17,4 @@ with open(residues_path) as fp:
 
 residues_graphs = [mol_json_to_nx(residue_json) for residue_json in residues_json]
 
-tests = [
-    (
-        mol_N_C_smiles_val,
-        residues_json
-    )
-    ]
+tests = [(mol_N_C_smiles_val, residues_json)]

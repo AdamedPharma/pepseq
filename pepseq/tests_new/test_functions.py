@@ -9,6 +9,6 @@ with open(db_path) as fp:
 
 
 def test_calculate():
-    pepseq_format = 'H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH'
+    pepseq_format = "H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH"
     smiles = ["[*:1]CNCC[*:2]", "[*:3]CNCC"]
-    calculate(pepseq_format,smiles , db_json, ketcher=True)
+    calculate(pepseq_format, smiles, db_json)

@@ -1,16 +1,19 @@
 import rdkit
 
 from typing import Union
-from pepseq.Backbone import (BreakingIntoResidueCandidateSubgraphs,
-                             MarkingPeptideBackbone)
-from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import \
-    decompose_residues_internal, translate_external_modification
+from pepseq.Backbone import (
+    BreakingIntoResidueCandidateSubgraphs,
+    MarkingPeptideBackbone,
+)
+from pepseq.Peptide.utils.chemistry.ProcessResidueCandidateGraph import (
+    decompose_residues_internal,
+    translate_external_modification,
+)
 from pepseq.Peptide.utils.Parser import parse_canonical2
 
 
 def get_cx_smarts_db(db_json: dict) -> dict:
-    """
-    """
+    """ """
     cx_smarts_db = {}
     smiles_dict = db_json["smiles"].get("aa")
 
@@ -22,9 +25,8 @@ def get_cx_smarts_db(db_json: dict) -> dict:
     return cx_smarts_db
 
 
-def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None, ketcher=False) -> dict:
-    """
-    """
+def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None) -> dict:
+    """ """
 
     peptide_molecule = rdkit.Chem.MolFromSmiles(smiles)
     peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
@@ -34,7 +36,7 @@ def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None, ket
     cx_smarts_db = get_cx_smarts_db(db_json)
 
     seq, internal_modifications, external_modifications = decompose_residues_internal(
-        residues, cx_smarts_db, n_subst_limit=n_subst_limit, ketcher=ketcher
+        residues, cx_smarts_db, n_subst_limit=n_subst_limit
     )
     return {
         "sequence": seq,
@@ -43,7 +45,9 @@ def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None, ket
     }
 
 
-def get_terminal_smiles_building_block(peptide_json: dict, ResID: int, AtomName: str) -> tuple:
+def get_terminal_smiles_building_block(
+    peptide_json: dict, ResID: int, AtomName: str
+) -> tuple:
     external_modifications = peptide_json.get("external_modifications")
     if ResID == -1:
         symbols = parse_canonical2(peptide_json.get("sequence"))
@@ -135,7 +139,9 @@ def append_pepseq_R_info(j: dict) -> str:
     return new_seq
 
 
-def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_limit=None, ketcher = False) -> dict:
+def decompose_peptide_smiles_with_termini(
+    smiles: str, db_json: dict, n_subst_limit=None
+) -> dict:
     """
     Decompose peptide molecule given in SMILES into peptide_json representation with modification
     SMILES codes
@@ -156,7 +162,9 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_li
 
     """
 
-    peptide_json = decompose_peptide_smiles(smiles, db_json, n_subst_limit=n_subst_limit, ketcher=ketcher)
+    peptide_json = decompose_peptide_smiles(
+        smiles, db_json, n_subst_limit=n_subst_limit
+    )
     c_terminus__c_ind = get_c_term_from_peptide_json(peptide_json, db_json)
 
     n_terminus__n_ind = get_n_term_from_peptide_json(peptide_json, db_json)
@@ -192,9 +200,8 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_li
     ext_mods_translated = []
 
     for ext_mod in peptide_json.get("external_modifications"):
-        ext_mod_translated = translate_external_modification(
-            ext_mod, offset=offset, ketcher=ketcher)
-        offset += ext_mod_translated.get('max_attachment_point_id')
+        ext_mod_translated = translate_external_modification(ext_mod, offset=offset)
+        offset += ext_mod_translated.get("max_attachment_point_id")
         ext_mods_translated.append(ext_mod_translated)
 
     peptide_json["external_modifications"] = ext_mods_translated
@@ -212,8 +219,9 @@ def decompose_peptide_smiles_with_termini(smiles: str, db_json: dict, n_subst_li
     return peptide_json
 
 
-def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None,
-        ketcher=False) -> tuple:
+def from_smiles_to_pepseq_and_mod_smiles_strings(
+    smiles: str, db_json: dict, n_subst_limit=None
+) -> tuple:
     """
     Based on SMILES produce
     Output pepseq_string:
@@ -237,7 +245,9 @@ def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_s
 
     """
 
-    peptide_json = decompose_peptide_smiles_with_termini(smiles, db_json, n_subst_limit=n_subst_limit, ketcher=ketcher)
+    peptide_json = decompose_peptide_smiles_with_termini(
+        smiles, db_json, n_subst_limit=n_subst_limit
+    )
     pepseq_format = peptide_json["pepseq_format"]
     mod_smiles_list = [
         ext_mod["smiles"] for ext_mod in peptide_json["external_modifications"]
@@ -246,41 +256,40 @@ def from_smiles_to_pepseq_and_mod_smiles_strings(smiles: str, db_json: dict, n_s
         return pepseq_format, mod_smiles_list[0]
     else:
         return pepseq_format, mod_smiles_list
-    #return pepseq_format, mod_smiles_list
+    # return pepseq_format, mod_smiles_list
 
 
-def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict, n_subst_limit=None, ketcher=False):
+def from_smiles_to_pepseq_and_one_mod_smiles_strings(
+    smiles: str, db_json: dict, n_subst_limit=None
+):
     """
-    Example of string in pepseq format is H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
-    where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
-    amino acid; {Cys(R1)} - is amino acid
-    modifications - external ones, with attachment points
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
-    modification with attachment points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+        Example of string in pepseq format is H~H{aMeAla}EGTFTSDVSSYLEG{Cys(R1)}AAKEFI{Cys(R2)}WLVRGRG~OH
+        where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
+        amino acid; {Cys(R1)} - is amino acid
+        modifications - external ones, with attachment points
+        mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+        modification with attachment points:
+        { Cys(R1) } <- is attached in [1*] attachment point on staple
+        { Cys(R2) } <- is attached in [2*] attachment point on staple
 
-<<<<<<< HEAD
-    :parameter smiles: string of peptide sequence with modified amino acids
-=======
-        SMILES - string of peptide sequence with modified amino acids
-            modification(s)
-        
-        db_json - database json
+    <<<<<<< HEAD
+        :parameter smiles: string of peptide sequence with modified amino acids
+    =======
+            SMILES - string of peptide sequence with modified amino acids
+                modification(s)
 
-        ketcher - setting if the output is going to be compatible with ketcher
->>>>>>> c18b813 (Change result of full_decomposition function and dependencies to fit ketcher format; Write appropriate tests; Change mol_to_nx_translation module to fit ketcher format; Write appropriate tests; TO DO: write more tests for higher level functions)
+            db_json - database json
 
-    :parameter db_json: database JSON containing the mapping of symbols to amino acids
+        :parameter db_json: database JSON containing the mapping of symbols to amino acids
 
-    :parameter n_subst_limit: int = number of substitutions allowed
+        :parameter n_subst_limit: int = number of substitutions allowed
 
-    :return: pepseq_string, mod_smiles_list: string in pepseq format
+        :return: pepseq_string, mod_smiles_list: string in pepseq format
 
     """
-    
+
     pepseq_format, mod_smiles_list = from_smiles_to_pepseq_and_mod_smiles_strings(
-        smiles, db_json, n_subst_limit=n_subst_limit, ketcher=ketcher
+        smiles, db_json, n_subst_limit=n_subst_limit
     )
     if len(mod_smiles_list) == 1:
         return pepseq_format, mod_smiles_list[0]
@@ -288,7 +297,9 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(smiles: str, db_json: dict,
         return pepseq_format, mod_smiles_list
 
 
-def mark_external_modifications_on_seq(seq_list: list, peptide_json: dict, mod_as_X: bool = False) -> list:
+def mark_external_modifications_on_seq(
+    seq_list: list, peptide_json: dict, mod_as_X: bool = False
+) -> list:
     external_modifications = peptide_json.get("external_modifications")
     for external_modification in external_modifications:
         attachment_points = external_modification.get("attachment_points_on_sequence")
@@ -307,7 +318,9 @@ def mark_external_modifications_on_seq(seq_list: list, peptide_json: dict, mod_a
     return seq_list
 
 
-def mark_internal_modifications_on_seq(seq_list: list, peptide_json: dict, mod_as_X: bool = False) -> list:
+def mark_internal_modifications_on_seq(
+    seq_list: list, peptide_json: dict, mod_as_X: bool = False
+) -> list:
     internal_modifications = peptide_json.get("internal_modifications")
 
     for key in internal_modifications:
@@ -324,7 +337,7 @@ def mark_internal_modifications_on_seq(seq_list: list, peptide_json: dict, mod_a
     return seq_list
 
 
-def print_sequence(peptide_json: dict, mod_as_X: bool=False) -> str:
+def print_sequence(peptide_json: dict, mod_as_X: bool = False) -> str:
     basic_sequence = peptide_json.get("sequence")
     aa_list = list(basic_sequence)
 

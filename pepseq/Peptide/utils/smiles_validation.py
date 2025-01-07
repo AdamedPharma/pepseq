@@ -6,8 +6,7 @@ SMILES codes
 
 from typing import Union
 import rdkit
-from pepseq.Peptide.exceptions import (InvalidSmilesError, UnattachedSmilesError)
-
+from pepseq.Peptide.exceptions import InvalidSmilesError, UnattachedSmilesError
 
 
 def has_attachment_point(smiles: str) -> bool:
@@ -22,7 +21,7 @@ def has_attachment_point(smiles: str) -> bool:
     """
     mol = rdkit.Chem.MolFromSmiles(smiles)
     for atom in mol.GetAtoms():
-        if (atom.GetAtomicNum() == 0):
+        if atom.GetAtomicNum() == 0:
             return True
     return False
 
@@ -30,10 +29,10 @@ def has_attachment_point(smiles: str) -> bool:
 def validate_attachment_points_on_smiles(smiles_codes: list[str]):
     """
     Validates the attachment points on a list of SMILES codes.
-    
+
     Args:
         smiles_codes (list[str]): A list of SMILES codes to validate.
-    
+
     Raises:
         UnattachedSmilesError: If any of the SMILES codes do not have an attachment point to Peptide.
     """
@@ -42,9 +41,14 @@ def validate_attachment_points_on_smiles(smiles_codes: list[str]):
         for i in range(len(smiles_codes)):
             smiles_code = smiles_codes[i]
             if not has_attachment_point(smiles_code):
-                invalid_ids.append(i+1)
+                invalid_ids.append(i + 1)
     if invalid_ids:
-        ErrorMessage = '\n'.join(['SMILES code no %d has no attachment point to Peptide' %invalid_id for invalid_id in invalid_ids])
+        ErrorMessage = "\n".join(
+            [
+                "SMILES code no %d has no attachment point to Peptide" % invalid_id
+                for invalid_id in invalid_ids
+            ]
+        )
         raise UnattachedSmilesError(ErrorMessage)
 
 
@@ -82,7 +86,9 @@ def validate_structure_by_rdkit(smiles_codes: Union[list[str], None] = None):
         for i in range(len(smiles_codes)):
             if not can_create_rdkit_molecule(smiles_codes[i]):
                 raise InvalidSmilesError(
-                    'SMILES code no %d was invalid. Could not construct molecule from SMILES code' % (i+1))
+                    "SMILES code no %d was invalid. Could not construct molecule from SMILES code"
+                    % (i + 1)
+                )
 
 
 def validate_smiles_codes(smiles_codes: Union[list[str], None] = None):
