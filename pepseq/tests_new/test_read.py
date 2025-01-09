@@ -10,6 +10,22 @@ with open(db_path) as fp:
 
 
 def test_from_json():
+    """
+    Test the `from_json` function to ensure it correctly parses a peptide JSON object
+    and creates a peptide object with the expected attributes.
+    The test uses a predefined peptide JSON object `peptide_json_fx_2` and compares
+    the resulting peptide object's dictionary representation with the expected dictionary
+    `peptide__dict__fx`.
+    The expected dictionary includes:
+    - `smiles`: The SMILES representation of the peptide.
+    - `complete_smiles`: The complete SMILES representation of the peptide.
+    - `peptide_json`: The original JSON object used to create the peptide.
+    - `sequence`: The peptide sequence.
+    - `length`: The length of the peptide.
+    - `mw`: The molecular weight of the peptide.
+    The test asserts that the dictionary representation of the peptide object matches
+    the expected dictionary.
+    """
     peptide_json_fx_2 = {
         "length": 17,
         "sequence": "CACDAPEPsEQCGCDEF",

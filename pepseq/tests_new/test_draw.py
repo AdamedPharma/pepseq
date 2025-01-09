@@ -175,10 +175,30 @@ mock_fragment = (["A", "C", "D", "E", "F", "G", "H", "I", "K"], 9, "forward", Fa
 
 
 def as_tuple(kwargs_list, keys=[]):
+    """
+    Convert a list of dictionaries into a tuple of tuples based on specified keys.
+    Args:
+        kwargs_list (list): A list of dictionaries to be converted.
+        keys (list, optional): A list of keys to extract values from each dictionary. Defaults to an empty list.
+    Returns:
+        tuple: A tuple of tuples, where each inner tuple contains values from the
+         dictionaries corresponding to the specified keys.
+    """
     return tuple([tuple([i[key] for key in keys]) for i in kwargs_list])
 
 
 def test_get_kwargs_from_symbols():
+    """
+    Test the `get_kwargs_from_symbols` function to ensure it correctly processes
+    symbols and returns the expected keyword arguments for drawing.
+    The test checks:
+    - If the function correctly handles the presence of termini symbols ("N" and "C").
+    - If the returned keyword arguments list matches the expected mock data.
+    - If the returned text keyword arguments list matches the expected mock data.
+    The function `get_kwargs_from_symbols` is expected to return two lists of
+     keyword arguments, one for drawing symbols and one for drawing text, which
+     are then compared against predefined mock data to validate correctness.
+    """
     termini_present = ["N", "C"]
     kwargs_list, kwargs_text_list = get_kwargs_from_symbols(
         copy.deepcopy(problematic_symbols), termini_present=termini_present
@@ -201,6 +221,23 @@ def test_get_kwargs_from_symbols():
 
 
 def test_generate_kwargs_for_text_in_ellipse_balls():
+    """
+    Test the function `generate_kwargs_for_text_in_ellipse_balls` to ensure it generates
+    the correct keyword arguments for text in ellipse balls.
+    This test verifies that the function correctly processes the input parameters and
+     produces the expected output dictionary, which is then converted to a tuple for
+     comparison with a mock tuple.
+    The test checks:
+    - The sequence fragment and its length.
+    - The direction of the fragment (forward or not).
+    - Whether the fragment is a corner.
+    - The generated keyword arguments for text in ellipse balls.
+    - The conversion of the keyword arguments to a tuple.
+    - The equality of the generated tuple with a mock tuple.
+    The mock data used in this test includes:
+    - `mock_fragment`: A tuple containing the sequence fragment, its length, direction, and corner status.
+    - `fragment_kwargs_txt_as_tuple_mock`: The expected tuple of keyword arguments for comparison.
+    """
     seq_fragment, fragment_length, fragment_direction, is_corner = mock_fragment
     forward = fragment_direction == "forward"
 
@@ -225,6 +262,19 @@ def test_generate_kwargs_for_text_in_ellipse_balls():
 
 
 def test_generate_kwargs_for_text_in_ellipse_balls2():
+    """
+    Test the `generate_kwargs_for_ellipse_balls` function to ensure it generates the correct keyword arguments
+    for drawing text in ellipse balls.
+    This test uses a mock fragment to simulate the input and compares the generated keyword arguments
+    with the expected values.
+    Steps:
+    1. Extract the sequence fragment, fragment length, fragment direction, and corner status from the mock fragment.
+    2. Generate the keyword arguments for the ellipse balls using the `generate_kwargs_for_ellipse_balls` function.
+    3. Convert the generated keyword arguments to a tuple for comparison.
+    4. Assert that the generated keyword arguments match the expected mock values.
+    Returns:
+        None
+    """
     seq_fragment, fragment_length, fragment_direction, is_corner = mock_fragment
     kwargs_in_ellipse_balls = generate_kwargs_for_ellipse_balls(
         symbols=seq_fragment, y=70, forward=True, is_corner=False, is_start=True
@@ -247,6 +297,18 @@ def test_generate_kwargs_for_text_in_ellipse_balls2():
 
 
 def test_get_fragment_kwargs():
+    """
+    Test the `get_fragment_kwargs` function to ensure it returns the correct
+    keyword arguments for drawing a sequence fragment and its corresponding text.
+    The test checks:
+    - The `fragment_kwargs` dictionary contains the correct values for drawing the fragment.
+    - The `fragment_kwargs_txt` dictionary contains the correct values for drawing the fragment's text.
+    The function uses mock data for the sequence fragment, its length, direction, and corner status.
+    It then converts the returned dictionaries to tuples and compares them with expected mock tuples.
+    Assertions:
+    - `fragment_kwargs_as_tuple` matches the expected `fragment_kwargs_as_tuple_mock`.
+    - `fragment_kwargs_txt_as_tuple` matches the expected `fragment_kwargs_txt_as_tuple_mock`.
+    """
     seq_fragment, fragment_length, fragment_direction, is_corner = mock_fragment
 
     fragment_kwargs, fragment_kwargs_txt = get_fragment_kwargs(
@@ -277,6 +339,17 @@ def test_get_fragment_kwargs():
 
 
 def test_get_rev_x_and_font_size():
+    """
+    Test the `get_rev_x_and_font_size` function with different inputs and font size options.
+    The function is tested with the following cases:
+    - Single character "A" with variable font size enabled and disabled.
+    - String "CH3" with variable font size enabled and disabled.
+    The expected results are:
+    - For input "A" with variable font size enabled: (15, 34)
+    - For input "A" with variable font size disabled: (15, 34)
+    - For input "CH3" with variable font size enabled: (30, 28)
+    - For input "CH3" with variable font size disabled: (30, 22)
+    """
     assert get_rev_x_and_font_size("A", variable_font_size=True) == (15, 34)
     assert get_rev_x_and_font_size("A", variable_font_size=False) == (15, 34)
     assert get_rev_x_and_font_size("CH3", variable_font_size=True) == (30, 28)
@@ -284,6 +357,16 @@ def test_get_rev_x_and_font_size():
 
 
 def test_get_start_x():
+    """
+    Test the `get_start_x` function to ensure it returns the correct starting x-coordinate.
+    The test checks the following scenario:
+    - left_margin: 100
+    - is_corner: False
+    - forward: True
+    - step_x: 100
+    - is_start: True
+    Expected result: 100
+    """
     assert (
         get_start_x(
             left_margin=100, is_corner=False, forward=True, step_x=100, is_start=True
@@ -293,6 +376,23 @@ def test_get_start_x():
 
 
 def test_get_N_terminus_params():
+    """
+    Test the get_N_terminus_params function to ensure it correctly adjusts the
+     'x' coordinate of the input parameters dictionary.
+    The function is expected to take a dictionary of parameters and return a
+     new dictionary with the 'x' coordinate increased by 15 units.
+    The input parameters dictionary contains:
+        - y: The y-coordinate (int)
+        - x: The x-coordinate (int)
+        - rgb_fractions: A tuple representing RGB fractions (tuple of floats)
+        - outline_rgb_fractions: A tuple representing outline RGB fractions (tuple of floats)
+        - outline_width: The width of the outline (int)
+        - radius: The radius (int)
+    The expected output is a dictionary with the same keys and values, except
+     the 'x' coordinate should be increased by 15 units.
+    Asserts:
+        The function's output matches the expected dictionary with the adjusted 'x' coordinate.
+    """
     params = {
         "y": 210,
         "x": 115,
@@ -312,6 +412,16 @@ def test_get_N_terminus_params():
 
 
 def test_get_C_terminus_params():
+    """
+    Test the `get_C_terminus_params` function to ensure it correctly calculates
+    the parameters for the C-terminus based on the given `last_params` and
+     `previous_params`.
+    The test verifies that the function returns the expected dictionary of
+     parameters for the C-terminus, including position (`x`, `y`), color
+     (`rgb_fractions`, `outline_rgb_fractions`), outline width (`outline_width`),
+     and radius (`radius`).
+    The expected output is compared against the actual output using an assertion.
+    """
     last_params = {
         "y": 430,
         "x": 185.0,
@@ -344,6 +454,21 @@ def test_get_C_terminus_params():
 
 
 def test_draw_sequence():
+    """
+    Test the draw_symbols function with various sequences of symbols.
+    This test function creates multiple lists of symbols representing sequences
+    and calls the draw_symbols function to draw them with specified dimensions.
+    It tests the function with different sequences to ensure it handles various
+    inputs correctly.
+    The sequences include:
+    - A sequence with cysteine residues and other amino acids.
+    - A sequence with modified amino acids and other residues.
+    - A sequence with additional symbols and a longer length.
+    The function also tests drawing the same sequence twice, once with a deep copy
+    and once with an output file specified.
+    Returns:
+        None
+    """
     """
     test drawing sequence from symbols
     """

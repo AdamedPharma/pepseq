@@ -51,6 +51,12 @@ peptide_json = {
 
 
 def test_building():
+    """
+    Test the BuildingModifiedPeptideFromPeptideJSON class by executing it with
+    given peptide and database JSON inputs, and assert that the resulting
+     molecule's SMILES representation matches the expected value.
+    The expected SMILES string represents a specific modified peptide structure.
+    """
     mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     assert (
         rdkit.Chem.MolToSmiles(mol)
@@ -61,6 +67,25 @@ def test_building():
 
 
 def test_MarkingPeptideBackbone():
+    """
+    Test the MarkingPeptideBackbone class to ensure it correctly marks peptide bonds
+    in a given peptide molecule.
+    The test performs the following steps:
+    1. Define a SMILES string representing a peptide molecule.
+    2. Convert the SMILES string to an RDKit molecule object.
+    3. Execute the MarkingPeptideBackbone class on the molecule to mark peptide bonds.
+    4. Convert the modified molecule to a NetworkX graph.
+    5. Select edges in the graph that are marked as peptide bonds.
+    6. Assert that the selected edges match the expected peptide bond edges.
+    The expected peptide bond edges are:
+    - (16, 18)
+    - (21, 23)
+    - (30, 32)
+    - (42, 43)
+    - (46, 47)
+    - (49, 50)
+    - (55, 56)
+    """
     mol_N_C_smiles_val = (
         "CC(=O)N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@"
         + "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"
@@ -86,6 +111,18 @@ def test_MarkingPeptideBackbone():
 
 
 def test_BreakingIntoResidueCandidateSubgraphs():
+    """
+    Test the BreakingIntoResidueCandidateSubgraphs functionality.
+    This test verifies that the BreakingIntoResidueCandidateSubgraphs class can correctly
+    break a peptide molecule into its residue candidate subgraphs and that the atomic
+    numbers of the nodes in these subgraphs sum up to the expected values.
+    The peptide molecule is represented by its SMILES string, which is converted to an
+    RDKit molecule object. The BreakingIntoResidueCandidateSubgraphs class is then used
+    to generate the subgraphs. The test asserts that the sum of the atomic numbers of the
+    nodes in each subgraph matches the expected tuple of values.
+    Expected result:
+    The sum of atomic numbers in the subgraphs should be (198, 33, 98, 65, 27, 41).
+    """
     mol_N_C_smiles_val = (
         "CC(=O)N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@"
         + "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"

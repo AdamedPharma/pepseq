@@ -11,6 +11,12 @@ def get_edge_tuple(edge: tuple) -> tuple:
     molecule bond) in particular on type
     and whether the bond is a peptide
     backbone bond
+
+    :param: edge tuple: tuple representing graph edge
+    :type edge tuple: tuple
+
+    :return: tuple in the form of (bond_type, is_peptide_bond, bond_start, bond_end)
+    :rtype: tuple
     """
     bond_start, bond_end, data = edge
     bond_type = data.get("bond_type")
@@ -24,6 +30,12 @@ def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
     """
     transforms rdkit.Chem.rdchem.Mol molecule
     into nx.classes.graph.Graph graph
+
+    :param mol: molecule object
+    :type mol: rdkit.Chem.rdchem.Mol
+
+    :return: molecular graph
+    :rtype: nx.classes.graph.Graph
     """
 
     G = nx.Graph()
@@ -77,6 +89,12 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
     """
     transforms nx.classes.graph.Graph graph
     into  rdkit.Chem.rdchem.Mol molecule
+
+    :param G: molecular graph object
+    :type G: nx.classes.graph.Graph
+
+    :return: molecule
+    :rtype: rdkit.Chem.rdchem.Mol
     """
 
     mol = rdkit.Chem.RWMol()
@@ -132,6 +150,15 @@ def nx_to_mol(G: nx.classes.graph.Graph) -> rdkit.Chem.rdchem.Mol:
 
 
 def get_chiral_tag_int(chiral_tag):
+    """
+    returns integer representation of chiral tag
+
+    :param chiral_tag: chiral tag marking stereochemistry
+    :type chiral_tag: rdkit.Chem.rdchem.ChiralType
+
+    :return: integer representation of chiral tag
+    :rtype: int
+    """
     if chiral_tag == rdkit.Chem.rdchem.ChiralType.CHI_UNSPECIFIED:
         chiral_tag_int = 0
     elif chiral_tag == rdkit.Chem.rdchem.ChiralType.CHI_TETRAHEDRAL_CW:
@@ -141,7 +168,16 @@ def get_chiral_tag_int(chiral_tag):
     return chiral_tag_int
 
 
-def get_hybridization_int(hybridization):
+def get_hybridization_int(hybridization) -> int:
+    """
+    returns integer representation of hybridization
+
+    :param hybridization: atom hybridization (SP3, SP2, SP, S)
+    :type hybridization rdkit.Chem.rdchem.HybridizationType
+
+    :return: integer representation of hybridization
+    :rtype: int
+    """
     if hybridization == rdkit.Chem.rdchem.HybridizationType.SP3:
         return 4
     elif hybridization == rdkit.Chem.rdchem.HybridizationType.SP2:
@@ -153,6 +189,18 @@ def get_hybridization_int(hybridization):
 
 
 def get_node_tuple(node_data, keys=None):
+    """
+    returns info on graph node (representing molecule atom)
+
+    :param node_data tuple: tuple representing graph node
+    :type node_data tuple: tuple
+
+    :param keys: list of keys to be included in the output
+    :type keys: list
+
+    :return: list of values representing graph node
+    :rtype: list
+    """
     idx, node_dict = node_data
     if keys is None:
         keys = [
@@ -184,10 +232,11 @@ def nx_to_json(G: nx.classes.graph.Graph) -> dict:
     transforms a networkx  Graph
     into JSON dict in the form
 
-    :parameter G nx.classes.graph.Graph: networkx  Graph
+    :param G: networkx molecular Graph
+    :type G: nx.classes.graph.Graph
 
     :return: JSON dict in the form
-
+    :rtype: dict
     """
     nodes_list = list(G.nodes(data=True))
 
@@ -226,10 +275,11 @@ def get_mol_json(mol: rdkit.Chem.rdchem.Mol) -> dict:
     """
     transforms rdkit.Chem.rdchem.Mol molecule object into JSON dict
 
-    :parameter mol rdkit.Chem.rdchem.Mol: molecule object
+    :param mol: molecule object
+    :type mol: rdkit.Chem.rdchem.Mol
 
-    :return: JSON dict in the form
-
+    :return: JSON dict in the marking molecule
+    :rtype: dict
     """
     G = mol_to_nx(mol)
     mol_j = nx_to_json(G)
@@ -240,9 +290,11 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
     """
     transforms JSON dict in the form into a networkx  Graph
 
-    :parameter mol_json dict: JSON dict in the form
+    :param mol_json: JSON dict in the form
+    :type mol_json: dict
 
-    :return: networkx  Graph
+    :return: networkx  Graph repreeenting molecule
+    :rtype: nx.classes.graph.Graph
 
     """
     G = nx.Graph()
@@ -329,6 +381,15 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
 
 
 def mol_json_to_mol(mol_json: dict) -> rdkit.Chem.rdchem.Mol:
+    """
+    transforms JSON dict in the form into rdkit.Chem.rdchem.Mol molecule object
+
+    :param mol_json: JSON dict
+    :type mol_json: dict
+
+    :return: molecule object
+    :rtype: rdkit.Chem.rdchem.Mol
+    """
     G = mol_json_to_nx(mol_json)
     mol = nx_to_mol(G)
     return mol
@@ -341,6 +402,15 @@ def draw_peptide_json(peptide_json: dict, out: str = "simple_path.png") -> nx.Gr
     External modifications are labeled as SMILES code.
     Peptide bonds between the Amino Acids; attachment points for external modifications
     and disulfide bridges are represented as edges.
+
+    :param peptide_json: JSON dict representing a modified peptide
+    :type peptide_json: dict
+
+    :param out: path to save the image of the schema
+    :type out: str
+
+    :return: networkx Graph representing the peptide
+    :rtype: nx.Graph
     """
     G = nx.Graph()
 

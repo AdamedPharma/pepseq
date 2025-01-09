@@ -13,12 +13,15 @@ def output_modified_residue(ResName: str, R_id: str) -> str:
     e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility
 
 
-    :parameter ResName: one letter symbol of Residue e.g. C for Cysteine; K for Lysine: str
+    :param: ResName: one letter symbol of Residue e.g. C for Cysteine; K for Lysine
+    :type: ResName: str
 
-    :parameter R_id: sequence attachment point id: str
+    :param: R_id: sequence attachment point id
+    :type: R_id: str
 
     :return: radical_name - string in the form '{ResidueName}(R{radical_id})',
-      e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility: str
+      e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility
+    :rtype: str
 
     """
     d = {"C": "Cys", "K": "Lys"}
@@ -146,6 +149,7 @@ def find_termini(sequence_str: str, db_json: dict) -> tuple:
     :type  db_json: dict
 
     :return output_tuple: tuple in the form of (n_term, c_term, sequence_str_wo_termini)
+    :rtype: tuple
     """
     sequence_split = sequence_str.split("~")
 

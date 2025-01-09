@@ -146,7 +146,6 @@ def get_ro_json_from_row(
     :return ro_json: dictionary containing basic AminoAcid/Fragment/Group info
         necessary to include it into db.json database of Peptide building blocks
     :rtype: dict
-
     """
     mol_name = getattr(row, colname)
     mol = getattr(row, mol_colname)
@@ -191,7 +190,7 @@ def get_row_jsons(
     :type  mol_colname: str
 
     :return: new_monomers_db_json - database of new monomers
-    :rtype:  dict
+    :rtype: dict
     """
     new_monomers_db_json = {}
 
@@ -231,8 +230,8 @@ def augment_db_json(
     :type  mol_colname: str
 
     :return: db_json - database of monomers inserted with new monomers read
-      from SDF file through pandas DataFrame:  dict
-
+      from SDF file through pandas DataFrame
+    :rtype:  dict
     """
     aa_keys = set(db_json["smiles"]["aa"].keys())
     df_new = df_sdf[~df_sdf[name_column].isin(aa_keys)]
@@ -261,8 +260,7 @@ def replace_atom(mol: rdkit.Chem.rdchem.Mol, atom_id: int, atom_smarts: str) -> 
     :type  atom_smarts: str
 
     :return mol_new_smarts: SMARTS code for new updated molecule pattern
-    :rtype str
-
+    :rtype: str
     """
 
     atom = mol.GetAtomWithIdx(atom_id)
@@ -297,7 +295,8 @@ def N_term_mod_smarts(smarts: str) -> Union[str, None]:
     :param smarts: SMARTS code
     :type  smarts: str
 
-    :return mol_new_smarts: new SMARTS code updated with N terminally modified N atom pattern: str
+    :return mol_new_smarts: new SMARTS code updated with N terminally modified N atom pattern
+    :rtype: str
     """
     sm_start = "[$([N&X3&H2,N&X4&H3&+]),$([N&X3&H1](C)C)]"
     sm_changed = "[$([NX3H2,NX4H3+]),$([NX3H](C)(C)),$([NX3H])]"
@@ -323,8 +322,8 @@ def get_Nter_versions_cxsmarts_db(aa_smarts_dict: dict) -> dict:
     :type  aa_smarts_dict: dict
 
     :return: updated_aa_smarts_dict: updated dictionary of SMARTS codes
-      for amino acids with patterns changed to include N terminal modifications: dict
-
+      for amino acids with patterns changed to include N terminal modifications
+    :rtype: dict
     """
     updated_aa_smarts_dict = {}
     for aa_code in aa_smarts_dict:
@@ -343,7 +342,7 @@ def get_Nter_versions(aa_smarts_dict: dict) -> dict:
 
     :return: updated_aa_smarts_dict: updated dictionary of SMARTS codes
       for amino acids with patterns changed to include N terminal modifications
-
+    :rtype: dict
     """
 
     updated_aa_smarts_dict = {}
@@ -368,7 +367,6 @@ def change_exit_atom(smiles: str) -> str:
 
     :return smiles: SMILES code for amino acid with removed R3 but Exit Atom labeled as such
     :rtype: str
-
     """
     mol = rdkit.Chem.MolFromSmiles(smiles)
     G = mol_to_nx(mol)
@@ -480,6 +478,9 @@ def order_aas(db_json: dict) -> list:
 
     :param db_json: database containing info on Modified Peptide monomers/building blocks
     :type  db_json: dict
+
+    :return new_aa_order: list of ordered amino acids from smallest to biggest
+    :rtype: list
 
     """
     aa_smiles = db_json.get("smiles").get("aa")

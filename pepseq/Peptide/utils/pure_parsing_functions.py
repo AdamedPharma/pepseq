@@ -25,12 +25,12 @@ def get_attachment_point_json(
     :param decomposition: in the form of ResidueName ('Cys', 'Lys', etc.) and connecting point_id (e.g. ('Cys', 1) )
     :type  decomposition: tuple
 
-    :param
+    :param default_exit_atom_name: dictionary with default exit atom names for each residue
+    :type  default_exit_atom_name: dict
 
     :return: att_point_json - JSON dictionary having info on Atom (Name)
       and Residue (Name and Index) to which modification is connected
     :rtype: dict
-
     """
 
     ResName, attachment_point_id = decomposition
@@ -54,6 +54,7 @@ def decompose_symbol(symbol: str) -> Union[tuple, str]:
     :type  s: str
 
     :return: decomp - decomposition can be a tuple of residue name and radical id or can be an input symbol
+    :rtype: tuple or str
     """
     has_round_bracket = ("(" in symbol) and (")" in symbol)
 
@@ -77,7 +78,8 @@ def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
     :param symbols
     :type symbols: list
 
-
+    :return: att_points - dictionary of attachment points on sequence
+    :rtype: dict
     """
     att_points = {}
 
@@ -111,6 +113,19 @@ def get_base_symbols(
     symbols: list[str],
     three_to_one: dict = {"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"},
 ):
+    """
+    Get the base symbols from a list of symbols.
+
+    :param symbols: List of symbols.
+    :type symbols: list[str]
+
+    :param three_to_one: Dictionary mapping three-letter residue names to one-letter residue names.
+                            Defaults to {"Cys": "C", "Lys": "K", "Ala": "A", "ala": "a", "Gly": "G"}.
+    :type three_to_one: dict, optional
+
+    :return: The base symbols.
+    :rtype: list
+    """
     base_symbols = []
 
     for res_id in range(len(symbols)):

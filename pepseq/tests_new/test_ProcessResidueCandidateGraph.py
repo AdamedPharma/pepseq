@@ -28,6 +28,13 @@ with open(db_path) as fp:
 
 
 def load_tests(name):
+    """
+    Dynamically loads and yields test cases from a specified module.
+    Args:
+        name (str): The name of the module to import which contains the test cases.
+    Yields:
+        object: Each test case found in the `tests` variable of the imported module.
+    """
     # Load module which contains test data
     tests_module = importlib.import_module(name)
     # Tests are to be found in the variable `tests` of the module
@@ -37,6 +44,11 @@ def load_tests(name):
 
 # content of test_example.py
 def pytest_generate_tests(metafunc):
+    """
+    Automatically generates test cases for the given test function.
+    Args:
+        metafunc (Metafunc): The test function to generate test cases for.
+    """
     for fixture in metafunc.fixturenames:
         print(fixture)
         if fixture.startswith("data_"):
@@ -46,6 +58,23 @@ def pytest_generate_tests(metafunc):
 
 
 def test_add_connection_point_to_molecular_graph():
+    """
+    Test the function `add_connection_point_to_molecular_graph` by adding
+     a connection point to a molecular graph.
+    This test uses a fixture for the point ID and the modification atom,
+     and a predefined molecular graph in JSON format.
+    It converts the modified graph to a SMILES string and compares it to an
+     expected SMILES string to verify correctness.
+    The test performs the following steps:
+    1. Define the point ID and modification atom.
+    2. Define the molecular graph in JSON format.
+    3. Convert the JSON graph to a NetworkX graph.
+    4. Add a connection point to the molecular graph.
+    5. Convert the modified graph to a SMILES string.
+    6. Compare the resulting SMILES string to the expected SMILES string.
+    Asserts:
+        - The SMILES string generated from the modified molecular graph matches the expected SMILES string.
+    """
     point_id_fixture = 2
     mod_atom = 9
 
@@ -83,6 +112,25 @@ def test_add_connection_point_to_molecular_graph():
 
 
 def test_process_external_modification():
+    """
+    Test the process_external_modification function.
+    This test verifies that the process_external_modification function correctly processes
+    external modifications on a molecular graph and returns the expected external modification
+    details and attachment point ID.
+    Fixtures:
+    - G_mod_json_fixture: A dictionary representing the molecular graph in JSON format.
+    - mod_bonds_fixture: A list of tuples representing the modification bonds.
+    - res_matches_fixture: A dictionary mapping residue IDs to their corresponding details.
+    - atom_names_dict_fixture: A dictionary mapping atom IDs to their names.
+    - point_id: An integer representing the point ID.
+    Expected Results:
+    - external_modification: A dictionary containing the SMILES representation of the external
+      modification, the maximum attachment point ID, and the attachment points on the sequence.
+    - attachment_point_id: An integer representing the attachment point ID.
+    Assertions:
+    - The external_modification returned by the function should match the expected fixture.
+    - The attachment_point_id returned by the function should match the expected fixture.
+    """
     G_mod_json_fixture = {
         "nodes_tuple": [
             [6, 0, 0, 4, False, 0, 8, 0, 8],
@@ -154,6 +202,22 @@ def test_process_external_modification():
 
 
 def test_process_external_connections():
+    """
+    Test the `process_external_connections` function.
+    This test verifies that the `process_external_connections` function correctly processes
+    external connections given a set of external modification connections, residue matches,
+    modification graphs, and a molecular graph.
+    The test uses the following fixtures:
+    - `external_connections_fx`: A list of dictionaries representing external connections.
+    - `external_mod_connections_fx`: A dictionary representing external modification connections.
+    - `res_matches_fx`: A dictionary representing residue matches.
+    - `modification_graphs_jsons_fx`: A list of dictionaries representing modification graphs in JSON format.
+    - `modification_graphs_fx`: A list of NetworkX graphs converted from `modification_graphs_jsons_fx`.
+    - `G_json_fx`: A dictionary representing a molecular graph in JSON format.
+    - `G_fx`: A NetworkX graph converted from `G_json_fx`.
+    The test asserts that the output of `process_external_connections` matches the expected
+    `external_connections_fx`.
+    """
     external_connections_fx = [
         {
             "smiles": "C(C[*:2])NC[*:1]",
@@ -267,6 +331,26 @@ def test_process_external_connections():
 
 
 def test_full_decomposition():
+    """
+    Test the full decomposition of a molecule into its fragment residue names and modifications.
+    This test verifies that the `full_decomposition` function correctly decomposes a given molecule
+    into its constituent fragments and modifications. The test uses predefined fixtures for the
+     expected fragment residue names and modifications, and compares the output of the function
+     against these fixtures.
+    Fixtures:
+        - fragment_res_names_fixture: A dictionary mapping residue IDs to residue names.
+        - fragment_modifications_fixture: A dictionary containing internal and external modifications
+          of the molecule, including attachment points and SMILES strings.
+    The test performs the following steps:
+        1. Converts a JSON representation of a molecule to a molecule object.
+        2. Retrieves a SMARTS database for chemical transformations.
+        3. Calls the `full_decomposition` function with the molecule object and SMARTS database.
+        4. Asserts that the fragment residue names match the expected fixture.
+        5. Extracts the SMILES string from the external modifications and verifies it contains "*:".
+        6. Asserts that the SMILES string matches the expected fixture.
+        7. Removes the SMILES strings from the modifications and asserts that the remaining
+           modifications match the expected fixture.
+    """
     fragment_res_names_fixture = {"1": "C", "12": "C"}
     fragment_modifications_fixture = {
         "internal_modifications": [],
@@ -366,6 +450,22 @@ def test_full_decomposition():
 
 
 def test_decompose_residues_internal(data_decompose_residues_internal):
+    """
+    Test the decompose_residues_internal function.
+    This test verifies that the decompose_residues_internal function correctly decomposes
+    a sequence of residues into its components, including internal and external modifications.
+    Args:
+        data_decompose_residues_internal (tuple): A tuple containing the following elements:
+            - fragments: The fragments to be decomposed.
+            - cx_smarts_db: The SMARTS database for chemical context.
+            - n_subst_limit: The substitution limit.
+    Expected:
+        The function should return the expected sequence, internal modifications, and external modifications.
+    Asserts:
+        - The returned sequence matches the expected sequence.
+        - The returned internal modifications match the expected internal modifications.
+        - The returned external modifications match the expected external modifications.
+    """
     seq_fx = "CACDAPEPsEQCGCDEF"
     internal_modifications_fx = []
     external_modifications_fx = [

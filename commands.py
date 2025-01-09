@@ -30,6 +30,8 @@ The module contains the following functions:
 """
 
 import json
+import os
+
 from tqdm import tqdm
 
 import typer
@@ -46,7 +48,6 @@ from pepseq.BuildPeptideJSONFromSMILES import (
 )
 from pepseq.augmenting_db_json import augment_db_json
 
-import os
 
 dir_path = os.path.dirname(__file__)
 db_path = os.path.join(dir_path, "pepseq/Peptide/database/db.json")
@@ -124,6 +125,7 @@ def calculate_json_from(
 
 
     Example:
+
     import pepseq
     pepseq.commands.calculate_json_from
     '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF'
@@ -175,9 +177,10 @@ def read_smiles(
     :param v: bool switch regulating verbosity.
     :type v: bool or None
 
-    :return: result_list list of results given as list of sequences in Pepseq Format. and list of modification SMILES
+    :return: result_list: list of results given as list of sequences in Pepseq Format. and list of modification SMILES
+    :rtype: list
 
-    Input SMILES filepath
+    Example:
 
     python3.10 commands.py read-smiles 'stuff_in.smi'   --db-path augmented_db.json --out stuff
 
@@ -262,7 +265,6 @@ def augment_db_json_command(
 
     :return: db_json database copy with augmented by monomers from SDF file.
     :rtype: dict
-
     """
 
     df_sdf = rdkit.Chem.PandasTools.LoadSDF(sdf_path)

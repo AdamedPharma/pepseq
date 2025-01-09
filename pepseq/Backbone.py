@@ -33,7 +33,6 @@ def generate_bb_smiles(num_res: int, OH: bool = False) -> str:
 
 def generate_bb_mol(num_res: int, OH: bool = False) -> rdkit.Chem.rdchem.Mol:
     """
-
     Generate rdkit.Chem.rdchem.Mol molecule for peptide backbone (polyGlycine peptide)
 
     :param num_res: number of amino_acid residues
@@ -206,8 +205,6 @@ class BreakingIntoResidueCandidateSubgraphs(Functionality):
         c) two or more residues bound by internal modification (such as disulfide bond, or cyclization)
         d) two or more residues bound by external modification (such as molecular staple)
 
-
-          peptide_molecule - rdkit.Chem.rdchem.Mol molecule object
         :rtype: list[nx.classes.graph.Graph]
 
         """

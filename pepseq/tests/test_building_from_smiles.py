@@ -47,6 +47,13 @@ cx_smarts_db = get_cx_smarts_db(db_json)
 
 
 def load_tests(name):
+    """
+    Loads and yields tests from a specified module.
+    Args:
+        name (str): The name of the module to load tests from.
+    Yields:
+        test: Each test found in the `tests` variable of the specified module.
+    """
     # Load module which contains test data
     tests_module = importlib.import_module(name)
     # Tests are to be found in the variable `tests` of the module
@@ -55,6 +62,22 @@ def load_tests(name):
 
 
 def pytest_generate_tests(metafunc):
+
+    """
+    A pytest hook to generate tests dynamically based on the fixture names.
+    This function is called by pytest for each test function. It checks if the
+     test function has any fixtures that start with "data_". If such fixtures
+     are found, it loads the associated test data and uses the `parametrize`
+     method to parameterize the test function with the loaded data.
+    Args:
+        metafunc (Metafunc): The Metafunc object for the test function being
+                             collected. It provides access to the test function
+                             and its fixtures.
+    Example:
+        If a test function has a fixture named "data_example", this function
+        will load the test data for "data_example" and parameterize the test
+        function with the loaded data.
+    """
     for fixture in metafunc.fixturenames:
         print(fixture)
         if fixture.startswith("data_"):
@@ -156,6 +179,29 @@ correct_external_modifications = [
 
 
 def test_decompose_peptide_smiles_db(data_mol_N_C_smiles):
+    """
+    Test the decomposition of peptide SMILES strings using a database.
+    This test function takes a tuple of data containing a SMILES string,
+     the correct peptide JSON, and an unused value. It decomposes the
+     peptide SMILES string using the `decompose_peptide_smiles` function
+     and compares the resulting peptide JSON with the correct peptide JSON
+    to ensure they match.
+    Args:
+        data_mol_N_C_smiles (tuple): A tuple containing:
+            - mol_N_C_smiles_val (str): The SMILES string to be decomposed.
+            - correct_peptide_json (dict): The expected JSON representation
+              of the peptide.
+            - _: An unused value.
+    Asserts:
+        - The sequence in the resulting peptide JSON matches the correct sequence.
+        - The internal modifications in the resulting peptide JSON match the
+          correct internal modifications.
+        - The external modifications in the resulting peptide JSON match the
+          correct external modifications, including:
+            - SMILES strings.
+            - Maximum attachment point IDs.
+            - Attachment points on the sequence.
+    """
     mol_N_C_smiles_val, correct_peptide_json, _ = data_mol_N_C_smiles
 
     peptide_json = decompose_peptide_smiles(mol_N_C_smiles_val, db_json)
@@ -190,6 +236,17 @@ mol_N_C_smiles_val = (
 
 
 def test_decompose_peptide_smiles_db_termini():
+    """
+    Test the decomposition of peptide SMILES with termini using a database.
+    This test verifies that the decomposition of a peptide SMILES string with
+    N and C termini matches the expected JSON structure. It checks the following:
+    - The sequence of the decomposed peptide matches the correct sequence.
+    - The internal modifications of the decomposed peptide match the correct internal modifications.
+    - For each external modification (in this case, only one is checked):
+        - The SMILES string of the external modification matches the correct SMILES string.
+        - The maximum attachment point ID of the external modification matches the correct ID.
+        - The attachment points on the sequence of the external modification match the correct attachment points.
+    """
     peptide_json_NC = decompose_peptide_smiles_with_termini(mol_N_C_smiles_val, db_json)
     assert peptide_json_NC["sequence"] == correct_peptide_json_NC["sequence"]
 
@@ -215,6 +272,18 @@ def test_decompose_peptide_smiles_db_termini():
 
 
 def test_BreakingIntoResidueCandidateSubgraphs(data_break_into_residues):
+    """
+    Test the BreakingIntoResidueCandidateSubgraphs functionality.
+    This test verifies that the BreakingIntoResidueCandidateSubgraphs class correctly
+    processes a peptide molecule into residue candidate subgraphs and that the resulting
+    subgraphs match the expected values.
+    Args:
+        data_break_into_residues (tuple): A tuple containing the SMILES representation of
+                                          the peptide molecule and the expected residue values.
+    Asserts:
+        The JSON representation of the first, third, and fourth residue subgraphs matches
+        the expected residue values.
+    """
     mol_N_C_smiles_val, residues_vals = data_break_into_residues
     peptide_molecule = rdkit.Chem.MolFromSmiles(mol_N_C_smiles_val)
     peptide_molecule2 = MarkingPeptideBackbone().execute(peptide_molecule)
@@ -227,6 +296,16 @@ def test_BreakingIntoResidueCandidateSubgraphs(data_break_into_residues):
 
 
 def test_MarkingPeptideBackbone(data_mol_N_C_smiles):
+    """
+    Test the MarkingPeptideBackbone class to ensure it correctly identifies and marks peptide bonds in a molecule.
+    Args:
+        data_mol_N_C_smiles (tuple): A tuple containing:
+            - mol_N_C_smiles_val (str): The SMILES string representation of the molecule.
+            - correct_peptide_json (dict): The expected JSON representation of the peptide.
+            - peptide_bonds (list): A list of tuples representing the expected peptide bonds.
+    Asserts:
+        The sorted list of selected edges (peptide bonds) in the molecule matches the expected peptide bonds.
+    """
     mol_N_C_smiles_val, correct_peptide_json, peptide_bonds = data_mol_N_C_smiles
 
     peptide_molecule = rdkit.Chem.MolFromSmiles(mol_N_C_smiles_val)
@@ -240,6 +319,19 @@ def test_MarkingPeptideBackbone(data_mol_N_C_smiles):
 
 
 def test_decompose_residues_internal():
+    """
+    Test the decompose_residues_internal function.
+    This test verifies that the decompose_residues_internal function correctly decomposes
+    residues into a sequence, internal modifications, and external modifications.
+    The test uses predefined residue data in JSON format, converts it to networkx graphs,
+    and then calls the decompose_residues_internal function with these graphs and a
+     predefined SMARTS database.
+    Assertions:
+        - The sequence returned by the function matches the expected sequence "CSCACGCK".
+        - The internal modifications returned by the function match the expected internal modifications.
+        - For each external modification, the SMILES string, max attachment point ID, and attachment points
+          on the sequence match the expected values.
+    """
     residues_jsons = [
         {
             "nodes_tuple": [
@@ -503,6 +595,16 @@ mol_q_dict = {"smiles": mol_q_dict_smiles}
 
 
 def test_get_res_matches():
+    """
+    Test the get_res_matches function to ensure it correctly identifies residue matches
+    from a given molecule query.
+    The test uses a predefined molecule query (mol_q) obtained from a SMILES string
+    and checks if the get_res_matches function returns the expected residue name,
+    atom names dictionary, and atom numbers for a specific key ("14").
+    Assertions:
+        - The residue name should be "R".
+        - The atom numbers should match the expected tuple (8, 7, 6, 5, 4, 3, 1, 0, 2, 9, 11).
+    """
     mol_q = rdkit.Chem.MolFromSmiles(mol_q_dict.get("smiles"))
 
     res_name, atom_names_dict, nums = get_res_matches(mol_q, cx_smarts_db)["14"]
@@ -513,6 +615,21 @@ def test_get_res_matches():
 
 
 def test_full_decomposition():
+    """
+    Test the full decomposition of a molecule from its JSON representation.
+    This test verifies that the decomposition of a molecule, represented in JSON format,
+    matches the expected decomposed JSON structure. It checks the following:
+    - The decomposed JSON structure matches the expected fixture.
+    - The internal modifications in the decomposed JSON match the expected internal modifications.
+    - The external modifications in the decomposed JSON match the expected external modifications.
+    - The SMILES strings of the external modifications are identical to the expected SMILES strings.
+    - The maximum attachment point IDs of the external modifications match the expected values.
+    - The attachment points on the sequence of the external modifications match the expected values.
+    The test uses the `full_decomposition` function to decompose the molecule and the
+    `smiles_are_identical` function to compare SMILES strings.
+    Returns:
+        None
+    """
     residues_0_json = {
         "nodes_tuple": [
             [6, 0, 0, 4, 0, False, 0, None, None, 0],
@@ -704,6 +821,19 @@ residues_0_mol = mol_json_to_mol(residues_0_json)
 
 
 def test_get_matches_dict():
+    """
+    Test the functionality of the get_matches function and related functions.
+    This test performs the following checks:
+    1. Verifies that the get_matches function returns the expected matches dictionary.
+    2. Asserts that the molecular JSON representation of the first match for residue "C"
+       matches the expected JSON structure.
+    3. Asserts that the second match for residue "C" contains the expected tuple of atom indices.
+    4. Converts the residues_0_mol to a NetworkX graph and matches it to a residue ID.
+    5. Asserts that the maximum amino acid match is "C".
+    6. Asserts that the maximum match tuple contains the expected atom indices.
+    7. Asserts that the molecular JSON representation of the maximum amino acid molecule
+       matches the expected JSON structure.
+    """
     matches_dict = get_matches(residues_0_mol, cx_smarts_db)
 
     C_mol_json = {
@@ -749,6 +879,21 @@ def test_get_matches_dict():
 
 
 def test_decompose():
+    """
+    Test the decompose function and related processing functions.
+    This test performs the following steps:
+    1. Decomposes a molecule into its components and verifies the resulting SMILES strings.
+    2. Verifies the JSON representation of the propagated molecule graph.
+    3. Extracts subgraph tuples and verifies their correctness.
+    4. Verifies the connections between residues and modifications.
+    5. Splits connections by type and verifies the results.
+    6. Processes external connections and verifies their correctness.
+    7. Verifies residue matches.
+    8. Processes internal connections and verifies the results.
+    9. Converts a sequence dictionary to a string and verifies the result.
+    The test ensures that the decompose function and related processing functions
+    work correctly and produce the expected outputs.
+    """
     mol_propagated, res_matches, modification_graphs = decompose(
         mol=residues_0_mol, cx_smarts_db=cx_smarts_db
     )

@@ -15,6 +15,19 @@ with open(db_path) as fp:
 
 
 def test_from_smiles_to_pepseq_and_mod_smiles_strings():
+    """
+    Test the conversion of a SMILES string to a peptide sequence (pepseq) and
+     modified SMILES strings (mod_smiles) using the functions
+     from_smiles_to_pepseq_and_mod_smiles_strings and
+     from_smiles_to_pepseq_and_one_mod_smiles_strings.
+    The test verifies that the conversion functions correctly parse the input
+     SMILES string and produce the expected peptide sequence and modified SMILES
+     strings.
+    Assertions:
+        - The peptide sequence (pepseq) should match the expected sequence.
+        - The list of modified SMILES strings (mod_smiles) should match the
+          expected list of strings.
+    """
     smiles = "".join(
         [
             "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H]",
@@ -43,6 +56,23 @@ def test_from_smiles_to_pepseq_and_mod_smiles_strings():
 
 
 def test_decompose_peptide_smiles():
+    """
+    Test the decomposition of a peptide SMILES string into a JSON representation.
+    This test verifies that the `decompose_peptide_smiles` and
+     `decompose_peptide_smiles_with_termini` functions correctly convert a given
+     peptide SMILES string into the expected JSON format, including internal and
+     external modifications, as well as termini information.
+    Fixtures:
+        - smiles_fixture: A SMILES string representing the peptide.
+        - peptide_json_fixture: The expected JSON representation of the peptide
+          without termini information.
+        - peptide_json_w_termini_fixture: The expected JSON representation of the
+          peptide with termini information.
+    Assertions:
+        - The JSON output from `decompose_peptide_smiles` matches `peptide_json_fixture`.
+        - The JSON output from `decompose_peptide_smiles_with_termini` matches
+          `peptide_json_w_termini_fixture`.
+    """
     smiles_fixture = "".join(
         [
             "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H]",

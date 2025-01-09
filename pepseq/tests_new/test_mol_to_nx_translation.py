@@ -10,6 +10,21 @@ from pepseq.tests_new.helpers import smiles_are_identical
 
 
 def test_json_to_nx_to_mol():
+    """
+    Test the conversion from a JSON representation of a molecule to a NetworkX graph
+    and then back to an RDKit molecule, ensuring the SMILES representation matches
+    the expected output.
+    The test performs the following steps:
+    1. Converts a JSON representation of a molecule to a NetworkX graph using `mol_json_to_nx`.
+    2. Converts the NetworkX graph back to an RDKit molecule using `nx_to_mol`.
+    3. Converts the RDKit molecule to a SMILES string using `rdkit.Chem.MolToSmiles`.
+    4. Asserts that the generated SMILES string is identical to the expected SMILES string "[*:1]CNCC[*:2]".
+    The JSON representation includes:
+    - `nodes_tuple`: A list of nodes with attributes such as atomic number, chiral tag, etc.
+    - `nodes_columns`: A list of column names corresponding to the attributes of the nodes.
+    - `edges_tuple`: A list of edges with attributes such as bond type, bond start, and bond end.
+    - `edges_columns`: A list of column names corresponding to the attributes of the edges.
+    """
     j2 = {
         "nodes_tuple": [
             [0, 0, "*", 0, None, False, 0, "1", 0, 0],
@@ -48,6 +63,24 @@ def test_json_to_nx_to_mol():
 
 
 def test_mol_to_nx_to_json():
+    """
+    Test the conversion of a molecule from RDKit Mol object to NetworkX graph and then to JSON format,
+    and verify the correctness of the conversion.
+    The test performs the following steps:
+    1. Create a molecule from a SMILES string using RDKit.
+    2. Convert the molecule to a NetworkX graph.
+    3. Convert the NetworkX graph to a JSON representation.
+    4. Assert that the JSON representation matches the expected fixture.
+    5. Convert the JSON representation back to a NetworkX graph.
+    6. Convert the NetworkX graph back to an RDKit Mol object.
+    7. Convert the RDKit Mol object to a SMILES string.
+    8. Assert that the SMILES string matches the expected SMILES string.
+    The test uses two fixtures:
+    - mol_json_fixture: The expected JSON representation of the molecule.
+    - mol_json_fixture_2: The expected JSON representation of the molecule with a different node_id order.
+    The test ensures that the conversion functions `mol_to_nx`, `nx_to_json`, and `mol_json_to_mol`
+    work correctly and that the resulting molecule is identical to the original.
+    """
     mol_json_fixture = {
         "nodes_tuple": [
             [0, 0, "*", 0, None, False, 0, "1", 0, 0],

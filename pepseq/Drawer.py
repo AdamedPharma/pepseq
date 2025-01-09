@@ -40,19 +40,23 @@ def get_start_x(
     """
     Get starting X coordinate for next line of drawn sequence
 
-    :parameter left_margin: int = left margin of the image
+    :param left_margin: int = left margin of the image
+    :type left_margin: int
 
-    :parameter is_corner: bool = whether the sequence is a corner
+    :param is_corner: bool = whether the sequence is a corner
+    :type is_corner: bool
 
-    :parameter forward: bool = whether the sequence is drawn forward
+    :param forward: bool = whether the sequence is drawn forward
+    :type forward: bool
 
-    :parameter step_x: float = step in X direction
+    :param step_x: float = step in X direction
+    :type step_x: float
 
-    :parameter is_start: bool = whether the sequence is the first in the line
+    :param is_start: bool = whether the sequence is the first in the line
+    :type is_start: bool
 
-    :return: float = X coordinate
-
-    :return: float = X coordinate
+    :return: X coordinate
+    :rtype: float
     """
 
     right_margin = left_margin + (8.6 * step_x)
@@ -73,7 +77,18 @@ def get_start_x(
 
 
 def get_rev_x_and_font_size(symbol: str, variable_font_size: int = True) -> tuple:
-    """ """
+    """
+    Get reverse X coordinate and font size for the symbol
+
+    :param symbol : symbol
+    :type symbol : str
+
+    :param variable_font_size : whether font size is variable
+    :type variable_font_size : bool
+
+    :return: reverse X coordinate and font size
+    :rtype: tuple
+    """
     length = len(symbol)
     if not variable_font_size:
         if length == 1:
@@ -113,7 +128,33 @@ def generate_kwargs_for_text_in_ellipse_balls(
     left_margin: float = 100,
     step_x: float = 100,
 ) -> list:
-    """ """
+    """
+    Generate kwargs for text in ellipse balls
+
+    :param symbols: list of symbols
+    :type symbols: list
+
+    :param y: y coordinate
+    :type y: float
+
+    :param forward: whether the sequence is drawn forward
+    :type forward: bool
+
+    :param is_corner: whether the sequence is a corner
+    :type is_corner: bool
+
+    :param is_start: whether the sequence is the first in the line
+    :type is_start: bool
+
+    :param left_margin: left margin of the image
+    :type left_margin: float
+
+    :param step_x: step in X direction
+    :type step_x: float
+
+    :return: list: list of kwargs
+    :rtype: list
+    """
 
     startx = get_start_x(
         left_margin=left_margin,
@@ -151,7 +192,30 @@ def generate_kwargs_for_ellipse_balls(
     is_start: bool = False,
     left_margin: float = 100,
 ) -> list:
-    """ """
+    """
+    Generate kwargs for ellipse balls
+
+    :param symbols: list of symbols
+    :type symbols: list
+
+    :param y: y coordinate
+    :type y: float
+
+    :param forward: whether the sequence is drawn forward
+    :type forward: bool
+
+    :param is_corner: whether the sequence is a corner
+    :type is_corner: bool
+
+    :param is_start: whether the sequence is the first in the line
+    :type is_start: bool
+
+    :param left_margin: left margin of the image
+    :type left_margin: float
+
+    :return: list: list of kwargs
+    :rtype: list
+    """
     step_x = 100
     startx = get_start_x(
         left_margin=left_margin,
@@ -198,9 +262,11 @@ def get_is_corner(num_iteration: int = None) -> bool:
     """
     Every odd iteration is a corner and even is not corner.
 
-    :parameter num_iteration
+    :param: num_iteration
+    :type: int
 
-    :return: bool = whether the iteration is a corner
+    :return: whether the iteration is a corner
+    :rtype: bool
     """
 
     odd = bool(num_iteration % 2)
@@ -211,10 +277,11 @@ def get_direction(num_iteration: int = None) -> str:
     """
     Every 4th iteration is forward, 1st is reverse, 2nd is reverse, 3rd is forward
 
-    :parameter num_iteration
+    :param num_iteration
+    :type num_iteration
 
-    :return: str = direction of the iteration
-
+    :return: direction of the iteration
+    :rtype: str
     """
     remainder = num_iteration % 4
     if remainder in [0, 3]:
@@ -233,14 +300,17 @@ def get_fragment_length(
     If length of remaining sequence is less than fragment length,
       fragment length is the length of the remaining sequence.
 
-    :parameter remaining_length: int = length of the remaining sequence
+    :param remaining_length: length of the remaining sequence
+    :type remaining_length: int
 
-    :parameter num_iteration: int = iteration number
+    :param num_iteration: iteration number
+    :type num_iteration: int
 
-    :parameter lengths: dict = dictionary of lengths for first, corner and standard fragments
+    :param lengths: dictionary of lengths for first, corner and standard fragments
+    :type lengths: dict
 
-    :return: int = length of the fragment
-
+    :return: length of the fragment
+    :rtype: int
     """
     is_first = num_iteration == 0
     if is_first:
@@ -262,10 +332,11 @@ def schema_layout_generator_from_symbols(symbols: list):
     Each tuple contains a list of symbols, length of the fragment,
       direction of the fragment and whether the fragment is a corner.
 
-    :parameter symbols: list = list of symbols
+    :param symbols: list of symbols
+    :type symbols: list
 
-    :return: generator = generator of schema layout
-
+    :return: generator: generator of schema layout
+    :rtype: generator
     """
     remaining_symbols = symbols
     remaining_symbols.reverse()
@@ -303,9 +374,26 @@ def get_fragment_kwargs(
     is_corner: bool = False,
 ) -> tuple:
     """
-    seq_fragment, fragment_length, fragment_direction, is_corner = fragment
+    :param symbols: list of symbols
+    :type symbols: list
 
+    :param y: y coordinate
+    :type y: float
+
+    :param is_start: whether the sequence is the first in the line
+    :type is_start: bool
+
+    :param fragment_direction: direction of the fragment
+    :type fragment_direction: str
+
+    :param is_corner: whether the fragment is a corner
+    :type is_corner: bool
+
+    :return: tuple = tuple of kwargs for ellipse balls and text in ellipse balls
+    seq_fragment, fragment_length, fragment_direction, is_corner = fragment
+    :rtype: tuple
     """
+
     if fragment_direction == "forward":
         forward = True
     elif fragment_direction == "reverse":
@@ -323,6 +411,12 @@ def get_fragment_kwargs(
 def get_N_terminus_params(params: dict) -> dict:
     """
     gets N terminus params
+
+    :param params: dictionary of parameters
+    :type params: dict
+
+    :return: dictionary of parameters
+    :rtype: dict
     """
     out_params = copy.deepcopy(params)
     mod_params = {
@@ -340,7 +434,17 @@ def get_N_terminus_params(params: dict) -> dict:
 def get_C_terminus_params(params: dict, previous_params: dict) -> dict:
     """
     gets C terminus params
+
+    :param params: dictionary of parameters
+    :type params: dict
+
+    :param previous_params: dictionary of previous parameters
+    :type previous_params: dict
+
+    :return: dictionary of parameters
+    :rtype: dict
     """
+
     c_terminus_x = params["x"]
     out_params = copy.deepcopy(params)
 
@@ -365,6 +469,17 @@ def get_C_terminus_params(params: dict, previous_params: dict) -> dict:
 
 def get_kwargs_from_symbols(symbols: list, termini_present: list = ["N", "C"]) -> tuple:
     """
+    Get kwargs from symbols
+
+    :param symbols: list of symbols
+    :type symbols: list
+
+    :param termini_present: whether N terminus different than 'H' and whether C terminus different than 'OH' is present
+    :type termini_present: list
+
+    :return: all_kwargs_list, all_kwargs_text_list: tuple of kwargs for ellipse balls and text in ellipse balls
+    :rtype: tuple
+
     symbols = [
         'CH3', 'Y', 'aMeAla', 'Q', 'G', 'T', 'F', 'T', 'S', 'D', 'Y', 'S', 'K', 'Y', 'L'] + \
     ['D', 'E', 'Cys(R1)', 'A', 'A', 'K', 'D', 'F', 'V', 'Cys(R2)', 'W', 'L', 'L', 'D', 'H', 'H'] + \
@@ -440,6 +555,29 @@ def draw_ellipse_ball(
 
     Outline of ellipse is grey (0.3, 0.3, 0.3)
 
+    :param cairo_context: cairo context
+    :type cairo_context: cairo.Context
+
+    :param x: x coordinate
+    :type x: int
+
+    :param y: y coordinate
+    :type y: int
+
+    :param rgb_fractions: RGB fractions
+    :type rgb_fractions: tuple
+
+    :param outline_rgb_fractions: RGB fractions for outline
+    :type outline_rgb_fractions: tuple
+
+    :param outline_width: width of the outline
+    :type outline_width: int
+
+    :param radius: radius of the ellipse
+    :type radius: int
+
+    :return: cairo.Context: cairo context
+    :rtype: cairo.Context
     """
 
     cairo_context.save()
@@ -469,6 +607,14 @@ def draw_ellipse_balls(
 
     Outline of ellipse is grey (0.3, 0.3, 0.3)
 
+    :param cairo_context: cairo context
+    :type cairo_context: cairo.Context
+
+    :param keyword_args_sequence: list of keyword argument dictionaries
+    :type keyword_args_sequence: list
+
+    :return: cairo context
+    :rtype: cairo.Context
     """
     for kwargs in keyword_args_sequence:
         x = kwargs["x"]
@@ -499,6 +645,24 @@ def draw_text_in_ellipse(
     The color of text is white
     and font is Purisa
 
+    :param cairo_context: cairo context
+    :type cairo_context: cairo.Context
+
+    :param x: x coordinate
+    :type x: int
+
+    :param y: y coordinate
+    :type y: int
+
+    :param text: text to be written
+    :type text: str
+
+    :param font_size: font size
+    :type font_size: int
+
+    :return: cairo context
+    :rtype: cairo.Context
+
     """
     text_rgb_fractions = (1.0, 1.0, 1.0)
     cairo_context.set_source_rgb(*text_rgb_fractions)
@@ -522,6 +686,14 @@ def draw_text_in_ellipse_balls(
     The color of text is white
     and font is Purisa
 
+    :param cairo_context: cairo context
+    :type cairo_context: cairo.Context
+
+    :param keyword_args_sequence: list of keyword argument dictionaries
+    :type keyword_args_sequence: list
+
+    :return: cairo context
+    :rtype: cairo.Context
     """
     for kwargs in keyword_args_sequence:
         x = kwargs["x"]
@@ -536,6 +708,12 @@ def get_png_string_from_surface(surface: cairo.ImageSurface) -> bytes:
     """
     turns cairo.ImageSurface into png byte buffer
     and then into PNG image format string
+
+    :param surface: cairo image surface
+    :type surface: cairo.ImageSurface
+
+    :return: PNG image format string
+    :rtype: bytes
     """
     buffer = BytesIO()
     surface.write_to_png(buffer)  # _stream
@@ -559,19 +737,24 @@ def draw_symbols(
 
     From symbols list (a sequence already split into residue symbols)
 
-    :parameter symbols: list = residue symbols
+    :param symbols: residue symbols
+    :type symbols: list
 
-    :parameter width: int = image width (px)
+    :param width: image width (px)
+    :type width: int
 
-    :parameter height: int = image height (px)
+    :param height: image height (px)
+    :type height: int
 
-    :parameter termini_present: list = whether N terminus different than 'H'
+    :param termini_present: whether N terminus different than 'H'
       is present and/or whether C terminus different than 'OH' is present
+    :type termini_present: list
 
-    :parameter out: str = output file name
+    :param out: output file name
+    :type out: str
 
-    :return: str = PNG image format string
-
+    :return: PNG image format string
+    :rtype: str
     """
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     cairo_context = cairo.Context(surface)
