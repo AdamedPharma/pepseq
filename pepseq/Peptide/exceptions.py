@@ -1,4 +1,7 @@
 class ValidationError(Exception):
+    """
+    Base class for validation errors.
+    """
     def __init__(self, msg):
         super().__init__()
         self.msg = msg
@@ -8,38 +11,66 @@ class ValidationError(Exception):
 
 
 class AttachmentPointsMismatchError(ValidationError):
+    """
+    Raised when the number of attachment points on the sequence does not match the
+     number of attachment points in the SMILES string.
+    """
     pass
 
 
 class AttachmentPointsNonUniqueError(ValidationError):
+    """
+    Raised when attachment points are not unique.
+    """
     pass
 
 
 class UnattachedSmilesError(ValidationError):
+    """
+    Raised when an attachment point in the SMILES string is not attached to the sequence.
+    """
     pass
 
 
 class InvalidSmilesError(ValidationError):
+    """
+    Raised when the SMILES string is invalid.
+    """
     pass
 
 
 class InvalidSymbolError(ValidationError):
+    """
+    Raised when the symbol is invalid
+    """
     pass
 
 
 class InvalidSequenceError(ValidationError):
+    """
+    Raised when the sequence is invalid.
+    """
     pass
 
 
 class NestedBracketError(ValidationError):
+    """
+    Raised when a bracket is nested within another bracket
+    """
     pass
 
 
 class ParenthesesError(ValidationError):
+    """
+    Raised when parentheses are not balanced.
+    """
     pass
 
 
 class TerminusError(Exception):
+    """
+    Raised when termini are not properly defined.
+    """
     def __init__(self):
         self.message = (
             " Only one of termini has been defined with tilde (~)"
@@ -59,6 +90,9 @@ class TerminusError(Exception):
 
 
 class ExcessTildeError(Exception):
+    """
+    Raised when there are more than 2 tildes in the sequence.
+    """
     def __init__(self):
         self.message = (
             " Sequence string must contain 0 or 2"

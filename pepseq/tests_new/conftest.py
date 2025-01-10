@@ -1,32 +1,5 @@
-# content of conftest.py
-import pytest
 import rdkit
 import rdkit.Chem
-
-TERMS_LIST = [
-  [[4, 3], [-2, 1]],
-  [[-4, 3], [-2, 1]]
-]
-
-
-class Polynomial(object):
-    def __init__(self, params):
-        #poly = Polynomial([[4, 3], [-2, 1]])
-        #exponents = [term[1] for term in poly.terms]
-        self.params = params
-        #self.terms = [i[0] for i in self.params]
-        self.terms = self.params
-
-        return
-    
-    def derivative(self):
-        return self.__class__(self.params)
-    
-
-
-@pytest.fixture(scope='module', params=TERMS_LIST)
-def poly(request):
-  return Polynomial( request.param )
 
 
 s1l_vs_smiles = (
@@ -54,7 +27,6 @@ s1l_vs_smiles = (
         + "[H])(C(C)C)C(=O)N[C@]([H])(CC(=O)N)C(=O)N[C@]([H])(CCSC)C(=O)O",
     ),
 )
-
 
 
 s1l_vs_canonical_smiles = (
@@ -91,8 +63,6 @@ s1l_vs_canonical_smiles = (
         + "NC(=O)[C@H](Cc1ccc(O)cc1)NC(=O)[C@H](CCCCN)NC(=O)[C@H](CO)NC(=O)[C@"
         + "H](Cc1ccc(O)cc1)NC(=O)[C@H](CC(=O)O)NC(=O)[C@H](CO)NC(=O)[C@@H](NC("
         + "=O)[C@H](Cc1ccccc1)NC(=O)[C@@H](NC(=O)CNC(=O)[C@H](CCC(N)=O)NC(=O)C"
-        + "(C)(C)NC(=O)[C@H](Cc1ccc(O)cc1)NSPSC)[C@@H](C)O)[C@@H](C)O)C(C)C"
+        + "(C)(C)NC(=O)[C@H](Cc1ccc(O)cc1)NSPSC)[C@@H](C)O)[C@@H](C)O)C(C)C",
     ),
 )
-
-# https://remusao.github.io/posts/pytest-param.html

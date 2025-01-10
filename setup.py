@@ -5,10 +5,8 @@ setup(
     version="1.0",
     description="Module to Read And Write Modified Peptide Repsesentations",
     author="MS",
-    packages=(
-        find_packages(where=".")
-    ),
-    package_data={'':['pepseq/Peptide/database/db.json','Peptide/database/db.json']},
+    packages=(find_packages(where=".")),
+    package_data={"": ["pepseq/Peptide/database/db.json", "Peptide/database/db.json"]},
     include_package_data=True,
     author_email="omitted_for_now",
     install_requires=[
@@ -34,6 +32,6 @@ setup(
         "six==1.16.0",
         "tomli==2.0.1",
         "tqdm==4.66.1",
-        "tzdata==2023.3"
-        ],
+        "tzdata==2023.3",
+    ],
 )

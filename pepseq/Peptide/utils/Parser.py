@@ -13,11 +13,15 @@ def output_modified_residue(ResName: str, R_id: str) -> str:
     e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility
 
 
-    :parameter ResName: one letter symbol of Residue e.g. C for Cysteine; K for Lysine: str
+    :param: ResName: one letter symbol of Residue e.g. C for Cysteine; K for Lysine
+    :type: ResName: str
 
-    :parameter R_id: sequence attachment point id: str
+    :param: R_id: sequence attachment point id
+    :type: R_id: str
 
-    :return: radical_name - string in the form '{ResidueName}(R{radical_id})', e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility: str
+    :return: radical_name - string in the form '{ResidueName}(R{radical_id})',
+      e. g. Cys(R1); Lys(R2) residue names are changed to three letter for better legibility
+    :rtype: str
 
     """
     d = {"C": "Cys", "K": "Lys"}
@@ -62,9 +66,6 @@ def find_parentheses(sequence_txt: str) -> list:
 
     """
 
-    # The indexes of the open parentheses are stored in a stack, implemented
-    # as a list
-
     stack = []
     parentheses_locs = {}
     for i, c in enumerate(sequence_txt):
@@ -99,7 +100,6 @@ def parse_canonical(canonical_sequence: str) -> list[str]:
     symbols = []
     previous_close_index = 0
     for open_index, close_index in indices_of_brackets:
-
         one_letter_codes_fragment = canonical_sequence[previous_close_index:open_index]
         symbols += list(one_letter_codes_fragment)
 
@@ -121,14 +121,13 @@ def parse_canonical2(canonical_sequence: str) -> list:
 
     :return: list of fragments of symbols denoting residues e.g. ['CSCAH', '{Aib}', 'CDE']
     :rtype: list[str]
-    
+
     remainder is also appended to sequence
     """
     indices_of_brackets = find_parentheses(canonical_sequence)
     symbols = []
     previous_close_index = 0
     for open_index, close_index in indices_of_brackets:
-
         one_letter_codes_fragment = canonical_sequence[previous_close_index:open_index]
         symbols += list(one_letter_codes_fragment)
 
@@ -141,7 +140,6 @@ def parse_canonical2(canonical_sequence: str) -> list:
     return symbols
 
 
-
 def find_termini(sequence_str: str, db_json: dict) -> tuple:
     """
     :param sequence_str:
@@ -151,28 +149,22 @@ def find_termini(sequence_str: str, db_json: dict) -> tuple:
     :type  db_json: dict
 
     :return output_tuple: tuple in the form of (n_term, c_term, sequence_str_wo_termini)
+    :rtype: tuple
     """
     sequence_split = sequence_str.split("~")
-    #print(sequence_split)
-
 
     n_fragments = len(sequence_split)
 
-    #print(n_fragments)
-
     if n_fragments == 1:
         return "H", "OH", sequence_str
-    
+
     elif n_fragments == 3:
-
         n_term, sequence_str, c_term = sequence_split
-        return n_term,  c_term, sequence_str
-
+        return n_term, c_term, sequence_str
 
     elif n_fragments > 3:
-
         return
-    
+
     elif n_fragments == 2:
         print(sequence_split)
 
@@ -185,19 +177,20 @@ def find_termini(sequence_str: str, db_json: dict) -> tuple:
         n_term = "H"
         c_term = "OH"
 
-        n_wrapped_in_brackets = ('[' in potential_n_term) and (']' in potential_n_term)
+        n_wrapped_in_brackets = ("[" in potential_n_term) and ("]" in potential_n_term)
 
         if n_wrapped_in_brackets or (potential_n_term in n_terms):
             n_term = potential_n_term
             seq_start_index = len(n_term) + 1
             sequence_str_wo_termini = sequence_str[seq_start_index:seq_end_index]
-            
+
             output_tuple = n_term, c_term, sequence_str_wo_termini
             print(output_tuple)
             return output_tuple
         else:
-        
-            c_wrapped_in_brackets = ('[' in potential_c_term) and (']' in potential_c_term)
+            c_wrapped_in_brackets = ("[" in potential_c_term) and (
+                "]" in potential_c_term
+            )
             if c_wrapped_in_brackets or (potential_c_term in c_terms):
                 c_term = potential_c_term
                 seq_end_index = -1 * (len(c_term) + 1)
@@ -208,7 +201,7 @@ def find_termini(sequence_str: str, db_json: dict) -> tuple:
 
 def get_canonical(sequence_str: str, db_json: dict) -> str:
     """
-    :param sequence_str: 
+    :param sequence_str:
     :type  sequence_str: str
 
     :param db_json: database with info about monomers/building blocks of modified peptides

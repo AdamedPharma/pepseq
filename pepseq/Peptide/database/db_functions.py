@@ -2,8 +2,10 @@ def get_coding(db_json: dict) -> dict:
     """
     Get the coding dictionary from the database JSON file.
     :param db_json: The database JSON file.
+    :type db_json: dict
 
     :return: The coding dictionary.
+    :rtype: dict
     """
 
     keys = [
