@@ -11,7 +11,7 @@ Examples:
         read_smiles, augment_db_json_command
     >>> pepseq_to_smiles('CH3~SCAFC~NH2')
 
-    >>> calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC')
+    >>> calculate_json_from('CH3~SC{R1}AFC~NH2', '[*:1]CCC')
 
     >>> read_smiles('mypeptide.smi', 'myppeptide_out')
 
@@ -38,7 +38,7 @@ import typer
 from pepseq.read import from_pepseq
 from pepseq.functions import calculate
 
-from typing import List, Optional
+from typing import List, Optional, Union
 from typing_extensions import Annotated
 
 import rdkit.Chem.PandasTools
@@ -59,7 +59,7 @@ app = typer.Typer()
 
 
 @app.command()
-def pepseq_to_smiles(pepseq: str, out: str = None, db_path: str = None) -> str:
+def pepseq_to_smiles(pepseq: str, out: Union[str, None], db_path: Union[str, None]) -> str:
     """
     Return SMILES code for Modified Peptide given by text in Pepseq Format.
 
@@ -75,12 +75,12 @@ def pepseq_to_smiles(pepseq: str, out: str = None, db_path: str = None) -> str:
 
     Example Pepseq Format Sequence:
 
-    "[CSPS[1*]]~Y{aMeAla}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[1*]]"
+    "[CSPS[*:1]]~Y{aMeAla}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[*:1]]"
 
-     "[CSPS[1*]]~Y{aMeAla}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[1*]]"
+     "[CSPS[*:1]]~Y{aMeAla}QGTFTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[*:1]]"
 
-    python3.10 commands.py pepseq-to-smiles
-        "[CSPS[1*]]~Y{aMeAla}QGT{Orn}FTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[1*]]"
+    python commands.py pepseq-to-smiles
+        "[CSPS[*:1]]~Y{aMeAla}QGT{Orn}FTSDYSKYLDECAAKDFVCWLLDHHPSSGQPPPS~[CNSC[*:1]]"
             --db-path augmented_db.json --out out.smi
     """
     if db_path is None:
@@ -101,7 +101,7 @@ def pepseq_to_smiles(pepseq: str, out: str = None, db_path: str = None) -> str:
 def calculate_json_from(
     sequence: str,
     mod_smiles: Annotated[
-        Optional[List[str]], "List of modification SMILES codes"
+        Optional[Union[List[str],None]], "List of modification SMILES codes"
     ] = None,
     out: str = None,
     db_path: str = None,
@@ -123,13 +123,12 @@ def calculate_json_from(
     :return: SMILES code.
     :rtype: dict
 
-
     Example:
 
     import pepseq
     pepseq.commands.calculate_json_from
     '{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF'
-    --mod-smiles '[1*]CNCC[2*]' --mod-smiles '[3*]CNCCSP'
+    --mod-smiles '[*:1]CNCC[*:2]' --mod-smiles '[*:3]CNCCSP'
 
     """
     kwargs = {}
@@ -182,9 +181,9 @@ def read_smiles(
 
     Example:
 
-    python3.10 commands.py read-smiles 'stuff_in.smi'   --db-path augmented_db.json --out stuff
+    python commands.py read-smiles 'stuff_in.smi'   --db-path augmented_db.json --out stuff
 
-    python3.10 commands.py read-smiles 'smilesy.smi' --out smilesy_out
+    python commands.py read-smiles 'smilesy.smi' --out smilesy_out
 
     """
     with open(smiles_filename) as fp:

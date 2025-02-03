@@ -122,7 +122,5 @@ def test_calculate_json_from(data_calculate):
         The JSON result from `calculate_json_from` matches the expected result.
     """
     args, result = data_calculate
-    # result_jsons_are_identical(calculate(*args), result)
-    # calculate_json_from('CH3~SC{R1}AFC~NH2', '[*1]CCC')
     kwargs = {}
     assert result_jsons_are_identical(calculate_json_from(*args, **kwargs), result)
