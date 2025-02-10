@@ -71,15 +71,13 @@ def test_decompose_peptide_smiles():
         - The JSON output from `decompose_peptide_smiles_with_termini` matches
           `peptide_json_w_termini_fixture`.
     """
-    smiles_fixture = "".join(
-        [
-            "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H]",
-            "(CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)",
-            "[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CC",
-            "CN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H]",
-            "(CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O",
-        ]
-    )
+    smiles_fixture = (
+            "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H]"
+            "(CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)"
+            "[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2CC"
+            "CN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H]"
+            "(CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O"
+            )
 
     peptide_json_fixture = {
         "sequence": "CACDAPEPsEQCGCDEF",

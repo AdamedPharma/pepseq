@@ -84,8 +84,8 @@ def from_json(peptide_json: Dict[str, Any], db: Dict = db_json) -> Peptide:
     {"sequence":"H{Aib}EGTFTSDVSSYLEGQAAKEFIAWLVRGRG",
         "modifications":[
             "modification_smiles":
-            "[\\*1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOC" +
-            "COCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[\\*2]",
+            "[\\*:1]CC(=O)NCCCC(NC(C)=O)C(=O)Nc1ccc2oc(=O)cc(CC(=O)NCCOC" +
+            "COCCC(=O)NCCCCC(NC(=O)CCCCCCCCCCCCCCCCC(=O)O)C(=O)O)c2c1[\\*:2]",
             "connecting_residues": [17, 24]
             }
 
@@ -93,7 +93,7 @@ def from_json(peptide_json: Dict[str, Any], db: Dict = db_json) -> Peptide:
 
     }
 
-    where [\\*1] and [\\*2] are attachement points
+    where [\\*:1] and [\\*:2] are attachement points
 
 
     :param  peptide_json: json representation of the peptide json in format as above

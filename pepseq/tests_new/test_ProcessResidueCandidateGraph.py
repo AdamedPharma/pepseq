@@ -50,7 +50,6 @@ def pytest_generate_tests(metafunc):
         metafunc (Metafunc): The test function to generate test cases for.
     """
     for fixture in metafunc.fixturenames:
-        print(fixture)
         if fixture.startswith("data_"):
             # Load associated test data
             tests = load_tests(fixture)

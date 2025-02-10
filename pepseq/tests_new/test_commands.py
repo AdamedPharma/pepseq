@@ -73,7 +73,6 @@ def pytest_generate_tests(metafunc):
                              being collected.
     """
     for fixture in metafunc.fixturenames:
-        print(fixture)
         if fixture.startswith("data_"):
             # Load associated test data
             tests = load_tests(fixture)

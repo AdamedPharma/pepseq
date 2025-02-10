@@ -60,9 +60,9 @@ def test_building():
     mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     assert (
         rdkit.Chem.MolToSmiles(mol)
-        == "[H]N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@@H](C)C(=O)N["
-        + "C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(=O)O)NC(=O)CNC2=O)N"
-        + "C(=O)[C@H](CO)NC1=O"
+        == ("[H]N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@@H](C)C(=O)N["
+        "C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(=O)O)NC(=O)CNC2=O)N"
+        "C(=O)[C@H](CO)NC1=O")
     )
 
 
@@ -88,8 +88,8 @@ def test_MarkingPeptideBackbone():
     """
     mol_N_C_smiles_val = (
         "CC(=O)N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@"
-        + "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"
-        + "2=O)NC(=O)[C@H](CO)NC1=O"
+        "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"
+        "2=O)NC(=O)[C@H](CO)NC1=O"
     )
 
     peptide_molecule = rdkit.Chem.MolFromSmiles(mol_N_C_smiles_val)
@@ -125,8 +125,8 @@ def test_BreakingIntoResidueCandidateSubgraphs():
     """
     mol_N_C_smiles_val = (
         "CC(=O)N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@"
-        + "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"
-        + "2=O)NC(=O)[C@H](CO)NC1=O"
+        "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"
+        "2=O)NC(=O)[C@H](CO)NC1=O"
     )
 
     peptide_molecule = rdkit.Chem.MolFromSmiles(mol_N_C_smiles_val)

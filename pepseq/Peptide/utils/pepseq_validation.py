@@ -43,7 +43,7 @@ def validate_termini(s: str) -> bool:
         raise ExcessTildeError
 
 
-def check_parentheses(s):
+def check_parentheses(s) -> bool:
     """
     Return True if the parentheses in string s match, otherwise raise ParenthesesError.
 

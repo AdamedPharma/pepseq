@@ -230,8 +230,8 @@ def test_decompose_peptide_smiles_db(data_mol_N_C_smiles):
 
 mol_N_C_smiles_val = (
     "CC(=O)N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@"
-    + "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"
-    + "2=O)NC(=O)[C@H](CO)NC1=O"
+    "@H](C)C(=O)N[C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(N)=O)NC(=O)CNC"
+    "2=O)NC(=O)[C@H](CO)NC1=O"
 )
 
 
@@ -577,19 +577,17 @@ def test_decompose_residues_internal():
         ) == correct_external_modifications[i].get("attachment_points_on_sequence")
 
 
-mol_q_dict_smiles = "".join(
-    [
-        "N=C(N)NCCC[C@H](N)C(N)=O |atomProp:0.hybridization.SP2:0.num_explicit_hs.",
-        "0:1.hybridization.SP2:1.num_explicit_hs.0:2.hybridization.SP2:2.num_",
-        "explicit_hs.0:3.hybridization.SP2:3.num_explicit_hs.0:4.hybridization",
-        ".SP3:4.num_explicit_hs.0:5.hybridization.SP3:5.num_explicit_hs.0:6.",
-        "hybridization.SP3:6.num_explicit_hs.0:7.num_explicit_hs.1:7.ResID.14:7",
-        ".hybridization.SP3:7.AtomName.CA:8.num_explicit_hs.0:8.ResID.14:8.",
-        "hybridization.SP2:8.AtomName.N:9.num_explicit_hs.0:9.ResID.14:9.",
-        "hybridization.SP2:9.AtomName.CO:10.hybridization.SP2:10.",
-        "num_explicit_hs.0:11.num_explicit_hs.0:11.ResID.14:11.hybridization.",
-        "SP2:11.AtomName.O|",
-    ]
+mol_q_dict_smiles = (
+        "N=C(N)NCCC[C@H](N)C(N)=O |atomProp:0.hybridization.SP2:0.num_explicit_hs."
+        "0:1.hybridization.SP2:1.num_explicit_hs.0:2.hybridization.SP2:2.num_"
+        "explicit_hs.0:3.hybridization.SP2:3.num_explicit_hs.0:4.hybridization"
+        ".SP3:4.num_explicit_hs.0:5.hybridization.SP3:5.num_explicit_hs.0:6."
+        "hybridization.SP3:6.num_explicit_hs.0:7.num_explicit_hs.1:7.ResID.14:7"
+        ".hybridization.SP3:7.AtomName.CA:8.num_explicit_hs.0:8.ResID.14:8."
+        "hybridization.SP2:8.AtomName.N:9.num_explicit_hs.0:9.ResID.14:9."
+        "hybridization.SP2:9.AtomName.CO:10.hybridization.SP2:10."
+        "num_explicit_hs.0:11.num_explicit_hs.0:11.ResID.14:11.hybridization."
+        "SP2:11.AtomName.O|"
 )
 mol_q_dict = {"smiles": mol_q_dict_smiles}
 
@@ -970,8 +968,6 @@ def test_decompose():
     modification_graphs_nodes = [list(graph.nodes) for graph in modification_graphs]
 
     subgraph_tuples = get_subgraph_tuples(res_matches, modification_graphs_nodes, G)
-
-    print("subgraph_tuples: ", subgraph_tuples)
 
     name_i, subgraph_i_nodes = subgraph_tuples[3]
 

@@ -3,8 +3,21 @@
 
 Provide several sample math calculations.
 
-This module allows the user to make mathematical calculations.
+Pepseq: chemoinformatic library to work flawlessly with modified peptide structures.
+Pepseq is a library to manage and analyse modified peptide sequences.
+The pepseq format bridges the gap between simplicity of FASTA and expressiveness
+ of SMILES for modified peptides, addressing a real need in chemoinformatics. 
 
+This module allows user to enter modified peptide structure in SMILES format,
+output it in pepseq_format.
+
+Pepseq format is composed of one (or two) parts. First part is a sequence in FASTA
+ format with annotated N and C termini. The second (optional) part is modification(s)
+ defined in SMILES format (with R group(s) in atoms connecting sequence
+ to modification(s)). Connecting residues on peptide sequence are also annotated.  
+Reverse transformation is also possible.
+Monomers used in sequence are defined in database in JSON format (db.json).
+It is possible to augment database with new monomers, e.g. defined in SDF file. 
 
 Examples:
     >>> from pepseq.commands import pepseq_to_smiles, calculate_json_from,
@@ -47,7 +60,7 @@ from pepseq.BuildPeptideJSONFromSMILES import (
     from_smiles_to_pepseq_and_one_mod_smiles_strings,
 )
 from pepseq.augmenting_db_json import augment_db_json
-
+from pepseq.Peptide.database.db_functions import load_db_json
 
 dir_path = os.path.dirname(__file__)
 db_path = os.path.join(dir_path, "pepseq/Peptide/database/db.json")
@@ -59,7 +72,7 @@ app = typer.Typer()
 
 
 @app.command()
-def pepseq_to_smiles(pepseq: str, out: Union[str, None], db_path: Union[str, None]) -> str:
+def pepseq_to_smiles(pepseq: str, out: Union[str, None] = None, db_path: Union[str, None] = None) -> str:
     """
     Return SMILES code for Modified Peptide given by text in Pepseq Format.
 
@@ -133,10 +146,9 @@ def calculate_json_from(
     """
     kwargs = {}
 
-    if db_path is not None:
-        with open(db_path) as fp:
-            db_json = json.load(fp)
-            kwargs["db_json"] = db_json
+    db_json = load_db_json(db_path)
+    if db_json is not None:
+        kwargs["db_json"] = db_json
 
     if type(mod_smiles) == str:
         mod_smiles = [mod_smiles]
@@ -195,11 +207,9 @@ def read_smiles(
 
     for smiles in tqdm(smiles_list):
         kwargs = {}
-
-        if db_path is not None:
-            with open(db_path) as fp:
-                db_json = json.load(fp)
-                kwargs["db_json"] = db_json
+        db_json  = load_db_json(db_path)
+        if db_json is not None:
+            kwargs["db_json"] = db_json
 
         mod_smiles_list = []
 

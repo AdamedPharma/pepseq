@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict
+from typing import Dict, Union
 
 import rdkit
 
@@ -144,7 +144,7 @@ def get_pepseq_json(pepseq_format: str, db_json: Dict = db_json):
 def get_pep_json(
     pepseq_format: str,
     db_json: Dict = db_json,
-    mod_smiles_list: list = None,
+    mod_smiles_list: Union[list, None] = None,
 ) -> Dict:
     """
     Get pep_json
@@ -161,7 +161,7 @@ def get_pep_json(
         where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
         amino acid; {Cys(R1)} - is amino acid
         with staple attached, {Cys(R1)} - amino acid with staple attached
-        mod_smiles example is SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+        mod_smiles example is SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
         modification with attachment
 
     :param pepseq_format: string in pepseq format

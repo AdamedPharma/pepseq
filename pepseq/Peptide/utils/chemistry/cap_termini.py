@@ -1,3 +1,4 @@
+from typing import Union
 import networkx as nx
 import rdkit
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
@@ -62,11 +63,11 @@ def find_max_ResID(G: nx.classes.graph.Graph) -> int:
 
 def cap_terminus(
     mol: rdkit.Chem.rdchem.Mol,
-    terminus: str = None,
-    smiles_building_blocks_db: int = None,
-    TerminusResID: int = None,
+    terminus: Union[str, None] = None,
+    smiles_building_blocks_db: Union[int,None] = None,
+    TerminusResID: Union[int,None] = None,
     ResID: int = 1,
-    terminus_smiles: str = None,
+    terminus_smiles: Union[str,None] = None,
 ) -> rdkit.Chem.rdchem.Mol:
     """
     Cap a terminus of a molecule.
@@ -129,9 +130,9 @@ def cap_terminus(
 
 def cap_N_terminus(
     mol: rdkit.Chem.rdchem.Mol,
-    terminus: str = None,
-    smiles_building_blocks_db: dict = None,
-    terminus_smiles: str = None,
+    terminus: Union[str,None] = None,
+    smiles_building_blocks_db: Union[dict,None] = None,
+    terminus_smiles: Union[str,None] = None,
 ) -> rdkit.Chem.rdchem.Mol:
     """
     Cap the N terminus of a molecule.
@@ -165,9 +166,9 @@ def cap_N_terminus(
 
 def cap_C_terminus(
     mol: rdkit.Chem.rdchem.Mol,
-    terminus: str = None,
-    smiles_building_blocks_db=None,
-    terminus_smiles=None,
+    terminus: Union[str,None] = None,
+    smiles_building_blocks_db: Union[dict,None] = None,
+    terminus_smiles: Union[str,None] = None,
 ) -> rdkit.Chem.rdchem.Mol:
     """
     Cap the C terminus of a molecule.

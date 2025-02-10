@@ -1,7 +1,7 @@
 import json
 import os
 
-from typing import List
+from typing import List, Union
 
 import pepseq.Peptide.utils.validation as validation
 
@@ -52,7 +52,7 @@ def validate(pepseq: str, smiles: List[str] = [], db: dict = db_json):
     validation.validate(pepseq=pepseq, smiles=smiles)
 
 
-def calculate(pepseq: str, smiles: list[str] = [], db: dict = None) -> dict:
+def calculate(pepseq: str, smiles: list[str] = [], db: Union[dict, None] = None) -> dict:
     """
     Calculate properties of peptide sequence
 

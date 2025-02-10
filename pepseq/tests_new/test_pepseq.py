@@ -94,8 +94,8 @@ correct_peptide_json = {
     ],
     "external_modifications": [
         {
-            "smiles": "[*:1]CC(=O)NCC[C@H](NC(=O)C[*:2])C(=O)NCCC(=O)NC"
-            + "COC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O",
+            "smiles": ("[*:1]CC(=O)NCC[C@H](NC(=O)C[*:2])C(=O)NCCC(=O)NC"
+            "COC(=O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"),
             "max_attachment_point_id": 2,
             "attachment_points_on_sequence": {
                 1: {
@@ -118,7 +118,7 @@ correct_peptide_json = {
 
 one_mod_smiles = (
     "[*:1]CC(=O)NCC[C@H](NC(=O)C[*:2])C(=O)NCCC(=O)NCCOC(="
-    + "O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
+    "O)NCC[C@H](NC(=O)CCC(=O)O)C(=O)O"
 )
 
 mod_smiles = "[*:1]CNCC[*:2]"
@@ -127,11 +127,11 @@ mod_smiles_list = [mod_smiles]
 
 correct_smiles = (
     "[H]N[C@@H](Cc1c[nH]cn1)C(=O)NC(C)(C)C(=O)N[C@@H](CC"
-    + "C(N)=O)C(=O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@H]1"
-    + "CSCC(=O)NCC[C@@H](C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)"
-    + "C(=O)O)NC(=O)CSC[C@@H](C(=O)N[C@@H](Cc2ccc(O)cc2)C(=O)N[C@@H](CO"
-    + ")C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)N"
-    + "C1=O)[C@@H](C)O"
+    "C(N)=O)C(=O)NCC(=O)N[C@H](C(=O)N[C@@H](Cc1ccc(O)cc1)C(=O)N[C@H]1"
+    "CSCC(=O)NCC[C@@H](C(=O)NCCC(=O)NCCOC(=O)NCC[C@H](NC(=O)CCC(=O)O)"
+    "C(=O)O)NC(=O)CSC[C@@H](C(=O)N[C@@H](Cc2ccc(O)cc2)C(=O)N[C@@H](CO"
+    ")C(N)=O)NC(=O)[C@H](CCC(N)=O)NC(=O)[C@H](C)NC(=O)[C@H](CC(=O)O)N"
+    "C1=O)[C@@H](C)O"
 )
 
 
@@ -164,7 +164,6 @@ def pytest_generate_tests(metafunc):
                              information about the test function and its fixtures.
     """
     for fixture in metafunc.fixturenames:
-        print(fixture)
         if fixture.startswith("data_"):
             # Load associated test data
             tests = load_tests(fixture)
@@ -248,7 +247,6 @@ def test_from_pepseq_and_one_mod_smiles_strings_to_peptide_json():
     - All other fields in the resulting peptide JSON match the expected values.
     """
     peptide_json = get_pep_json(fixture_pepseq, db_json, [one_mod_smiles])
-    print(peptide_json)
 
     correct_smi = correct_peptide_json.get("external_modifications")[0].pop("smiles")
     assert smiles_are_identical(
@@ -331,14 +329,12 @@ def test_from_smiles_to_pepseq_and_one_mod_smiles_strings():
     assert smiles_are_identical(mod_smiles, one_mod_smiles)
 
     fixture_pepseq_2 = "H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH"
-    fixture_complete_smiles_2 = "".join(
-        [
-            "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H]",
-            "(CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)",
-            "[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2C",
-            "CCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H]",
-            "(CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O",
-        ]
+    fixture_complete_smiles_2 = (
+            "[H]N[C@H]1CSCNCCSC[C@@H](C(=O)NCC(=O)N[C@@H](CSCNCCSP)C(=O)N[C@@H]"
+            "(CC(=O)O)C(=O)N[C@@H](CCC(=O)O)C(=O)N[C@@H](Cc2ccccc2)C(=O)O)NC(=O)"
+            "[C@H](CCC(N)=O)NC(=O)[C@H](CCC(=O)O)NC(=O)[C@@H](CO)NC(=O)[C@@H]2C"
+            "CCN2C(=O)[C@H](CCC(=O)O)NC(=O)[C@@H]2CCCN2C(=O)[C@H](C)NC(=O)[C@H]"
+            "(CC(=O)O)NC(=O)[C@H](CS)NC(=O)[C@H](C)NC1=O"
     )
 
     fixture_mod_smiles_2 = ["[*:1]CNCC[*:2]", "[*:3]CNCCSP"]
@@ -459,7 +455,6 @@ def test_get_ext_mod_json():
     ext_mod_json_created = pepseq.get_peptide_json_from_pepseq_format.get_ext_mod_json(
         base_seq_fixture, mod_smiles_list
     )
-    print(ext_mod_json_created)
     ext_mod_json_fx = [
         {
             "smiles": "[*:1]CNCC[*:2]",
@@ -501,7 +496,6 @@ def test_get_attachment_points_on_sequence_json():
         - The returned attachment points should match the expected attachment points.
     """
     att_points = get_attachment_points_on_sequence_json(base_seq_fixture)
-    print(att_points)
     assert att_points == attachment_points_on_sequence
 
 

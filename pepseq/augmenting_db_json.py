@@ -438,7 +438,7 @@ def get_substructure_relations(mols: list[rdkit.Chem.rdchem.Mol]) -> list:
     return substructure_relations
 
 
-def order_graph_nodes_from_root_to_leaves(G: nx.DiGraph, aa_codes: list[str]):
+def order_graph_nodes_from_root_to_leaves(G: nx.DiGraph, aa_codes: list[str]) -> list:
     """
     :param G: directed graph of substructure relations
     :type G:  nx.DiGraph

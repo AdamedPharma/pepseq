@@ -4,6 +4,7 @@ import pandas as pd
 import rdkit
 import rdkit.Chem
 from pepseq.augmenting_db_json import augment_db_json, get_smiles_set
+from pepseq.tests_new.helpers import check_db_json_all_keys
 
 
 db_json_ori_CDG = {
@@ -290,9 +291,10 @@ def test_augment_db_json():
     db_json_CDG_augmented = augment_db_json(
         db_json_ori_CDG_copy, df_sdf=df_sdf_mask_copy_read, name_column="m_abbr", mol_colname="ROMol"
     )
+    assert check_db_json_all_keys(db_json_CDG_augmented, db_json_CDG_augmented_fixture)
     with open('db_json_CDG_augmented.json', 'w') as fp:
         json.dump(db_json_CDG_augmented, fp)
-    assert db_json_CDG_augmented == db_json_CDG_augmented_fixture
+
     return
 
 

@@ -21,7 +21,6 @@ def get_cx_smarts_db(db_json: dict) -> dict:
 
     :return: cx_smarts_db: dictionary of CX_SMARTS_DB
     :rtype: dict
-
     """
     cx_smarts_db = {}
     smiles_dict = db_json["smiles"].get("aa")
@@ -50,13 +49,13 @@ def decompose_peptide_smiles(smiles: str, db_json: dict, n_subst_limit=None) -> 
 
     :return: peptide_json: JSON containing info about modified peptide with 'sequence',
     'internal_modifications', 'external_modifications':
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
 
     modification with attachment points:
 
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
 
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
 
     :rtype peptide_json: dict
      """
@@ -86,10 +85,10 @@ def get_terminal_smiles_building_block(
 
     :param peptide_json: JSON containing info about modified peptide with 'sequence',
     'internal_modifications', 'external_modifications':
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
     modification with attachment points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
     :type peptide_json: dict
 
     :param ResID: residue ID
@@ -125,10 +124,10 @@ def get_C_terminal_smiles_building_block(peptide_json: dict) -> tuple:
 
     :param peptide_json: JSON containing info about modified peptide with 'sequence',
     'internal_modifications', 'external_modifications':
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
     modification with attachment points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
     :type peptide_json: dict
 
     :return: tuple of smiles and index
@@ -143,10 +142,10 @@ def get_N_terminal_smiles_building_block(peptide_json: dict) -> tuple:
 
     :param peptide_json: JSON containing info about modified peptide with 'sequence',
     'internal_modifications', 'external_modifications':
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
     modification with attachment points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
     :type peptide_json: dict
 
     :return: tuple of smiles and index
@@ -203,10 +202,10 @@ def get_c_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
 
     :param peptide_json: JSON containing info about modified peptide with 'sequence',
     'internal_modifications', 'external_modifications':
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
     modification with attachment points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
     :type peptide_json: dict
 
     :param db_json: JSON containing the mapping of symbols to amino acids
@@ -231,11 +230,11 @@ def get_n_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
 
     :param peptide_json: JSON containing info about modified peptide with 'sequence',
     'internal_modifications', 'external_modifications':
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
 
     modification with attachment points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
     :type peptide_json: dict
 
     :param db_json: JSON containing the mapping of symbols to amino acids
@@ -280,10 +279,10 @@ def append_pepseq_R_info(j: dict) -> str:
 
     :param j: JSON containing info about modified peptide with 'sequence',
     'internal_modifications', 'external_modifications':
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
     modification with attachment points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
     :type j: dict
 
     :return: new_seq: new sequence
@@ -316,10 +315,10 @@ def decompose_peptide_smiles_with_termini(
     SMILES codes
     peptide_json: JSON containing info about modified peptide with 'sequence', 'internal_modifications',
     'external_modifications':
-    mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
     modification with attachment points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
 
     :param smiles: SMILES code representing modified peptide molecule
     :type smiles: str
@@ -402,10 +401,10 @@ def from_smiles_to_pepseq_and_mod_smiles_strings(
     amino acid; {Cys(R1)} - is amino acid with staple attached, {Cys(R1)} - amino acid with staple attached
     modifications - external ones, with attachment points
     mod_smiles:
-    SMILES string (e.g. '[1*]C[2*]') - showing the structure of modification with attachment
+    SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of modification with attachment
     points:
-    { Cys(R1) } <- is attached in [1*] attachment point on staple
-    { Cys(R2) } <- is attached in [2*] attachment point on staple
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
 
     :param smiles: SMILES code of the peptide
     :type smiles: str
@@ -441,10 +440,10 @@ def from_smiles_to_pepseq_and_one_mod_smiles_strings(
         where H~ is N-terminus; ~OH is C_terminus, {aMeAla} is modified
         amino acid; {Cys(R1)} - is amino acid
         modifications - external ones, with attachment points
-        mod_smiles: SMILES string (e.g. '[1*]C[2*]') - showing the structure of
+        mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
         modification with attachment points:
-        { Cys(R1) } <- is attached in [1*] attachment point on staple
-        { Cys(R2) } <- is attached in [2*] attachment point on staple
+        { Cys(R1) } <- is attached in [*:1] attachment point on staple
+        { Cys(R2) } <- is attached in [*:2] attachment point on staple
 
         :param smiles: string of peptide sequence with modified amino acids
             SMILES - string of peptide sequence with modified amino acids

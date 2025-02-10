@@ -91,7 +91,7 @@ def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
         if type(decomposition) == tuple:
             res_name, attachment_point_id = decomposition
             res_id = symbol_id + 1
-            print(res_id, res_name, attachment_point_id)
+
 
             decomposition_tuples.append((res_id, res_name, attachment_point_id))
 
@@ -99,7 +99,7 @@ def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
         attachment_point_json = get_attachment_point_json(
             res_id, (res_name, attachment_point_id)
         )
-        print(attachment_point_json)
+
         att_point_id = int(attachment_point_id)
         if att_points.get(att_point_id) is not None:
             raise AttachmentPointsNonUniqueError(

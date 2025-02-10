@@ -3,6 +3,8 @@ import copy
 from io import BytesIO
 
 import cairo
+from typing import Union
+
 
 aa_color_dict = {
     "F": {"hexcolor": "#649DA0", "rgb_fractions": (0.390625, 0.61328125, 0.625)},
@@ -32,10 +34,10 @@ aa_color_dict = {
 
 def get_start_x(
     left_margin: int = 100,
-    is_corner: bool = None,
-    forward: bool = None,
-    step_x: float = None,
-    is_start: bool = None,
+    is_corner: Union[bool, None] = None,
+    forward: Union[bool, None] = None,
+    step_x: Union[float, None] = None,
+    is_start: Union[bool, None] = None,
 ) -> float:
     """
     Get starting X coordinate for next line of drawn sequence
@@ -76,7 +78,7 @@ def get_start_x(
             return last_right
 
 
-def get_rev_x_and_font_size(symbol: str, variable_font_size: int = True) -> tuple:
+def get_rev_x_and_font_size(symbol: str, variable_font_size: Union[int, bool] = True) -> tuple:
     """
     Get reverse X coordinate and font size for the symbol
 
@@ -258,7 +260,7 @@ def generate_kwargs_for_ellipse_balls(
     return kwargs_list
 
 
-def get_is_corner(num_iteration: int = None) -> bool:
+def get_is_corner(num_iteration: Union[int, None] = None) -> bool:
     """
     Every odd iteration is a corner and even is not corner.
 
@@ -273,7 +275,7 @@ def get_is_corner(num_iteration: int = None) -> bool:
     return odd
 
 
-def get_direction(num_iteration: int = None) -> str:
+def get_direction(num_iteration: Union[int, None] = None) -> str:
     """
     Every 4th iteration is forward, 1st is reverse, 2nd is reverse, 3rd is forward
 
@@ -291,8 +293,8 @@ def get_direction(num_iteration: int = None) -> str:
 
 
 def get_fragment_length(
-    remaining_length: int = None,
-    num_iteration: int = None,
+    remaining_length: Union[int, None] = None,
+    num_iteration: Union[int, None] = None,
     lengths: dict = {"first": 9, "corner": 1, "standard": 8},
 ) -> int:
     """
@@ -727,7 +729,7 @@ def draw_symbols(
     width: int = 1024,
     height: int = 1024,
     termini_present: list = ["N", "C"],
-    out: str = None,
+    out: Union[str, None] = None,
 ) -> str:
     """
     Example of symbols list is [
