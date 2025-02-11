@@ -8,7 +8,7 @@ from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_t
 AminoAcidInstance = TypeVar("AminoAcidInstance")
 
 
-def smi_to_G(smiles: str) -> nx.classes.graph.Graph:
+def smiles_to_g(smiles: str) -> nx.classes.graph.Graph:
     """
     Converts a SMILES string to a nx.classes.graph.Graph object of the molecule
 
@@ -142,7 +142,7 @@ def get_residues_Gs(residue_symbols: list, smiles_building_blocks_db: dict) -> l
     for i in range(len(residue_symbols)):
         res_symbol = residue_symbols[i]
         res_smiles = smiles_building_blocks_db[res_symbol]
-        res_G = smi_to_G(res_smiles)
+        res_G = smiles_to_g(res_smiles)
 
         nx.set_node_attributes(res_G, i + 1, name="ResID")
 
