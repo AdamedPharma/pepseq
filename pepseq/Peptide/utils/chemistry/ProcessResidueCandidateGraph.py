@@ -1,4 +1,4 @@
-from typing import Tuple, Tuple
+from typing import Tuple, List
 
 from tqdm import tqdm
 
@@ -924,6 +924,8 @@ def translate_attachment_points_on_seq(attachment_points_on_seq, offset=0):
     :return: A dictionary with the keys shifted by the specified offset.
     :rtype: dict
     """
+    if offset < 0:
+        raise ValueError("While translating attachment point on sequence: The offset must be a non-negative integer.")
 
     keys = sorted(list(attachment_points_on_seq.keys()))[::-1]
     for attachment_point_id in keys:
