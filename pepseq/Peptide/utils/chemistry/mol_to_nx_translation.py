@@ -48,9 +48,8 @@ def mol_to_nx(mol: rdkit.Chem.rdchem.Mol) -> nx.classes.graph.Graph:
             kwargs[prop] = prop_val
 
         map_num = atom.GetAtomMapNum()
-        if map_num is not None:
-            if map_num != 0:
-                kwargs["molAtomMapNumber"] = map_num
+        if (map_num is not None) and (map_num != 0):
+            kwargs["molAtomMapNumber"] = map_num                
 
         if kwargs.get("num_explicit_hs") is not None:
             kwargs.pop("num_explicit_hs")
