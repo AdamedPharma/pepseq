@@ -23,9 +23,9 @@ def smiles_to_g(smiles: str) -> nx.classes.graph.Graph:
     return G
 
 
-def is_R_node(v: dict, ResID: int, r_id: int) -> bool:
+def is_R_node(v: dict, ResID: int, r_node_id: int) -> bool:
     """
-    Returns True if the node is a R node with the given ResID and r_id
+    Returns True if the node is a R node with the given ResID and r_node_id
 
     :param v: Node attributes
     :type v: dict
@@ -33,12 +33,15 @@ def is_R_node(v: dict, ResID: int, r_id: int) -> bool:
     :param ResID: Residue ID
     :type ResID: int
 
-    :return: True if the node is a R node with the given ResID and r_id
+    :param r_node_id: R node ID
+    :type r_node_id: int
+
+    :return: True if the node is a R node with the given ResID and r_node_id
     :rtype: bool
     """
     return (
         (v["atomic_num"] == 0)
-        and (v.get("molAtomMapNumber") == r_id)
+        and (v.get("molAtomMapNumber") == r_node_id)
         and (v["ResID"] == ResID)
     )
 
