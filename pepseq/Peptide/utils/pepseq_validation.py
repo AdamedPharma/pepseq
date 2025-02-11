@@ -41,6 +41,7 @@ def validate_termini(s: str) -> bool:
         return True
     elif tilde_num > 2:
         raise ExcessTildeError
+    return True
 
 
 def check_parentheses(s) -> bool:
@@ -95,6 +96,7 @@ def check_for_nested_brackets(s):
                 open_bracket = False
             else:
                 raise ValidationError("Misplaced '}' Brackets")
+    return True
 
 
 def get_all_available_symbols(db: dict):
@@ -148,7 +150,7 @@ def validate_monomers_in_database(pepseq_format: str, db: dict):
             "Residue Symbols: %s not found in database."
             % ", ".join(list(db_symbols_404))
         )
-    return
+    return True
 
 
 def validate_pepseq(pepseq: str, db: dict = db_json):
@@ -173,3 +175,4 @@ def validate_pepseq(pepseq: str, db: dict = db_json):
     check_parentheses(pepseq)
     check_for_nested_brackets(pepseq)
     validate_monomers_in_database(pepseq, db)
+    return True
