@@ -58,9 +58,6 @@ class GetLongestPolymerWithin(Functionality):
 
     """
 
-    def __init__(self):
-        return
-
     def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> tuple:
         """
 
@@ -111,9 +108,6 @@ class MarkingPeptideBackbone(Functionality):
     between non neighbouring residue like disulfide bridges.
 
     """
-
-    def __init__(self):
-        return
 
     def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
         """
@@ -180,9 +174,6 @@ class BreakingIntoResidueCandidateSubgraphs(Functionality):
     form single graph and need to be separated in next steps.
 
     """
-
-    def __init__(self):
-        return
 
     def execute(
         self, peptide_molecule: rdkit.Chem.rdchem.Mol
