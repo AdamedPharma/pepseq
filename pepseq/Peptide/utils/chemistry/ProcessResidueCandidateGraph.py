@@ -1,3 +1,5 @@
+from typing import Tuple, Tuple
+
 from tqdm import tqdm
 
 import networkx as nx
@@ -769,7 +771,7 @@ def decompose(
 
 def get_internal_connections_subgraph_tuples(
     G: nx.classes.graph.Graph, res_matches: dict
-) -> list:
+) -> List[Tuple]:
     """
     Get internal connections between Residue Subgraphs.
     This function takes a graph and a dictionary of residue matches, and returns a list of tuples.
