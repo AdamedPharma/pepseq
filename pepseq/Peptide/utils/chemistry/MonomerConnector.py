@@ -23,7 +23,7 @@ def smiles_to_g(smiles: str) -> nx.classes.graph.Graph:
     return G
 
 
-def is_R(v: dict, ResID: int, r_id: int) -> bool:
+def is_R_node(v: dict, ResID: int, r_id: int) -> bool:
     """
     Returns True if the node is a R node with the given ResID and r_id
 
@@ -56,7 +56,7 @@ def find_R(G: nx.classes.graph.Graph, ResID: int, r_id: int) -> dict:
     :return: The R node with the given ResID and r_id
     :rtype: dict
     """
-    R = [n for n, v in G.nodes(data=True) if is_R(v, ResID, r_id)][0]
+    R = [n for n, v in G.nodes(data=True) if is_R_node(v, ResID, r_id)][0]
     return R
 
 
