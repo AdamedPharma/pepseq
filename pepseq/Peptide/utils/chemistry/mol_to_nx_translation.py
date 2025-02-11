@@ -298,8 +298,11 @@ def mol_json_to_nx(mol_json: dict) -> nx.classes.graph.Graph:
     """
     G = nx.Graph()
 
-    nodes_tuple = mol_json["nodes_tuple"]
-    nodes_columns = mol_json["nodes_columns"]
+    nodes_tuple = mol_json.get("nodes_tuple")
+    nodes_columns = mol_json.get("nodes_columns")
+
+    if (nodes_columns is None) or (nodes_tuple is None):
+        raise ValueError("nodes_columns and nodes_tuple must be present in mol_json")
 
     node_dicts = []
 
