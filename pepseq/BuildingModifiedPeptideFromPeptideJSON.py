@@ -301,7 +301,8 @@ def get_coding(db_json: dict) -> dict:
 
 
 def get_molecule_from_sequence(
-    sequence: str, db_json: dict, N_terminus=None, C_terminus=None
+    sequence: str, db_json: dict, N_terminus: Union[str, None] = None,
+    C_terminus: Union[str,None] = None
 ) -> rdkit.Chem.rdchem.Mol:
     """
     Get molecule from sequence
