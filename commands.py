@@ -216,7 +216,7 @@ def read_smiles(
         pepseq_format, mod_smiles = from_smiles_to_pepseq_and_one_mod_smiles_strings(
             smiles, **kwargs
         )
-        mod_smiles_list = []
+
         if v:
             print("Sequence in pepseq format: ", pepseq_format)
             print(
