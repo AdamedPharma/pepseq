@@ -234,8 +234,9 @@ def read_smiles(
         else:
             mod_smiles_list.append(mod_smiles)
 
-    out_pepseq = "%s.pepseq" % (out)
-    out_mod_smiles = "%s.smi" % (out)
+    out_pepseq = f"{out}.pepseq"
+
+    out_mod_smiles = f"{out}.smi"
 
     with open(out_pepseq, "w") as fp:
         fp.write("\n".join(pepseq_list))
