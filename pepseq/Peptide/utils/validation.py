@@ -41,10 +41,8 @@ def get_attachment_points_on_smiles(smiles_code: str) -> list:
     attachment_points_ids = []
     mol = rdkit.Chem.MolFromSmiles(smiles_code)
     for atom in mol.GetAtoms():
-        atomic_num = atom.GetAtomicNum()
-        if atomic_num == 0:
-            isotope = atom.GetAtomMapNum()
-            attachment_points_ids.append(isotope)
+        if atom.GetAtomicNum() == 0:
+            attachment_points_ids.append(atom.GetAtomMapNum())
     return attachment_points_ids
 
 
