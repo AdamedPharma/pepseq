@@ -34,7 +34,7 @@ def get_single_modification_json(
     """
 
     mod_mol = rdkit.Chem.MolFromSmiles(mod_smiles)
-    radical_ids_str = set([])
+    radical_ids_str = set()
 
     for atom in mod_mol.GetAtoms():
         if atom.GetAtomMapNum() == 0:
