@@ -112,7 +112,7 @@ def validate_matching_attachment_points(pepseq: str, smiles_codes: list):
         )
 
 
-def validate(pepseq: str, smiles: List[str] = [], db: dict = db_json):
+def validate(pepseq: str, smiles: List[str] = [], db: dict = db_json) -> bool:
     """
     Validate the system of smiles and pepseq (however it might be problematic
      I guess because we wanted to separate validating sequence in pepseq format
@@ -140,4 +140,4 @@ def validate(pepseq: str, smiles: List[str] = [], db: dict = db_json):
     validate_pepseq(pepseq, db)
     validate_smiles_codes(smiles)
     validate_matching_attachment_points(pepseq, smiles)
-    return
+    return True
