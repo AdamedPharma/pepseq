@@ -36,6 +36,7 @@ def validate_attachment_points_on_smiles(smiles_codes: list[str]):
     :raises UnattachedSmilesError: If any of the SMILES codes do not have an attachment point to Peptide.
     :return: None
     """
+        
     invalid_ids = []
     if smiles_codes is not None:
         for i in range(len(smiles_codes)):
@@ -101,5 +102,8 @@ def validate_smiles_codes(smiles_codes: Union[list[str], None] = None):
 
     :return: None
     """
+    if type(smiles_codes) != list:
+        raise TypeError("SMILES codes should be provided as a list of strings")
+
     validate_structure_by_rdkit(smiles_codes)
     validate_attachment_points_on_smiles(smiles_codes)
