@@ -39,10 +39,10 @@ def validate_attachment_points_on_smiles(smiles_codes: list[str]):
         
     invalid_ids = []
     if smiles_codes is not None:
-        for i in range(len(smiles_codes)):
-            smiles_code = smiles_codes[i]
+        for i, smiles_code in enumerate(smiles_codes):
             if not has_attachment_point(smiles_code):
                 invalid_ids.append(i + 1)
+
     if invalid_ids:
         ErrorMessage = "\n".join(
             [
