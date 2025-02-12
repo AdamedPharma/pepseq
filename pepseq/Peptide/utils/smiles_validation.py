@@ -81,13 +81,14 @@ def validate_structure_by_rdkit(smiles_codes: Union[list[str], None] = None):
 
     :return: None
     """
-    if smiles_codes is not None:
-        for i in range(len(smiles_codes)):
-            if not can_create_rdkit_molecule(smiles_codes[i]):
-                raise InvalidSmilesError(
-                    "SMILES code no %d was invalid. Could not construct molecule from SMILES code"
-                    % (i + 1)
-                )
+
+    for i, smiles_code in enumerate(smiles_codes):
+        if not can_create_rdkit_molecule(smiles_codes[i]):
+            raise InvalidSmilesError(
+                "SMILES code no %d was invalid. Could not construct molecule from SMILES code"
+                % (i + 1)
+            )
+    return True
 
 
 def validate_smiles_codes(smiles_codes: Union[list[str], None] = None):
