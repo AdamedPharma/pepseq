@@ -537,6 +537,9 @@ def get_residue_id_and_atoms(res_matches, res_name):
     :rtype: tuple
     """
 
+    if '_' not in res_name:
+        raise ValueError("Residue name must be in the format 'prefix_residueID'")
+
     list_res = res_name.split("_")
 
     res_id = list_res[1]
