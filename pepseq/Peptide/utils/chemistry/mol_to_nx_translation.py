@@ -436,7 +436,7 @@ def draw_peptide_json(peptide_json: dict, out: str = "simple_path.png") -> nx.Gr
 
     for i in range(len(ext_mods)):
         ext_mod = ext_mods[i]
-        ext_node_name = "mod_%d" % i
+        ext_node_name = f"mod_{i}"
         G.add_node(ext_node_name, color="red", aa=ext_mod.get("smiles"))
         att_points = [
             int(i["ResID"]) - 1
