@@ -447,7 +447,7 @@ def draw_peptide_json(peptide_json: dict, out: str = "simple_path.png") -> nx.Gr
 
     colors = nx.get_edge_attributes(G, "color").values()
     weights = nx.get_edge_attributes(G, "weight").values()
-    aas = nx.get_node_attributes(G, "aa")  # .values()
+    aas = nx.get_node_attributes(G, "aa")
     node_colors = nx.get_node_attributes(G, "color").values()
 
     labeldict = aas
