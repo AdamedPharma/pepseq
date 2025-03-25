@@ -132,3 +132,5 @@ sandbox.ipynb
 
 #output files
 *.pepseq
+/*.smi
+/*.csv
