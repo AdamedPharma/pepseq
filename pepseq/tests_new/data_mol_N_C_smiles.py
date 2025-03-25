@@ -17,7 +17,7 @@ correct_peptide_json = {
     ],
     "external_modifications": [
         {
-            "smiles": "[1*]C(C)=O",
+            "smiles": "[*:1]C(C)=O",
             "max_attachment_point_id": 1,
             "attachment_points_on_sequence": {
                 1: {
@@ -29,7 +29,7 @@ correct_peptide_json = {
             },
         },
         {
-            "smiles": "[2*]C(Br)CNP([3*])[Na]",
+            "smiles": "[*:2]C(Br)CNP([*:3])[Na]",
             "max_attachment_point_id": 3,
             "attachment_points_on_sequence": {
                 2: {
@@ -47,7 +47,7 @@ correct_peptide_json = {
             },
         },
         {
-            "smiles": "[1*]N",
+            "smiles": "[*:1]N",
             "max_attachment_point_id": 1,
             "attachment_points_on_sequence": {
                 1: {
