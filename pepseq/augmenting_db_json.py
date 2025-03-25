@@ -404,7 +404,7 @@ def change_exit_atoms(db_json: dict) -> dict:
     smi_dict = db_json_copy.get("smiles").get("aa")
     for aa_code in smi_dict:
         smiles_radical = smi_dict.get(aa_code).get("smiles_radical")
-        if "[3*]" in smiles_radical:
+        if "[*:3]" in smiles_radical:
             smiles_radical_changed = change_exit_atom(smiles_radical)
             db_json_copy["smiles"]["aa"][aa_code][
                 "smiles_radical"
@@ -414,7 +414,7 @@ def change_exit_atoms(db_json: dict) -> dict:
 
 def get_substructure_relations(mols: list[rdkit.Chem.rdchem.Mol]) -> list:
     """
-    List all cases where one amino acid is a sbustructure
+    List all cases where one amino acid is a substructure
     of others (e.g. glycine in serine or alanine in phenylalanine)
     (j, i )
 
