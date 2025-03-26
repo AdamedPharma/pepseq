@@ -118,7 +118,7 @@ def get_terminal_smiles_building_block(
                 return smiles, i
 
 
-def get_C_terminal_smiles_building_block(peptide_json: dict) -> tuple:
+def get_c_terminal_smiles_building_block(peptide_json: dict) -> tuple:
     """
     Get C terminal smiles building block
 
@@ -136,7 +136,7 @@ def get_C_terminal_smiles_building_block(peptide_json: dict) -> tuple:
     return get_terminal_smiles_building_block(peptide_json, ResID=-1, AtomName="CO")
 
 
-def get_N_terminal_smiles_building_block(peptide_json: dict) -> tuple:
+def get_n_terminal_smiles_building_block(peptide_json: dict) -> tuple:
     """
     Get N terminal smiles building block
 
@@ -214,7 +214,7 @@ def get_c_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
     :return: tuple of terminal symbol and index
     :rtype: tuple
     """
-    tup = get_C_terminal_smiles_building_block(peptide_json)
+    tup = get_c_terminal_smiles_building_block(peptide_json)
 
     if tup is not None:
         smiles, i = tup
@@ -243,7 +243,7 @@ def get_n_term_from_peptide_json(peptide_json: dict, db_json: dict) -> tuple:
     :return: tuple of terminal symbol and index
     :rtype: tuple
     """
-    tup = get_N_terminal_smiles_building_block(peptide_json)
+    tup = get_n_terminal_smiles_building_block(peptide_json)
     if tup is not None:
         smiles, i = tup
         term_symbol = get_term_symbol(smiles, db_json, "n_terms")
