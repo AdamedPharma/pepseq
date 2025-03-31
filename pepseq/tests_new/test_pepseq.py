@@ -548,7 +548,7 @@ def test_augmenting_db_json():
         - The augmented database JSON should not be an empty dictionary.
         - The augmented database JSON should not be None.
     """
-    df_sdf = rdkit.Chem.PandasTools.LoadSDF("monomers.sdf")
+    df_sdf = rdkit.Chem.PandasTools.LoadSDF("data/monomers.sdf")
     db_json_augmented = augment_db_json(
         db_json, df_sdf=df_sdf, name_column="m_abbr", mol_colname="ROMol"
     )
