@@ -98,7 +98,7 @@ def test_peptide_from_pepseq_new(data_pepseq_smiles):
     """
     pepseq, correct_smiles = data_pepseq_smiles
     smiles = pepseq_to_smiles(pepseq)
-    pepseq_list, mod_smiles_list = read_smiles("mypeptide.smi", "myppeptide_out")
+    pepseq_list, mod_smiles_list = read_smiles("data/mypeptide.smi", "data/myppeptide_out")
 
     assert pepseq_list == ["H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH"]
     mod_smiles_list = mod_smiles_list[0].split("\t")

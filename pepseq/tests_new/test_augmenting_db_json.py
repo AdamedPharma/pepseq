@@ -249,7 +249,7 @@ db_json_CDG_augmented_fixture = {
     }
   }
 
-df_sdf_mask_copy_read = pd.read_csv('df_sdf_mask_copy.csv')
+df_sdf_mask_copy_read = pd.read_csv('data/df_sdf_mask_copy.csv')
 df_sdf_mask_copy_read['ROMol'] = df_sdf_mask_copy_read['ROMol_CXSmiles'].apply(
     lambda x: rdkit.Chem.MolFromSmiles(x))
 
@@ -292,7 +292,7 @@ def test_augment_db_json():
         db_json_ori_CDG_copy, df_sdf=df_sdf_mask_copy_read, name_column="m_abbr", mol_colname="ROMol"
     )
     assert check_db_json_all_keys(db_json_CDG_augmented, db_json_CDG_augmented_fixture)
-    with open('db_json_CDG_augmented.json', 'w') as fp:
+    with open('data/db_json_CDG_augmented.json', 'w') as fp:
         json.dump(db_json_CDG_augmented, fp)
 
     return
