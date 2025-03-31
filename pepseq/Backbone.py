@@ -1,8 +1,7 @@
 import networkx as nx
 import rdkit
 
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import \
-    mol_to_nx
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx
 
 
 class Functionality(object):
@@ -19,7 +18,7 @@ def generate_bb_smiles(num_res: int, OH: bool = False) -> str:
 
     :param OH: whether to generate hydroxyl group at the end
     :type OH: bool
-    
+
     :return: bb_smiles - SMILES code for backbone
     :rtype: str
 
@@ -34,7 +33,6 @@ def generate_bb_smiles(num_res: int, OH: bool = False) -> str:
 
 def generate_bb_mol(num_res: int, OH: bool = False) -> rdkit.Chem.rdchem.Mol:
     """
-
     Generate rdkit.Chem.rdchem.Mol molecule for peptide backbone (polyGlycine peptide)
 
     :param num_res: number of amino_acid residues
@@ -42,7 +40,7 @@ def generate_bb_mol(num_res: int, OH: bool = False) -> rdkit.Chem.rdchem.Mol:
 
     :param OH: whether to generate hydroxyl group at the end
     :type OH: bool
-    
+
     :return: bb_smiles - rdkit.Chem.rdchem.Mol molecule object for backbone
     :rtype: rdkit.Chem.rdchem.Mol
 
@@ -60,9 +58,6 @@ class GetLongestPolymerWithin(Functionality):
 
     """
 
-    def __init__(self):
-        return
-
     def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> tuple:
         """
 
@@ -77,7 +72,7 @@ class GetLongestPolymerWithin(Functionality):
         :return: bb - tuple of atom indices that has been matched with backbone
             substructure (e.g.  (1,3,4, ...))
         :rtype: tuple
-        
+
         """
 
         matches = [None]
@@ -101,7 +96,7 @@ class MarkingPeptideBackbone(Functionality):
     rdkit.Chem.rdchem.Mol object representing modified peptide molecule
     with:
     - protein backbone atoms N-Ca-Co assigned new properties: ResidueID and AtomName (N, CA, or CO)
-        
+
     - protein backbone peptide bonds connecting residues assigned new property ("is_peptide_bond" = "True")
 
     Purpose:
@@ -113,9 +108,6 @@ class MarkingPeptideBackbone(Functionality):
     between non neighbouring residue like disulfide bridges.
 
     """
-
-    def __init__(self):
-        return
 
     def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> rdkit.Chem.rdchem.Mol:
         """
@@ -136,7 +128,7 @@ class MarkingPeptideBackbone(Functionality):
           tuple of atom indices that has been matched with backbone
             substructure (e.g.  (1,3,4, ...))
         :rtype: rdkit.Chem.rdchem.Mol
-        
+
         """
 
         bb_ats = ["N", "CA", "CO", "O"]
@@ -172,7 +164,7 @@ class BreakingIntoResidueCandidateSubgraphs(Functionality):
 
     Edges representing peptide bonds are deleted separating molecule object
         into several subgraphs (nx.connected_components).
-    
+
     Unmodified Residues become separate Graphs.
 
     Modified Residues form same Graph with modification atoms and
@@ -183,10 +175,9 @@ class BreakingIntoResidueCandidateSubgraphs(Functionality):
 
     """
 
-    def __init__(self):
-        return
-
-    def execute(self, peptide_molecule: rdkit.Chem.rdchem.Mol) -> list[nx.classes.graph.Graph]:
+    def execute(
+        self, peptide_molecule: rdkit.Chem.rdchem.Mol
+    ) -> list[nx.classes.graph.Graph]:
         """
 
         Label peptide bonds within Peptide Molecule
@@ -205,10 +196,8 @@ class BreakingIntoResidueCandidateSubgraphs(Functionality):
         c) two or more residues bound by internal modification (such as disulfide bond, or cyclization)
         d) two or more residues bound by external modification (such as molecular staple)
 
-
-          peptide_molecule - rdkit.Chem.rdchem.Mol molecule object 
         :rtype: list[nx.classes.graph.Graph]
-        
+
         """
 
         peptide_molecule = MarkingPeptideBackbone().execute(peptide_molecule)
