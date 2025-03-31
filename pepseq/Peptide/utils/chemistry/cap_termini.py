@@ -1,11 +1,23 @@
+from typing import Union
 import networkx as nx
 import rdkit
-from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import (mol_to_nx,
-                                                                  nx_to_mol)
+from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx, nx_to_mol
 from pepseq.Peptide.utils.chemistry.MonomerConnector import find_R
 
 
 def prepare_ter_G(smiles: str, ResID: int) -> nx.classes.graph.Graph:
+    """
+    Prepare a terminus graph.
+
+    :param smiles: SMILES string of the terminus.
+    :type smiles: str
+
+    :param ResID: Residue ID.
+    :type ResID: int
+
+    :return: A networkx graph of the terminus.
+    :rtype: nx.classes.graph.Graph
+    """
     mol = rdkit.Chem.MolFromSmiles(smiles)
     G = mol_to_nx(mol)
     nx.set_node_attributes(G, ResID, "ResID")
@@ -13,6 +25,15 @@ def prepare_ter_G(smiles: str, ResID: int) -> nx.classes.graph.Graph:
 
 
 def relabel_to_str(G: nx.classes.graph.Graph) -> nx.classes.graph.Graph:
+    """
+    Relabel the nodes of a graph to strings.
+
+    :param G: The graph to relabel.
+    :type G: nx.classes.graph.Graph
+
+    :return: The relabeled graph.
+    :rtype: nx.classes.graph.Graph
+    """
     mapping = {}
 
     for node in G:
@@ -24,6 +45,15 @@ def relabel_to_str(G: nx.classes.graph.Graph) -> nx.classes.graph.Graph:
 
 
 def find_max_ResID(G: nx.classes.graph.Graph) -> int:
+    """
+    Find the maximum ResID in a graph.
+
+    :param G: The graph to search.
+    :type G: nx.classes.graph.Graph
+
+    :return: The maximum ResID.
+    :rtype: int
+    """
     ResIDs = nx.get_node_attributes(G, "ResID").values()
     unique_ResIDs = set(ResIDs) - set(["N_terminus", "C_terminus"])
     max_ResID = max([int(i) for i in unique_ResIDs])
@@ -31,9 +61,38 @@ def find_max_ResID(G: nx.classes.graph.Graph) -> int:
     return ResID
 
 
-def cap_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None, smiles_building_blocks_db: int=None,
-                  TerminusResID: int=None, ResID: int=1, terminus_smiles:str=None) -> rdkit.Chem.rdchem.Mol:
+def cap_terminus(
+    mol: rdkit.Chem.rdchem.Mol,
+    terminus: Union[str, None] = None,
+    smiles_building_blocks_db: Union[int,None] = None,
+    TerminusResID: Union[int,None] = None,
+    ResID: int = 1,
+    terminus_smiles: Union[str,None] = None,
+) -> rdkit.Chem.rdchem.Mol:
+    """
+    Cap a terminus of a molecule.
 
+    :param mol: The molecule to cap.
+    :type mol: rdkit.Chem.rdchem.Mol
+
+    :param terminus: The terminus to cap.
+    :type terminus: str, optional
+
+    :param smiles_building_blocks_db: The database of building blocks.
+    :type smiles_building_blocks_db: int, optional
+
+    :param TerminusResID: The ResID of the terminus.
+    :type TerminusResID: int, optional
+
+    :param ResID: The ResID of the molecule.
+    :type ResID: int, optional
+
+    :param terminus_smiles: The SMILES string of the terminus.
+    :type terminus_smiles: str, optional
+
+    :return: The capped molecule.
+    :rtype: rdkit.Chem.rdchem.Mol
+    """
     mol_G = mol_to_nx(mol)
     mol_G = relabel_to_str(mol_G)
 
@@ -69,17 +128,71 @@ def cap_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None, smiles_building
     return nx_to_mol(G_union)
 
 
-def cap_N_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None,
-                smiles_building_blocks_db: dict=None, terminus_smiles: str=None) -> rdkit.Chem.rdchem.Mol:
+def cap_N_terminus(
+    mol: rdkit.Chem.rdchem.Mol,
+    terminus: Union[str,None] = None,
+    smiles_building_blocks_db: Union[dict,None] = None,
+    terminus_smiles: Union[str,None] = None,
+) -> rdkit.Chem.rdchem.Mol:
+    """
+    Cap the N terminus of a molecule.
+
+    Args:
+    :param mol: The molecule to cap.
+    :type mol: rdkit.Chem.rdchem.Mol
+
+    :param terminus: The terminus to cap.
+    :type terminus: str, optional
+
+    :param smiles_building_blocks_db: The database of building blocks.
+    :type smiles_building_blocks_db: dict, optional
+
+    :param terminus_smiles: The SMILES string of the terminus.
+    :type terminus_smiles: str, optional
+
+    :return: The capped molecule.
+    :rtype: rdkit.Chem.rdchem.Mol
+    """
+
     return cap_terminus(
-        mol, terminus, smiles_building_blocks_db, TerminusResID="N_terminus", ResID=1,
-        terminus_smiles=terminus_smiles
+        mol,
+        terminus,
+        smiles_building_blocks_db,
+        TerminusResID="N_terminus",
+        ResID=1,
+        terminus_smiles=terminus_smiles,
     )
 
 
-def cap_C_terminus(mol: rdkit.Chem.rdchem.Mol, terminus: str=None,
-                smiles_building_blocks_db=None, terminus_smiles=None) -> rdkit.Chem.rdchem.Mol:
+def cap_C_terminus(
+    mol: rdkit.Chem.rdchem.Mol,
+    terminus: Union[str,None] = None,
+    smiles_building_blocks_db: Union[dict,None] = None,
+    terminus_smiles: Union[str,None] = None,
+) -> rdkit.Chem.rdchem.Mol:
+    """
+    Cap the C terminus of a molecule.
+
+    :param mol: The molecule to cap.
+    :type mol: rdkit.Chem.rdchem.Mol
+
+    :param terminus: The terminus to cap.
+    :type terminus: str, optional
+
+    :param smiles_building_blocks_db: The database of building blocks.
+    :type smiles_building_blocks_db: dict, optional
+
+    :param terminus_smiles: The SMILES string of the terminus.
+    :type terminus_smiles: str, optional
+
+    :return: The capped molecule.
+    :rtype: rdkit.Chem.rdchem.Mol
+    """
     return cap_terminus(
-        mol, terminus, smiles_building_blocks_db, TerminusResID="C_terminus", ResID=-1,
-        terminus_smiles=terminus_smiles
+        mol,
+        terminus,
+        smiles_building_blocks_db,
+        TerminusResID="C_terminus",
+        ResID=-1,
+        terminus_smiles=terminus_smiles,
     )

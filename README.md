@@ -30,7 +30,7 @@ python3.10 commands.py  pepseq-to-smiles 'CDEFGAHC' --out outpath.smi
 
 python3.10 commands.py read-smiles outpath.smi --out smiles_reading_output
 
-python3.10 commands.py  calculate-json-from  'CH3~SC{Cys(R1)}AFC~NH2' --mod-smiles '[*:1]CCC' --ketcher
+python3.10 commands.py  calculate-json-from  'CH3~SC{Cys(R1)}AFC~NH2' --mod-smiles '[*:1]CCC'
 
 python3.10 commands.py augment-db-json-command --sdf-path monomers.sdf
 
