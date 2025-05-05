@@ -49,6 +49,12 @@ pepseq_vs_canonical_smiles = (
     ("{Ala}D{Arg}P{Glu}", correct_smi),
     ("H~{Ala}D{Arg}P{Glu}~OH", correct_smi),
     ("ADRPE", correct_smi),
+    (
+        "H~AA{Cys(R1)}AA{Cys(R1)}AA~OH",
+        '[H]N[C@@H](C)C(=O)N[C@@H](C)C(=O)N[C@H]1CSSC[C@@H](C(=O)N[C@@H](C)C(=O)N[C@@H](C)C(=O)O)NC(=O)[C@H](C)NC(=O)[C@H](C)NC1=O'
+        )
 )
+
+
 
 tests = pepseq_vs_canonical_smiles + s1l_vs_canonical_smiles

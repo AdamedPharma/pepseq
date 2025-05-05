@@ -68,6 +68,22 @@ def decompose_symbol(symbol: str) -> Union[tuple, str]:
     return symbol
 
 
+def get_decomposition_tuples(symbols: list) -> list:
+
+    decomposition_tuples = []
+
+    for symbol_id in range(len(symbols)):
+        symbol = symbols[symbol_id]
+        decomposition = decompose_symbol(symbol)
+        if type(decomposition) == tuple:
+            res_name, attachment_point_id = decomposition
+            res_id = symbol_id + 1
+
+
+            decomposition_tuples.append((res_id, res_name, attachment_point_id))
+    return decomposition_tuples
+
+
 def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
     """
     Iterate over symbols of residues in amino acid sequence.
@@ -83,17 +99,18 @@ def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
     """
     att_points = {}
 
-    decomposition_tuples = []
+    #decomposition_tuples = []
 
-    for symbol_id in range(len(symbols)):
-        symbol = symbols[symbol_id]
-        decomposition = decompose_symbol(symbol)
-        if type(decomposition) == tuple:
-            res_name, attachment_point_id = decomposition
-            res_id = symbol_id + 1
-
-
-            decomposition_tuples.append((res_id, res_name, attachment_point_id))
+    #for symbol_id in range(len(symbols)):
+    #    symbol = symbols[symbol_id]
+    #    decomposition = decompose_symbol(symbol)
+    #    if type(decomposition) == tuple:
+    #        res_name, attachment_point_id = decomposition
+    #        res_id = symbol_id + 1
+    #
+    #
+    #        decomposition_tuples.append((res_id, res_name, attachment_point_id))
+    decomposition_tuples = get_decomposition_tuples(symbols)
 
     for res_id, res_name, attachment_point_id in decomposition_tuples:
         attachment_point_json = get_attachment_point_json(
@@ -105,6 +122,52 @@ def get_attachment_points_on_sequence_json(symbols: list) -> Dict:
             raise AttachmentPointsNonUniqueError(
                 "Attachment Points labels on sequence are not unique."
             )
+        att_points[att_point_id] = attachment_point_json
+    return att_points
+
+
+
+
+
+def get_attachment_points_on_sequence_json_internal(symbols: list) -> Dict:
+    """
+    Iterate over symbols of residues in amino acid sequence.
+    For each symbol see if it is of form e.g. Cys(R1)
+    If so: decompose it to get Cys, 1
+    If not: return symbol
+
+    :param symbols
+    :type symbols: list
+
+    :return: att_points - dictionary of attachment points on sequence
+    :rtype: dict
+    """
+    att_points = {}
+    """
+    decomposition_tuples = []
+
+    for symbol_id in range(len(symbols)):
+        symbol = symbols[symbol_id]
+        decomposition = decompose_symbol(symbol)
+        if type(decomposition) == tuple:
+            res_name, attachment_point_id = decomposition
+            res_id = symbol_id + 1
+
+
+            decomposition_tuples.append((res_id, res_name, attachment_point_id))
+    """
+    decomposition_tuples = get_decomposition_tuples(symbols)
+
+    for res_id, res_name, attachment_point_id in decomposition_tuples:
+        attachment_point_json = get_attachment_point_json(
+            res_id, (res_name, attachment_point_id)
+        )
+
+        att_point_id = int(attachment_point_id)
+        #if att_points.get(att_point_id) is not None:
+        #    raise AttachmentPointsNonUniqueError(
+        #        "Attachment Points labels on sequence are not unique."
+        #    )
         att_points[att_point_id] = attachment_point_json
     return att_points
 

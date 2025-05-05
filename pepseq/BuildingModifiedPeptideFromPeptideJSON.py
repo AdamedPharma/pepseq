@@ -494,10 +494,23 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
             )
 
         for internal_modification_id in internal_modifications:
-            internal_bond = internal_modifications[internal_modification_id]
+            for internal_bonds in internal_modifications:
 
-            source, target = internal_bond
+                for key in internal_bonds:
+                    internal_bond = internal_bonds.get(key)
+                    source, target = internal_bond
+                    peptide_graph = add_internal_bond(
+                        peptide_graph,
+                        source["ResID"],
+                        source["AtomName"],
+                        target["ResID"],
+                        target["AtomName"],
+                    )
 
+            
+            #internal_bond = internal_modifications[internal_modification_id]
+            #source, target = internal_bond
+            """
             peptide_graph = add_internal_bond(
                 peptide_graph,
                 source["ResID"],
@@ -505,6 +518,8 @@ class BuildingModifiedPeptideFromPeptideJSON(object):
                 target["ResID"],
                 target["AtomName"],
             )
+            """
+            
         return nx_to_mol(peptide_graph)
 
 

@@ -41,13 +41,29 @@ peptide_json = {
             },
         }
     ],
-    "internal_modifications": {
-        1: [
-            {"ResID": 5, "AtomName": "SG", "ResidueName": "CYS"},
-            {"ResID": 7, "AtomName": "SG", "ResidueName": "CYS"},
-        ]
-    },
+     'internal_modifications': [
+{
+            1: [
+                {
+                    'ResID': '5',
+                    'AtomName': 'SG',
+                    'ResidueName': ''
+                },
+                {
+                    'ResID': '7',
+                    'AtomName': 'SG',
+                    'ResidueName': ''
+                }
+            ]
+        }     
+ ],
 }
+#    "internal_modifications": {
+#        1: [
+#            {"ResID": 5, "AtomName": "SG", "ResidueName": "CYS"},
+#            {"ResID": 7, "AtomName": "SG", "ResidueName": "CYS"},
+#        ]
+#    },
 
 
 def test_building():

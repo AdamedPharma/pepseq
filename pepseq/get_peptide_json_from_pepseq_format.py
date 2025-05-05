@@ -1,4 +1,4 @@
-import json
+import json, copy
 import os
 from typing import Dict, Union
 
@@ -6,7 +6,7 @@ import rdkit
 
 from pepseq.Peptide.utils.pure_parsing_functions import (
     get_attachment_points_on_sequence_json,
-    get_base_seq,
+    get_base_seq, get_decomposition_tuples
 )
 from pepseq.Peptide.utils.Parser import find_termini, parse_canonical2
 
@@ -181,4 +181,40 @@ def get_pep_json(
     pep_json["external_modifications"] = get_smiles_json(
         pep_json["symbols"][1:-1], mod_smiles_list
     )
+    pep_json["internal_modifications"] = []
+    decomposition_tuples = get_decomposition_tuples(pep_json["symbols"][1:-1])
+
+    attachment_point_id_nums = {}
+    attachment_point_id_tuples = {}
+
+
+    for res_id, res_name, attachment_point_id in decomposition_tuples:
+        if attachment_point_id_nums.get(attachment_point_id) is None:
+            attachment_point_id_nums[attachment_point_id] = 0
+            attachment_point_id_tuples[attachment_point_id] = []
+        attachment_point_id_nums[attachment_point_id] += 1
+        attachment_point_id_tuples[attachment_point_id].append(
+             (res_id, res_name, attachment_point_id) )
+
+    pep_json["internal_modifications"] = []
+
+
+    for attachment_point_id in attachment_point_id_nums:
+        if attachment_point_id_nums.get(attachment_point_id) == 2:
+
+            int_mod_j = {attachment_point_id:[]}
+
+            tuples = attachment_point_id_tuples.get(attachment_point_id)
+            for res_id, res_name, attachment_point_id in tuples:
+                d = copy.deepcopy(
+                                {
+                    'ResID': str(res_id),
+                    'AtomName': 'SG',
+                    'ResidueName': res_name
+                }
+
+                )
+                int_mod_j[attachment_point_id].append( copy.deepcopy(d) )
+            pep_json["internal_modifications"].append(int_mod_j )
+
     return pep_json

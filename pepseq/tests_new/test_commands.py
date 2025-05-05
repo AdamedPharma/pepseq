@@ -79,6 +79,14 @@ def pytest_generate_tests(metafunc):
             metafunc.parametrize(fixture, tests)
 
 
+def mod_smiles_lists_are_identical(mod_smiles_list, mod_smiles_list_correct):
+    for i in range(len(mod_smiles_list)):
+        assert smiles_are_identical(
+            mod_smiles_list[i], mod_smiles_list_correct[i]
+        )
+    return
+
+
 def test_peptide_from_pepseq_new(data_pepseq_smiles):
     """
     Test the conversion of a peptide sequence to SMILES format and validate the results.
@@ -98,16 +106,22 @@ def test_peptide_from_pepseq_new(data_pepseq_smiles):
     """
     pepseq, correct_smiles = data_pepseq_smiles
     smiles = pepseq_to_smiles(pepseq)
-    pepseq_list, mod_smiles_list = read_smiles("data/mypeptide.smi", "data/myppeptide_out")
+    #pepseq_list, mod_smiles_list = read_smiles("data/mypeptide.smi", "data/myppeptide_out")
 
-    assert pepseq_list == ["H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH"]
-    mod_smiles_list = mod_smiles_list[0].split("\t")
-    for i in range(len(mod_smiles_list)):
-        assert smiles_are_identical(
-            mod_smiles_list[i], ["[*:1]CNCC[*:2]", "[*:3]CNCCSP"][i]
-        )
+    #assert pepseq_list == ["H~{Cys(R1)}ACDAPEPsEQ{Cys(R2)}G{Cys(R3)}DEF~OH"]
 
+    #mod_smiles_list_correct = ["[*:1]CNCC[*:2]", "[*:3]CNCCSP"]
+    #mod_smiles_list = mod_smiles_list[0].split("\t")
+    #mod_smiles_lists_are_identical(mod_smiles_list, mod_smiles_list_correct)
     assert smiles_are_identical(smiles, correct_smiles)
+
+
+def test_read_smiles(data_read_smiles):
+    smiles_path, out_path, pepseq_list_correct, mod_smiles_list_correct = data_read_smiles
+    pepseq_list, mod_smiles_list = read_smiles(smiles_path, out_path)
+    assert pepseq_list == pepseq_list_correct
+    mod_smiles_list = mod_smiles_list[0].split("\t")
+    mod_smiles_lists_are_identical(mod_smiles_list, mod_smiles_list_correct)
 
 
 def test_calculate_json_from(data_calculate):

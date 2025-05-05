@@ -273,6 +273,42 @@ def output_modified_residue(ResName: str, R_id: str) -> str:
     return s
 
 
+def get_new_seq_from_seq_list(seq_list_dc):
+    new_seq = ""
+    for symbol in seq_list_dc:
+        if len(symbol) > 1:
+            new_seq = new_seq + "{%s}" % symbol
+        else:
+            new_seq = new_seq + symbol
+    return new_seq
+
+def append_pepseq_R_info_to_seq_list(j: dict, seq_list: list) -> str:
+    """
+    Append pepseq R info
+
+    :param j: JSON containing info about modified peptide with 'sequence',
+    'internal_modifications', 'external_modifications':
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
+    modification with attachment points:
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
+    :type j: dict
+
+    :return: new_seq: new sequence
+    :rtype: str
+    """
+    #seq_list = parse_canonical2(j["sequence"])
+    ext_mods = j["external_modifications"]
+    for ext_mod in ext_mods:
+        att_points = ext_mod["attachment_points_on_sequence"]
+        for R_id in att_points:
+            att_point = att_points[R_id]
+            ResID = int(att_point["ResID"])
+            ResName = seq_list[ResID - 1]
+            new_s = output_modified_residue(ResName, R_id)
+            seq_list[ResID - 1] = new_s
+    return seq_list
+    
 def append_pepseq_R_info(j: dict) -> str:
     """
     Append pepseq R info
@@ -288,6 +324,7 @@ def append_pepseq_R_info(j: dict) -> str:
     :return: new_seq: new sequence
     :rtype: str
     """
+    """
     seq_list = parse_canonical2(j["sequence"])
     ext_mods = j["external_modifications"]
     for ext_mod in ext_mods:
@@ -298,12 +335,87 @@ def append_pepseq_R_info(j: dict) -> str:
             ResName = seq_list[ResID - 1]
             new_s = output_modified_residue(ResName, R_id)
             seq_list[ResID - 1] = new_s
+    """
+
+    seq_list = parse_canonical2(j["sequence"])
+    new_seq_list = append_pepseq_R_info_to_seq_list(j, seq_list)
+
+    #seq_list = append_pepseq_R_info_to_seq_list(j)
+    new_seq = get_new_seq_from_seq_list(new_seq_list)            
+    return new_seq
     new_seq = ""
     for symbol in seq_list:
         if len(symbol) > 1:
             new_seq = new_seq + "{%s}" % symbol
         else:
             new_seq = new_seq + symbol
+    return new_seq
+
+
+def append_pepseq_internal_R_info_to_seq_list(j: dict, seq_list_dc: list) -> str:
+    """
+    Append pepseq R info
+
+    :param j: JSON containing info about modified peptide with 'sequence',
+    'internal_modifications', 'external_modifications':
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
+    modification with attachment points:
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
+    :type j: dict
+
+    :return: new_seq: new sequence
+    :rtype: str
+    """
+    #seq_list_dc = parse_canonical2(j["sequence"])
+    att_points = j.get('internal_modifications')
+
+    for internal_modification in att_points:
+        for R_id in internal_modification:
+            att_point = internal_modification.get(R_id)
+
+            for res in att_point:
+                ResID = int(res["ResID"])
+                ResName = seq_list_dc[ResID - 1]
+                new_s = output_modified_residue(ResName, R_id)
+                seq_list_dc[ResID - 1] = new_s
+    return seq_list_dc
+
+
+def append_pepseq_internal_R_info(j: dict) -> str:
+    """
+    Append pepseq R info
+
+    :param j: JSON containing info about modified peptide with 'sequence',
+    'internal_modifications', 'external_modifications':
+    mod_smiles: SMILES string (e.g. '[*:1]C[*:2]') - showing the structure of
+    modification with attachment points:
+    { Cys(R1) } <- is attached in [*:1] attachment point on staple
+    { Cys(R2) } <- is attached in [*:2] attachment point on staple
+    :type j: dict
+
+    :return: new_seq: new sequence
+    :rtype: str
+    """
+    """
+    seq_list_dc = parse_canonical2(j["sequence"])
+    att_points = j.get('internal_modifications')
+
+    for internal_modification in att_points:
+        for R_id in internal_modification:
+            att_point = internal_modification.get(R_id)
+
+            for res in att_point:
+                ResID = int(res["ResID"])
+                ResName = seq_list_dc[ResID - 1]
+                new_s = output_modified_residue(ResName, R_id)
+                seq_list_dc[ResID - 1] = new_s
+    """
+    seq_list_dc = parse_canonical2(j["sequence"])
+    new_seq_list_dc = append_pepseq_internal_R_info_to_seq_list(j, seq_list_dc)
+
+    #seq_list_dc = append_pepseq_internal_R_info_to_seq_list(j)                
+    new_seq = get_new_seq_from_seq_list(new_seq_list_dc)
     return new_seq
 
 
@@ -376,8 +488,16 @@ def decompose_peptide_smiles_with_termini(
         ext_mods_translated.append(ext_mod_translated)
 
     peptide_json["external_modifications"] = ext_mods_translated
+    #seq_list_dc = append_pepseq_internal_R_info_to_seq_list(peptide_json)
 
-    new_seq = append_pepseq_R_info(peptide_json)
+    
+    #new_seq = append_pepseq_R_info(peptide_json)
+    #append_pepseq_internal_R_info(peptide_json)
+    seq_list_dc = parse_canonical2(peptide_json["sequence"])
+    new_seq_list_dc = append_pepseq_internal_R_info_to_seq_list(peptide_json, seq_list_dc)
+    new_seq_list = append_pepseq_R_info_to_seq_list(peptide_json, new_seq_list_dc)
+    new_seq = get_new_seq_from_seq_list(new_seq_list)
+
 
     pepseq_format = "%s~%s~%s" % (
         peptide_json["N_terminus"],
