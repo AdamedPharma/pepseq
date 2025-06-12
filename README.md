@@ -26,6 +26,8 @@ pip install pepseq
 
 ## Usage
 
+Meant to be run under Python3.12
+
 python3.10 commands.py  pepseq-to-smiles 'CDEFGAHC' --out outpath.smi
 
 python3.10 commands.py read-smiles outpath.smi --out smiles_reading_output

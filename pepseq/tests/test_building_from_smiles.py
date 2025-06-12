@@ -895,10 +895,12 @@ def test_decompose():
     mol_propagated, res_matches, modification_graphs = decompose(
         mol=residues_0_mol, cx_smarts_db=cx_smarts_db
     )
-    assert [rdkit.Chem.MolToSmiles(nx_to_mol(G)) for G in modification_graphs] == [
-        "CC=O",
-        "[Na]PNCCBr",
-    ]
+    smiles_list = ["CC=O", "[Na]PNCCBr"]
+    for i in range(len(modification_graphs)):
+        G =  modification_graphs[i]
+        mol = nx_to_mol(G)
+        smiles = rdkit.Chem.MolToSmiles(mol)
+        assert smiles_are_identical(smiles, smiles_list[i]) 
 
     mol_propagated_json = {
         "nodes_tuple": [

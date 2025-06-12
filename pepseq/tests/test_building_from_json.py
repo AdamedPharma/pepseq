@@ -15,6 +15,9 @@ from pepseq.Backbone import (
 from pepseq.Peptide.utils.chemistry.mol_to_nx_translation import mol_to_nx
 
 
+from pepseq.tests_new.helpers import smiles_are_identical
+
+
 db_path = pkgutil.extend_path("pepseq/Peptide/database/db.json", __name__)
 with open(db_path) as fp:
     db_json = json.load(fp)
@@ -59,8 +62,8 @@ def test_building():
     """
     mol = BuildingModifiedPeptideFromPeptideJSON().execute(peptide_json, db_json)
     assert (
-        rdkit.Chem.MolToSmiles(mol)
-        == ("[H]N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@@H](C)C(=O)N["
+        smiles_are_identical(rdkit.Chem.MolToSmiles(mol),
+        "[H]N[C@H]1CSC(Br)CNP([Na])SC[C@@H](C(=O)N[C@@H](C)C(=O)N["
         "C@H]2CSSC[C@@H](C(=O)N[C@@H](CCCCN)C(=O)O)NC(=O)CNC2=O)N"
         "C(=O)[C@H](CO)NC1=O")
     )
