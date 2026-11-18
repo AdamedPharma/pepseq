@@ -1,1 +1,13 @@
-pepseq = {git = "https://github.com/AdamedPharma/pepseq.git#egg=pepseq", editable = true, version = "*"}
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pepseq = {path = ".", editable = true}
+pillow = ">=13.0.0"
+
+[requires]
+python_version = "3.12"
+
+[dev-packages]
